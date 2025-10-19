@@ -572,46 +572,38 @@ elif mode == "Jadwal & Rute Pengangkutan":
     tps_options = tps_df["id_tps"].astype(str).unique().tolist()
     selected_tps = st.multiselect("Pilih TPS", tps_options)
     
-    # Tentukan titik tengah peta
+    # Titik tengah peta
     center_lat = float(tps_df["latitude"].mean())
     center_lon = float(tps_df["longitude"].mean())
     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
     
     # ============ SEBELUM RUTE DICARI ============
-    # Tampilkan semua TPS (bulat merah)
-    for _, row in tps_df.iterrows():
-        folium.CircleMarker(
-            location=[row["latitude"], row["longitude"]],
-            radius=6,
-            color="red",
-            fill=True,
-            fill_color="red",
-            fill_opacity=0.8,
-            popup=f"TPS {row['id_tps']}: {row['nama']}"
-        ).add_to(m)
-        folium.map.Marker(
-            [row["latitude"], row["longitude"]],
-            icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
-        ).add_to(m)
-    
-    # Tampilkan semua TPA (bulat hijau)
-    for _, row in tpa_df.iterrows():
-        folium.CircleMarker(
-            location=[row["latitude"], row["longitude"]],
-            radius=6,
-            color="green",
-            fill=True,
-            fill_color="green",
-            fill_opacity=0.8,
-            popup=f"TPA {row['nama']}"
-        ).add_to(m)
-        folium.map.Marker(
-            [row["latitude"], row["longitude"]],
-            icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#006600; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
-        ).add_to(m)
-    
-    # Kalau belum pilih TPS → tampilkan legenda awal
     if not selected_tps:
+        # TPS icon (tong sampah hijau)
+        for _, row in tps_df.iterrows():
+            folium.Marker(
+                location=[row["latitude"], row["longitude"]],
+                popup=f"TPS {row['id_tps']}: {row['nama']}",
+                icon=folium.Icon(color="green", icon="trash", prefix="fa")
+            ).add_to(m)
+            folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+            ).add_to(m)
+    
+        # TPA icon (daur ulang merah)
+        for _, row in tpa_df.iterrows():
+            folium.Marker(
+                location=[row["latitude"], row["longitude"]],
+                popup=f"TPA {row['nama']}",
+                icon=folium.Icon(color="red", icon="recycle", prefix="fa")
+            ).add_to(m)
+            folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+            ).add_to(m)
+    
+        # Legenda awal (ikon tong & recycle)
         legend_html = """
         <div style="
             position: fixed; 
@@ -625,14 +617,15 @@ elif mode == "Jadwal & Rute Pengangkutan":
             border-radius: 8px; 
             padding: 10px; 
             color: black;">
-            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:red"></i> TPS</div>
-            <div><i class="fa fa-circle" style="color:green"></i> TPA</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-trash" style="color:green"></i> TPS</div>
+            <div><i class="fa fa-recycle" style="color:red"></i> TPA</div>
         </div>
         """
         m.get_root().html.add_child(folium.Element(legend_html))
         st_folium(m, width=1000, height=550)
+    
     else:
-        # ============ JIKA TPS DIPILIH (RUTE DICARI) ============
+        # ============ SESUDAH RUTE DICARI ============
         selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
     
         # RUTE GREEDY
@@ -662,7 +655,28 @@ elif mode == "Jadwal & Rute Pengangkutan":
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
     
-        # Tambahkan marker rute
+        # Semua titik lain tetap muncul tapi bulat
+        for _, row in tps_df.iterrows():
+            folium.CircleMarker(
+                [row["latitude"], row["longitude"]],
+                radius=6,
+                color="red",
+                fill=True,
+                fill_color="red",
+                fill_opacity=0.8
+            ).add_to(m)
+    
+        for _, row in tpa_df.iterrows():
+            folium.CircleMarker(
+                [row["latitude"], row["longitude"]],
+                radius=6,
+                color="green",
+                fill=True,
+                fill_color="green",
+                fill_opacity=0.8
+            ).add_to(m)
+    
+        # Marker rute (start - finish)
         for i, point in enumerate(route):
             color = "green" if i == 0 else "blue"
             icon_type = "truck" if i == 0 else "trash"
@@ -672,19 +686,12 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
     
-            # Label
-            folium.map.Marker(
-                [point["latitude"], point["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>")
-            ).add_to(m)
-    
             # Garis antar TPS
             if i < len(route) - 1:
                 next_point = route[i+1]
                 folium.PolyLine(
                     [[point["latitude"], point["longitude"]], [next_point["latitude"], next_point["longitude"]]],
-                    color="blue", weight=4, opacity=0.8,
-                    tooltip=f"{point['id_tps']} ➜ {next_point['id_tps']}"
+                    color="blue", weight=4, opacity=0.8
                 ).add_to(m)
     
         # Ke TPA
@@ -721,6 +728,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         m.get_root().html.add_child(folium.Element(legend_html))
     
         st_folium(m, width=1000, height=550)
+
     
         # ================= INSIGHT RUTE ==================
         segmen_jarak = []
@@ -1026,6 +1034,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
