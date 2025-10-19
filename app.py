@@ -287,11 +287,11 @@ if mode == "Dashboard Data":
         color: #222;
         max-width: 250px;
     ">
-        <b>🗺️ Legenda:</b><br>
+        <b>Legenda:</b><br>
         <i class="fa fa-trash" style="color:green; margin-right:6px;"></i> 
-        TPS (Tempat Penampungan Sementara)<br>
+        TPS<br>
         <i class="fa fa-recycle" style="color:red; margin-right:6px;"></i> 
-        TPA (Tempat Pembuangan Akhir)
+        TPA
     </div>
     """
     
@@ -1108,6 +1108,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
