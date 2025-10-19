@@ -803,55 +803,33 @@ elif mode == "Rute Pengangkutan":
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371.0  # radius bumi km
+    R = 6371.0
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlon, dlat = lon2 - lon1, lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return R * c
 
-# -----------------------------
-# Judul Streamlit
-# -----------------------------
 st.title("Jadwal Prioritas Pengangkutan Sampah - Max 10 Truk")
 
-# -----------------------------
-# Input parameter
-# -----------------------------
 num_truk_total = st.number_input("Jumlah Truk Maksimal", min_value=1, max_value=10, value=10)
 prioritas_threshold = st.slider("Prioritas Keterisian TPS (%)", 0, 100, 80)
 
-# -----------------------------
-# Tombol buat jadwal
-# -----------------------------
 if st.button("Buat Jadwal Otomatis"):
-
-    # Pastikan dataset tps_df & tpa_df sudah ada
     if tps_df.empty or tpa_df.empty:
         st.warning("Dataset TPS atau TPA kosong.")
     else:
-        # Hitung rasio keterisian
         tps_df["rasio_keterisian"] = tps_df["volume_saat_ini"] / tps_df["kapasitas"]
+        prioritas = tps_df[tps_df["rasio_keterisian"] >= (prioritas_threshold/100)].copy()
 
-        # Ambil TPS prioritas
-        prioritas = tps_df[tps_df["rasio_keterisian"] >= (prioritas_threshold / 100)].copy()
         if prioritas.empty:
             st.warning("Tidak ada TPS yang mencapai threshold prioritas.")
         else:
-            # Tentukan jumlah truk per wilayah berdasarkan proporsi
-            wilayah_unique = prioritas["nearest_tpa"].unique()
-            truk_per_wilayah = {}
-            remaining_truk = num_truk_total
-            for w in wilayah_unique:
-                truk_per_wilayah[w] = max(1, remaining_truk // len(wilayah_unique))
-            
-            # Assign truk ke TPS prioritas
-            prioritas["Truk"] = None
-            for wilayah, grup in prioritas.groupby("nearest_tpa"):
-                daftar_truk = cycle([f"Truk {i+1}" for i in range(truk_per_wilayah[wilayah])])
-                prioritas.loc[prioritas["nearest_tpa"] == wilayah, "Truk"] = [next(daftar_truk) for _ in range(len(grup))]
+            # Buat 10 truk
+            daftar_truk = cycle([f"Truk {i+1}" for i in range(num_truk_total)])
+            prioritas["Truk"] = [next(daftar_truk) for _ in range(len(prioritas))]
 
-            # Urutkan per truk & prioritas (rasio keterisian)
+            # Urutkan per truk & prioritas
             prioritas = prioritas.sort_values(["Truk", "rasio_keterisian"], ascending=[True, False]).reset_index(drop=True)
 
             # Hitung jarak ke TPA
@@ -860,12 +838,9 @@ if st.button("Buat Jadwal Otomatis"):
                 return haversine(row["latitude"], row["longitude"], tpa_row["latitude"], tpa_row["longitude"])
 
             prioritas["jarak_ke_TPA_km"] = prioritas.apply(hitung_jarak, axis=1)
-            prioritas["estimasi_menit"] = prioritas["jarak_ke_TPA_km"] / 5 * 60  # asumsikan kecepatan truk 5 km/jam
+            prioritas["estimasi_menit"] = prioritas["jarak_ke_TPA_km"] / 5 * 60
 
-            # -----------------------------
-            # Tampilkan tabel jadwal
-            # -----------------------------
-            st.markdown("### Jadwal Prioritas Pengangkutan")
+            st.markdown("### Jadwal Prioritas 10 Truk")
             st.dataframe(
                 prioritas[[
                     "Truk", "nearest_tpa", "id_tps", "kapasitas", "volume_saat_ini",
@@ -877,9 +852,6 @@ if st.button("Buat Jadwal Otomatis"):
                 })
             )
 
-            # -----------------------------
-            # Insight jadwal
-            # -----------------------------
             st.markdown("### Insight :")
             jarak_avg = prioritas["jarak_ke_TPA_km"].mean()
             waktu_avg = prioritas["estimasi_menit"].mean()
@@ -889,7 +861,7 @@ if st.button("Buat Jadwal Otomatis"):
             st.info(f"• **Rata-rata waktu tempuh:** {waktu_avg:.1f} menit")
             st.info(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
             st.write("• **Saran:** Rotasi truk agar beban jarak & waktu merata tiap minggu.")
-
+            
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
     st.header("Prediksi Volume Sampah per TPS")
@@ -1168,6 +1140,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
