@@ -375,66 +375,92 @@ if mode == "Dashboard Data":
 # REKOMENDASI PENGANGKUTAN PRIORITAS
     st.markdown("## Rekomendasi Pengangkutan Prioritas")
     
-  # --- CEK KETERISIAN TPS ---
+    # Cek apakah ada TPS dengan keterisian >90%
+    penuh = tps_df[tps_df["keterisian_%"] > 90]
+    
+    # Gunakan session_state untuk menyimpan status simulasi
     if "use_dummy" not in st.session_state:
         st.session_state.use_dummy = False
     
-    # Tentukan posisi tengah awal dari gabungan TPS & TPA
-    if not pd.concat([tps_df, tpa_df]).empty:
-        center_lat = pd.concat([tps_df, tpa_df])["latitude"].mean()
-        center_lon = pd.concat([tps_df, tpa_df])["longitude"].mean()
-    else:
-        center_lat, center_lon = -7.8, 110.4  # default Jawa Tengah
+    # ================================
+    # 🔘 TOMBOL SIMULASI / KEMBALI
+    # ================================
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if not st.session_state.use_dummy:
+            if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
+                st.session_state.use_dummy = True
+        else:
+            if st.button("🔁 Kembalikan ke Data Asli"):
+                st.session_state.use_dummy = False
     
-    # --- Mode Simulasi TPS Penuh ---
+    # ================================
+    # ⚙️ MODE SIMULASI
+    # ================================
     if st.session_state.use_dummy:
-        # Buat data dummy simulasi (>90%)
         dummy_tps = tps_df.sample(n=min(3, len(tps_df))).copy()
         dummy_tps["keterisian_%"] = np.random.uniform(91, 100, size=len(dummy_tps))
         penuh = dummy_tps
-        st.info("✅ Simulasi TPS penuh diaktifkan (menampilkan 3 TPS dengan keterisian >90%).")
-        
-        if st.button("🔁 Kembalikan ke Data Asli"):
-            st.session_state.use_dummy = False
-            st.rerun()
+        st.info("✅ Simulasi TPS penuh diaktifkan (data dummy digunakan).")
     
-    # --- Mode Normal (tanpa simulasi) ---
+    # ================================
+    # 🗺️ TAMPILKAN PETA / PESAN
+    # ================================
+    if penuh.empty and not st.session_state.use_dummy:
+        st.success("Peta rute tidak ditampilkan karena semua TPS masih di bawah 90%.")
     else:
-        penuh = tps_df[tps_df["keterisian_%"] > 90]
-    
-        if penuh.empty:
-            st.success("Peta rute tidak ditampilkan karena semua TPS masih di bawah 90%.")
-            if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
-                st.session_state.use_dummy = True
-                st.rerun()
-    
-    # --- Jika ada data penuh (asli atau dummy) ---
-    if not penuh.empty:
         rekom_list = []
         m_rekom = folium.Map(location=[center_lat, center_lon], zoom_start=12)
         prioritas_ids = set(penuh["id_tps"].astype(str).tolist())
     
         # --- Tambahkan marker TPS ---
-        for _, tps in tps_df.iterrows():
-            style = "trash" if str(tps.get("id_tps")) in prioritas_ids else "circle"
-            popup_extra = "<b>Prioritas: Penuh</b>" if style == "trash" else None
-            add_tps_marker(m_rekom, tps, style=style, popup_extra=popup_extra)
+        for _, row in tps_df.iterrows():
+            lat, lon = row["latitude"], row["longitude"]
+            nama = row["nama"]
+            persentase = row["keterisian_%"]
+            warna = "red" if row["id_tps"] in prioritas_ids else "green"
+    
+            # Marker utama
+            folium.CircleMarker(
+                location=[lat, lon],
+                radius=8,
+                color=warna,
+                fill=True,
+                fill_opacity=0.9,
+                popup=f"{nama} ({persentase:.1f}%)"
+            ).add_to(m_rekom)
+    
+            # Label nama
+            folium.map.Marker(
+                [lat, lon],
+                icon=folium.DivIcon(
+                    html=f"""
+                    <div style="
+                        font-size: 13px;
+                        color: red;
+                        font-weight: bold;
+                        white-space: nowrap;
+                        transform: translate(12px, -10px);
+                    ">
+                        {nama}
+                    </div>
+                    """
+                ),
+            ).add_to(m_rekom)
     
         # --- Tambahkan marker TPA ---
         for _, row in tpa_df.iterrows():
-            lat = row.get("latitude")
-            lon = row.get("longitude")
-            if pd.isna(lat) or pd.isna(lon):
-                continue
+            lat, lon = row["latitude"], row["longitude"]
+            nama = row["nama"]
             folium.Marker(
                 [lat, lon],
-                popup=f"{row.get('nama','-')}</b>",
-                icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
+                popup=f"{nama}",
+                icon=folium.Icon(color="blue", icon="recycle", prefix="fa"),
             ).add_to(m_rekom)
             folium.map.Marker(
                 [lat, lon],
                 icon=folium.DivIcon(
-                    html=f'<div style="font-size:12px; color:red; font-weight:bold;">{row.get("nama","-")}</div>'
+                    html=f'<div style="font-size:13px; color:blue; font-weight:bold;">{nama}</div>'
                 ),
             ).add_to(m_rekom)
     
@@ -464,8 +490,8 @@ if mode == "Dashboard Data":
     
         # --- Tabel & Peta ---
         rekom_df = pd.DataFrame(rekom_list)
-        st.dataframe(rekom_df, use_container_width=True)
         st_folium(m_rekom, width=1000, height=500)
+        st.dataframe(rekom_df, use_container_width=True)
     
         # --- Insight ---
         st.markdown("### Insight")
@@ -1187,6 +1213,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
