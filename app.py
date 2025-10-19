@@ -729,16 +729,21 @@ elif mode == "Simulasi Rute":
                         lon = point.get("longitude")
                         if pd.isna(lat) or pd.isna(lon):
                             continue
-            
+                    
                         # Icon berbeda untuk start dan titik lain
-                        icon_type = "play" if i == 0 else "trash"
-                        color = "green" if i == 0 else "blue"
+                        if i == 0:
+                            icon_type = "truck"   # ganti play menjadi truck
+                            color = "green"
+                        else:
+                            icon_type = "trash"
+                            color = "blue"
+                    
                         folium.Marker(
                             [lat, lon],
                             popup=f"{i+1}. TPS {point.get('id_tps','-')}",
                             icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
                         ).add_to(m)
-            
+                    
                         # Tambahkan label besar di atas marker
                         folium.map.Marker(
                             [lat, lon],
@@ -779,17 +784,17 @@ elif mode == "Simulasi Rute":
                     # --- Tambahkan Legenda untuk Start & Finish ---
                     legend_html = """
                     <div style="position: fixed; 
-                                bottom: 40px; left: 40px; width: 180px; 
+                                bottom: 40px; left: 40px; width: 200px; 
                                 background-color: white; border:2px solid grey; z-index:9999; font-size:13px;
                                 box-shadow:2px 2px 6px rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
                         <b>Legenda Icon:</b><br>
-                        <i class="fa fa-play fa-lg" style="color:green"></i> Start TPS<br>
+                        <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
                         <i class="fa fa-trash fa-lg" style="color:blue"></i> TPS Rute<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
                     """
                     m.get_root().html.add_child(folium.Element(legend_html))
-            
+
                     # Tampilkan peta
                     st_folium(m, width=1000, height=550)
             
@@ -1129,6 +1134,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
