@@ -301,23 +301,14 @@ if mode == "Dashboard Data":
     folium.LayerControl().add_to(m)
     st_folium(m, width=1000, height=550)
     # Tata atribusi agar rapi di kanan bawah
-    style_map = """
+    hide_folium_css = """
         <style>
         .leaflet-control-attribution {
-            position: absolute !important;
-            bottom: 3px !important;
-            right: 10px !important;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-size: 11px;
-            color: #333;
+            display: none !important;
         }
         </style>
     """
-    st.markdown(style_map, unsafe_allow_html=True)
-
-
+    st.markdown(hide_folium_css, unsafe_allow_html=True)
     st.markdown("---")
 
 
@@ -1157,6 +1148,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
