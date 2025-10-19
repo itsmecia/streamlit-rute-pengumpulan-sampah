@@ -568,7 +568,6 @@ elif mode == "Jadwal & Rute Pengangkutan":
 # MODE: Simulasi Rute & jadwal
 elif mode == "Jadwal & Rute Pengangkutan":
 
-    from math import radians, sin, cos, atan2, sqrt  # tambahan
     # Fungsi Haversine
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371.0
@@ -651,78 +650,22 @@ elif mode == "Jadwal & Rute Pengangkutan":
     tps_options = tps_df["id_tps"].astype(str).unique().tolist()
     selected_tps = st.multiselect("Pilih TPS", tps_options)
 
-    # --- Buat peta dasar: tampilkan semua TPS & TPA terlebih dahulu (seperti dashboard) ---
-    all_points = pd.concat([
-        tps_df[["id_tps", "nama", "latitude", "longitude"]].assign(type="TPS"),
-        tpa_df[["nama", "latitude", "longitude"]].rename(columns={"nama": "nama"}).assign(id_tps="", type="TPA")
-    ], sort=False, ignore_index=True)
-
-    # Center peta menggunakan semua titik (fallback jika selected_tps kosong)
-    center_lat = float(all_points["latitude"].mean())
-    center_lon = float(all_points["longitude"].mean())
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-
-    # Gaya label konsisten untuk semua titik (DivIcon)
-    def add_label(map_obj, lat, lon, text):
-        folium.map.Marker(
-            [lat, lon],
-            icon=folium.DivIcon(html=f"""
-                <div style="
-                    font-size:12px; font-weight:700;
-                    color:#003366;
-                    text-shadow:1px 1px 2px rgba(255,255,255,0.9);
-                    background: rgba(255,255,255,0.0);
-                    padding:0 2px;
-                ">{text}</div>
-            """)
-        ).add_to(map_obj)
-
-    # Tambah semua TPA sebagai ICON bulat hijau dan label
-    for _, r in tpa_df.iterrows():
-        folium.CircleMarker(
-            location=[r["latitude"], r["longitude"]],
-            radius=6,
-            color="darkgreen",
-            fill=True,
-            fill_color="green",
-            fill_opacity=0.9,
-            popup=folium.Popup(f"{r['nama']}", parse_html=True)
-        ).add_to(m)
-        add_label(m, r["latitude"], r["longitude"], r["nama"])
-
-    # Tambah semua TPS sebagai ICON bulat merah dan label
-    for _, r in tps_df.iterrows():
-        folium.CircleMarker(
-            location=[r["latitude"], r["longitude"]],
-            radius=6,
-            color="darkred",
-            fill=True,
-            fill_color="red",
-            fill_opacity=0.9,
-            popup=folium.Popup(f"{r['id_tps']} — {r.get('nama','')}", parse_html=True)
-        ).add_to(m)
-        # label (id atau nama)
-        label_text = str(r["id_tps"])
-        add_label(m, r["latitude"], r["longitude"], label_text)
-
-    # Jika user memilih TPS -> hitung rute dan timpa popup sesuai aturan (nomor pada rute multi, tanpa nomor jika rute tunggal)
     if selected_tps:
-        selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy().reset_index(drop=True)
+        selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
 
-        # RUTE GREEDY (jarak Euclidean dikonversi ke km secara sederhana)
-        remaining = selected_tps_df.copy().reset_index(drop=True)
-        current = remaining.loc[0].copy()
+        # RUTE GREEDY 
+        remaining = selected_tps_df.reset_index(drop=True).copy()
+        current = remaining.iloc[0]
         route_order = [current]
         remaining = remaining.drop(index=0).reset_index(drop=True)
 
         while not remaining.empty:
-            # gunakan Euclidean aprox *111 untuk cepat, atau bisa gunakan haversine jika ingin presisi
             remaining["jarak"] = np.sqrt(
                 (remaining["latitude"] - current["latitude"])**2 +
                 (remaining["longitude"] - current["longitude"])**2
             ) * 111
             nearest_idx = remaining["jarak"].idxmin()
-            nearest = remaining.loc[nearest_idx].copy()
+            nearest = remaining.loc[nearest_idx]
             route_order.append(nearest)
             current = nearest
             remaining = remaining.drop(nearest_idx).reset_index(drop=True)
@@ -737,31 +680,25 @@ elif mode == "Jadwal & Rute Pengangkutan":
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
 
-        # Timpa popup untuk titik yang termasuk rute:
-        route_len = len(route)
+        # PETA 
+        center_lat = float(selected_tps_df["latitude"].mean())
+        center_lon = float(selected_tps_df["longitude"].mean())
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
+
+        # Marker TPS
         for i, point in enumerate(route):
-            # aturan popup: jika hanya 1 titik di rute -> tampilkan popup tanpa nomor,
-            # jika banyak -> popup diberi nomor "1. id_tps"
-            if route_len == 1:
-                popup_text = f"{point['id_tps']}"
-            else:
-                popup_text = f"{i+1}. {point['id_tps']}"
-
-            # Tambah CircleMarker (sama style) supaya tampak konsisten; marker baru akan ada di atas yg lama
-            folium.CircleMarker(
-                location=[point["latitude"], point["longitude"]],
-                radius=6,
-                color="darkred",
-                fill=True,
-                fill_color="red",
-                fill_opacity=0.9,
-                popup=folium.Popup(popup_text, parse_html=True)
+            color = "green" if i == 0 else "blue"
+            icon_type = "truck" if i == 0 else "trash"
+            folium.Marker(
+                [point["latitude"], point["longitude"]],
+                popup=f"{i+1}.{point['id_tps']}",
+                icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
-
-            # Labelnya tetap sama style (gunakan id_tps sebagai label)
-            add_label(m, point["latitude"], point["longitude"], str(point["id_tps"]))
-
-            # Garis antar TPS dalam rute
+            folium.map.Marker(
+                [point["latitude"], point["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>")
+            ).add_to(m)
+            # Garis antar TPS
             if i < len(route) - 1:
                 next_point = route[i+1]
                 folium.PolyLine(
@@ -770,21 +707,39 @@ elif mode == "Jadwal & Rute Pengangkutan":
                     tooltip=f"{point['id_tps']} ➜ {next_point['id_tps']}"
                 ).add_to(m)
 
-        # Tambah Polyline dan marker TPA tujuan (finish)
+        # Marker & Polyline ke TPA
         folium.PolyLine(
             [[last["latitude"], last["longitude"]], [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
             color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
         ).add_to(m)
-        folium.CircleMarker(
-            location=[nearest_tpa["latitude"], nearest_tpa["longitude"]],
-            radius=8,
-            color="darkgreen",
-            fill=True,
-            fill_color="green",
-            fill_opacity=0.95,
-            popup=folium.Popup(f"{nearest_tpa['nama']}", parse_html=True)
+        folium.Marker(
+            [nearest_tpa["latitude"], nearest_tpa["longitude"]],
+            popup=f"{nearest_tpa['nama']}",
+            icon=folium.Icon(color="red", icon="flag", prefix="fa")
         ).add_to(m)
-        add_label(m, nearest_tpa["latitude"], nearest_tpa["longitude"], nearest_tpa["nama"])
+
+        # Legenda
+        legend_html = """
+        <div style="
+            position: fixed; 
+            bottom: 40px; left: 40px; 
+            width: 140px; 
+            background-color: rgba(255,255,255,0.9); 
+            border: 2px solid grey; 
+            z-index: 9999; 
+            font-size: 14px; 
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3); 
+            border-radius: 8px; 
+            padding: 10px; 
+            color: black;">
+            <div style="margin-bottom:4px;"><i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS</div>
+            <div><i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish</div>
+        </div>
+        """
+        
+        m.get_root().html.add_child(folium.Element(legend_html))
+
+        st_folium(m, width=1000, height=550)
 
         # Insight Jarak 
         segmen_jarak = []
@@ -794,7 +749,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
         segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa,2)})
         total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
-        avg_distance = total_distance / len(segmen_jarak) if len(segmen_jarak) > 0 else 0
+        avg_distance = total_distance / len(segmen_jarak)
         urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
 
         st.markdown("### Insight Rute")
@@ -806,30 +761,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
 
         st.markdown("#### Jarak Antar Segmen Rute")
         st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)":"{:.2f}"}))
-
-    # Legenda: bulat hijau (TPA), bulat merah (TPS), start & finish
-    legend_html = """
-    <div style="
-        position: fixed;
-        bottom: 30px; left: 30px;
-        z-index:9999;
-        background-color: rgba(255,255,255,0.95);
-        padding:8px;
-        border-radius:8px;
-        border:1px solid #888;
-        font-size:13px;
-        box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-    ">
-        <div style="margin-bottom:6px;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:green;margin-right:8px;vertical-align:middle;"></span>TPA (Finish)</div>
-        <div style="margin-bottom:6px;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:red;margin-right:8px;vertical-align:middle;"></span>TPS</div>
-        <div style="margin-bottom:6px;"><i class="fa fa-circle" style="color:blue;margin-right:8px;"></i>Start / Rute</div>
-    </div>
-    """
-    m.get_root().html.add_child(folium.Element(legend_html))
-
-    # Tampilkan peta
-    st_folium(m, width=1000, height=550)
-            
+        
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
     st.header("Prediksi Volume Sampah per TPS")
@@ -1108,6 +1040,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
