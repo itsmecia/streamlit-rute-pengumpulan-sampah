@@ -179,6 +179,8 @@ if mode == "Dashboard Data":
     ).add_to(m)
 
     
+  from folium.plugins import BeautifyIcon
+
     # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
@@ -186,29 +188,38 @@ if mode == "Dashboard Data":
         <b>TPA:</b> {row.get('nama','-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
+    
+        icon_tpa = BeautifyIcon(
+            icon_shape="circle",
+            border_color="red",
+            text_color="white",
+            background_color="red",
+            number="♻️",  # atau "TPA"
+            inner_icon_style="font-size:12px; font-weight:bold;"
+        )
+    
         folium.Marker(
             [lat, lon],
             popup=popup_html,
             tooltip=f"TPA: {row['nama']}",
-            icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
+            icon=icon_tpa
         ).add_to(m)
     
-        # Label di atas marker (tidak menutupi ikon)
+        # Label teks (agar tetap muncul di zoom jauh)
         folium.map.Marker(
-            [lat + 0.2, lon],
+            [lat + 0.02, lon],
             icon=folium.DivIcon(
                 html=f'''
                 <div class="label-tpa" style="
-                    font-size:14px;
+                    font-size:13px;
                     color:red;
                     font-weight:bold;
-                    text-shadow:1px 1px 3px white;
-                    transform: translate(-50%, -10px);
-                    z-index: 900;">
+                    text-shadow:1px 1px 2px white;">
                     {row["nama"]}
                 </div>'''
             ),
         ).add_to(m)
+
     
     # === Marker TPS ===
     for _, row in filtered_tps_map.iterrows():
@@ -1019,6 +1030,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
