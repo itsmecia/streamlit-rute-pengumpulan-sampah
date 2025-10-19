@@ -227,7 +227,7 @@ if mode == "Dashboard Data":
             m.location = [all_points["latitude"].iloc[0], all_points["longitude"].iloc[0]]
             m.zoom_start = 13
     
-    # === Legenda dengan ikon + keterangan ===
+  # === Legenda dengan ikon + keterangan (fix warna tulisan) ===
     legend_html = """
     <div style="
          position: fixed; 
@@ -238,13 +238,18 @@ if mode == "Dashboard Data":
          font-size:14px;
          box-shadow:2px 2px 5px rgba(0,0,0,0.3);
          border-radius:8px;
-         padding: 10px 14px;">
-    <b>🗺️ Legenda</b><br>
-    <i class="fa fa-trash" style="color:green"></i> TPS (Tempat Penampungan Sementara)<br>
-    <i class="fa fa-recycle" style="color:red"></i> TPA (Tempat Pembuangan Akhir)
+         padding: 10px 14px;
+         color: #222;">
+    <div style="margin-top:5px;">
+      <i class="fa fa-trash" style="color:green; margin-right:5px;"></i>
+      TPS (Tempat Penampungan Sementara)<br>
+      <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i>
+      TPA (Tempat Pembuangan Akhir)
+    </div>
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
+
     
     # === Tampilkan di Streamlit ===
     st_folium(m, width=1000, height=550)
@@ -993,6 +998,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
