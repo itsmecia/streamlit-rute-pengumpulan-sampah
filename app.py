@@ -127,9 +127,9 @@ if mode == "Dashboard Data":
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
-    # PETA SEBARAN TPS & TPA
+    # PETA SEBARAN TPS & TPS
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
-
+    
     # === Filter TPS ===
     tps_options_map = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_map = st.multiselect(
@@ -137,68 +137,118 @@ if mode == "Dashboard Data":
         tps_options_map,
         key="filter_tps_map"
     )
-
+    
     if st.button("Reset Filter Peta", key="reset_peta"):
         selected_tps_map = []
-
+    
     # Filter data TPS sesuai pilihan
     if selected_tps_map:
         filtered_tps_map = tps_df[tps_df["id_tps"].isin(selected_tps_map)].copy()
     else:
         filtered_tps_map = tps_df.copy()
-
+    
+    # Pastikan kolom koordinat valid
     for df_name, df in {"TPS": filtered_tps_map, "TPA": tpa_df}.items():
         df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
         df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-
+    
     filtered_tps_map = filtered_tps_map.dropna(subset=["latitude", "longitude"]).reset_index(drop=True)
     tpa_valid = tpa_df.dropna(subset=["latitude", "longitude"]).reset_index(drop=True)
-
-    # Tentukan pusat awal peta 
+    
+    # Tentukan pusat awal peta
     if not pd.concat([filtered_tps_map, tpa_valid]).empty:
         center_lat = pd.concat([filtered_tps_map, tpa_valid])["latitude"].mean()
         center_lon = pd.concat([filtered_tps_map, tpa_valid])["longitude"].mean()
     else:
         center_lat, center_lon = 0, 0
-
-    #  Buat peta awal 
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=4)  
-
-    # marker TPA 
+    
+    # === Buat peta awal ===
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=11, control_scale=True)
+    
+    # --- Tambahkan marker TPA ---
     for _, row in tpa_valid.iterrows():
+        lat, lon = row["latitude"], row["longitude"]
+        popup_html = f"""
+        <b>TPA:</b> {row.get('nama','-')}<br>
+        <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
+        """
         folium.Marker(
-            [row["latitude"], row["longitude"]],
-            tooltip=f"<div style='font-size:16px; font-weight:bold;'>TPA: {row['nama']}</div>",
+            [lat, lon],
+            popup=popup_html,
+            tooltip=f"TPA: {row['nama']}",
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
-
-    # marker TPS (berdasarkan filter)
+        # Label muncul saat zoom
+        folium.map.Marker(
+            [lat, lon],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size:10px; color:red; font-weight:bold;">{row["nama"]}</div>'
+            ),
+        ).add_to(m)
+    
+    # --- Tambahkan marker TPS ---
     for _, row in filtered_tps_map.iterrows():
+        lat, lon = row["latitude"], row["longitude"]
+        keterisian = row.get("keterisian_%", 0)
+        popup_html = f"""
+        <b>TPS:</b> {row.get('id_tps','-')}<br>
+        <b>Kapasitas:</b> {row.get('kapasitas','N/A')}<br>
+        <b>Volume:</b> {row.get('volume_saat_ini','N/A')}<br>
+        <b>Keterisian:</b> {keterisian:.1f}%
+        """
         folium.Marker(
-            [row["latitude"], row["longitude"]],
-            tooltip=f"<div style='font-size:14px;'>TPS: {row['id_tps']}</div>",
+            [lat, lon],
+            popup=popup_html,
+            tooltip=f"TPS: {row['id_tps']}",
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
-
-    # Auto-fit agar semua titik (TPS + TPA) terlihat
+        # Label muncul saat zoom
+        folium.map.Marker(
+            [lat, lon],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size:9px; color:green; font-weight:bold;">{row["id_tps"]}</div>'
+            ),
+        ).add_to(m)
+    
+    # === Auto-fit agar semua titik terlihat ===
     all_points = pd.concat([
         filtered_tps_map[["latitude", "longitude"]],
         tpa_valid[["latitude", "longitude"]],
     ], ignore_index=True)
-
+    
     if not all_points.empty:
         if len(all_points) > 1:
             bounds = [
                 [all_points["latitude"].min(), all_points["longitude"].min()],
                 [all_points["latitude"].max(), all_points["longitude"].max()],
             ]
-            m.fit_bounds(bounds, padding=(100, 100)) 
+            m.fit_bounds(bounds, padding=(100, 100))
         else:
             m.location = [all_points["latitude"].iloc[0], all_points["longitude"].iloc[0]]
-            m.zoom_start = 10
-
-    #  Tampilkan peta
-    st_folium(m, width=1000, height=500)
+            m.zoom_start = 13
+    
+    # === Tambahkan legenda di pojok kanan bawah ===
+    legend_html = """
+    <div style="
+         position: fixed; 
+         bottom: 20px; right: 20px; 
+         width: 180px; 
+         background-color: white;
+         border:2px solid grey; 
+         z-index:9999;
+         font-size:13px;
+         box-shadow:2px 2px 5px rgba(0,0,0,0.3);
+         border-radius:8px;
+         padding: 10px;">
+    <b>🗺️ Legenda</b><br>
+    <i class="fa fa-trash" style="color:green"></i> TPS (Tempat Penampungan Sementara)<br>
+    <i class="fa fa-recycle" style="color:red"></i> TPA (Tempat Pembuangan Akhir)<br>
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+    
+    # === Tampilkan peta di Streamlit ===
+    st_folium(m, width=1000, height=550)
     st.markdown("---")
 
 
@@ -944,6 +994,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
