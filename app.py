@@ -271,25 +271,27 @@ if mode == "Dashboard Data":
             [all_points["latitude"].max(), all_points["longitude"].max()],
         ])
     
-    # Tambahkan legenda
+    ## Tambahkan legenda di dalam peta
     legend_html = """
     <div style="
-         position: fixed; 
-         bottom: 20px; right: 20px; 
-         background-color: white;
-         border:2px solid grey; 
-         z-index:9999;
-         font-size:14px;
-         box-shadow:2px 2px 5px rgba(0,0,0,0.3);
-         border-radius:8px;
-         padding: 10px 14px;
-         color: #222;">
+         position: absolute; 
+         bottom: 15px; right: 15px;
+         z-index: 9999;
+         background-color: rgba(255, 255, 255, 0.9);
+         border: 1px solid #888;
+         border-radius: 8px;
+         padding: 8px 12px;
+         font-size: 13px;
+         line-height: 1.4;
+         box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    ">
     <b>Legenda:</b><br>
-    <i class="fa fa-trash" style="color:green; margin-right:5px;"></i> TPS (Tempat Penampungan Sementara)<br>
-    <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i> TPA (Tempat Pembuangan Akhir)
+    <i class="fa fa-trash" style="color:green; margin-right:5px;"></i> TPS<br>
+    <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i> TPA
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
+
     
     # Layer control
     folium.LayerControl().add_to(m)
@@ -1100,6 +1102,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
