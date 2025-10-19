@@ -583,19 +583,19 @@ elif mode == "Jadwal & Rute Pengangkutan":
         for _, row in tps_df.iterrows():
             folium.Marker(
                 location=[row["latitude"], row["longitude"]],
-                popup=f"TPS {row['id_tps']}: {row['nama']}",
+                popup=f"{row['id_tps']}",
                 icon=folium.Icon(color="green", icon="trash", prefix="fa")
             ).add_to(m)
             folium.map.Marker(
                 [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
             ).add_to(m)
     
         # TPA icon (daur ulang merah)
         for _, row in tpa_df.iterrows():
             folium.Marker(
                 location=[row["latitude"], row["longitude"]],
-                popup=f"TPA {row['nama']}",
+                popup=f"{row['nama']}",
                 icon=folium.Icon(color="red", icon="recycle", prefix="fa")
             ).add_to(m)
             folium.map.Marker(
@@ -660,9 +660,9 @@ elif mode == "Jadwal & Rute Pengangkutan":
             folium.CircleMarker(
                 [row["latitude"], row["longitude"]],
                 radius=6,
-                color="red",
+                color="green",
                 fill=True,
-                fill_color="red",
+                fill_color="green",
                 fill_opacity=0.8
             ).add_to(m)
     
@@ -670,9 +670,9 @@ elif mode == "Jadwal & Rute Pengangkutan":
             folium.CircleMarker(
                 [row["latitude"], row["longitude"]],
                 radius=6,
-                color="green",
+                color="red",
                 fill=True,
-                fill_color="green",
+                fill_color="red",
                 fill_opacity=0.8
             ).add_to(m)
     
@@ -1034,6 +1034,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
