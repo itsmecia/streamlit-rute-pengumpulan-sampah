@@ -279,6 +279,28 @@ if mode == "Dashboard Data":
     """
     st.markdown(hide_attr_css, unsafe_allow_html=True)
     
+    legend_html = """
+    <div style="
+         position: absolute;
+         bottom: 25px; right: 25px;
+         z-index: 9999;
+         background-color: rgba(255, 255, 255, 0.9);
+         border: 2px solid #888;
+         border-radius: 8px;
+         padding: 10px 12px;
+         box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+         font-size: 13px;
+         color: #333;
+         line-height: 1.4;
+    ">
+    <b>Legenda</b><br>
+    <i class="fa fa-trash" style="color:green"></i> TPS <br>
+    <i class="fa fa-recycle" style="color:red"></i> TPA 
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
+    
     # Tampilkan peta
     st_folium(m, width=1000, height=550)
     st.markdown("---")
@@ -1048,6 +1070,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
