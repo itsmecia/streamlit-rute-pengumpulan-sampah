@@ -264,32 +264,6 @@ if mode == "Dashboard Data":
             [all_points["latitude"].min(), all_points["longitude"].min()],
             [all_points["latitude"].max(), all_points["longitude"].max()],
         ])
-    
-    # Tambahkan legenda 
-    legend_html = """
-    <div style="
-        position: absolute; 
-        bottom: 15px; 
-        right: 15px; 
-        background-color: rgba(255, 255, 255, 0.9); 
-        border: 1.5px solid #888; 
-        z-index: 9999; 
-        font-size: 13px; 
-        box-shadow: 1px 1px 4px rgba(0,0,0,0.2); 
-        border-radius: 8px; 
-        padding: 8px 12px; 
-        color: #222;
-        max-width: 250px;
-    ">
-        <b>Legenda:</b><br>
-        <i class="fa fa-trash" style="color:green; margin-right:6px;"></i> 
-        TPS<br>
-        <i class="fa fa-recycle" style="color:red; margin-right:6px;"></i> 
-        TPA
-    </div>
-    """
-    
-    m.get_root().html.add_child(folium.Element(legend_html))
 
 
     # Layer control
@@ -1100,6 +1074,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
