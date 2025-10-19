@@ -620,10 +620,10 @@ elif mode == "Simulasi Rute":
                         icon=folium.DivIcon(
                             html=f"""
                             <div style="
-                                font-size: 16px;
-                                font-weight: 900;
+                                font-size: 14px;
+                                font-weight: bold;
                                 color: green;
-                                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                text-shadow: 1px 1px 2px #fff;
                                 text-align: center;
                                 transform: translate(10px, -25px);
                             ">
@@ -652,10 +652,10 @@ elif mode == "Simulasi Rute":
                             icon=folium.DivIcon(
                                 html=f"""
                                 <div style="
-                                    font-size: 16px;
-                                    font-weight: 900;
+                                    font-size: 14px;
+                                    font-weight: bold;
                                     color: red;
-                                    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                    text-shadow: 1px 1px 2px #fff;
                                     text-align: center;
                                     transform: translate(10px, -25px);
                                 ">
@@ -1155,6 +1155,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
