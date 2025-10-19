@@ -761,7 +761,7 @@ elif mode == "Rute Pengangkutan":
                     
                     # insight 
                     urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
-                    st.markdown("### Insight)
+                    st.markdown("### Insight")
                     st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
                     st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
                     st.write(f"- **Rata-rata jarak antar segmen:** {total_distance/len(selected_tps):.2f} km.")
@@ -1115,6 +1115,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
