@@ -127,7 +127,7 @@ if mode == "Dashboard Data":
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
-    # === PETA SEBARAN TPS & TPA ===
+    #  PETA SEBARAN TPS & TPA
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
     
     # Filter TPS
@@ -160,9 +160,9 @@ if mode == "Dashboard Data":
         center_lat = pd.concat([filtered_tps_map, tpa_valid])["latitude"].mean()
         center_lon = pd.concat([filtered_tps_map, tpa_valid])["longitude"].mean()
     else:
-        center_lat, center_lon = -7.8, 110.4  # fallback
+        center_lat, center_lon = -7.8, 110.4  
     
-    # === Buat peta utama ===
+    # Buat peta utama
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
     folium.TileLayer('OpenStreetMap', name="OpenStreetMap").add_to(m)
@@ -177,11 +177,10 @@ if mode == "Dashboard Data":
         attr='© OpenStreetMap contributors © CARTO'
     ).add_to(m)
 
-   # === Marker TPA ===
+   # Marker TPA 
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
-    
-        # Geser hanya TPA Selatan
+        # TPA Selatan 
         if str(row["nama"]).strip().lower() == "tpa selatan":
             offset_lat = 0.30
             offset_lon = 0.03
@@ -219,7 +218,7 @@ if mode == "Dashboard Data":
         ).add_to(m)
 
     
-    # === Marker TPS ===
+    # Marker TPS
     for _, row in filtered_tps_map.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         keterisian = row.get("keterisian_%", 0)
@@ -256,7 +255,7 @@ if mode == "Dashboard Data":
             ),
         ).add_to(m)
 
-    # === Fit bounds semua titik ===
+    # Fit bounds semua titik
     all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
     if not all_points.empty:
         m.fit_bounds([
@@ -264,7 +263,7 @@ if mode == "Dashboard Data":
             [all_points["latitude"].max(), all_points["longitude"].max()],
         ])
     
-    # === Tambahkan legenda ===
+    # Tambahkan legenda 
     legend_html = """
     <div style="
          position: fixed; 
@@ -284,7 +283,7 @@ if mode == "Dashboard Data":
     """
     m.get_root().html.add_child(folium.Element(legend_html))
     
-    # === Tambahkan efek zoom untuk label ===
+    #  efek zoom untuk label 
     zoom_script = """
     <script>
     var map = window.map || {};
@@ -1142,6 +1141,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
