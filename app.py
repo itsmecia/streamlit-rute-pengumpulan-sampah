@@ -787,8 +787,8 @@ elif mode == "Jadwal & Rute Pengangkutan":
             border-radius: 8px; 
             padding: 10px; 
             color: black;">
-            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:red"></i> TPS</div>
-            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:green"></i> TPA</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:green"></i> TPS</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:red"></i> TPA</div>
             <div style="margin-bottom:4px;"><i class="fa fa-truck" style="color:green"></i> Start TPS</div>
             <div><i class="fa fa-flag" style="color:red"></i> Finish TPA</div>
         </div>
@@ -1102,6 +1102,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
