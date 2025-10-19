@@ -784,15 +784,24 @@ elif mode == "Jadwal & Rute Pengangkutan":
         urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
     
         st.markdown("### Insight Rute")
-        st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
-        st.write(f"- **Truk menangani:** {truk_ditangani}")
-        st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
-        st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
-        st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
-    
-        st.markdown("#### Jarak Antar Segmen Rute")
-        st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)": "{:.2f}"}))
-
+        if len(selected_tps) == 1:
+            # RUTE TUNGGAL
+            st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
+            st.write(f"- **Truk menangani:** {truk_ditangani}")
+            st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+            st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
+        
+        else:
+            # MULTI RUTE
+            st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
+            st.write(f"- **Truk menangani:** {truk_ditangani}")
+            st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+            st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
+            st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
+            
+            st.markdown("#### Jarak Antar Segmen Rute")
+            st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)": "{:.2f}"}))        
+                
         
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
@@ -1072,6 +1081,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
