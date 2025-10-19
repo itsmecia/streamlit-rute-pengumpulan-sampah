@@ -213,10 +213,7 @@ if mode == "Dashboard Data":
                     font-size: 11px;
                     color: red;
                     font-weight: bold;
-                    background: rgba(255,255,255,0.8);
-                    padding: 2px 5px;
-                    border-radius: 4px;
-                    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                    text-shadow: 1px 1px 2px #fff;
                     white-space: nowrap;
                     transform: translate(15px, -10px);
                 ">
@@ -255,11 +252,8 @@ if mode == "Dashboard Data":
                 <div style="
                     font-size: 11px;
                     color: green;
-                    font-weight: bold;
-                    background: rgba(255,255,255,0.8);
-                    padding: 2px 5px;
-                    border-radius: 4px;
-                    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                    font-weight: bold; 
+                    text-shadow: 1px 1px 2px #fff;
                     white-space: nowrap;
                     transform: translate(15px, -10px);
                 ">
@@ -268,7 +262,6 @@ if mode == "Dashboard Data":
                 """
             )
         ).add_to(m)
-
 
     # Fit bounds semua titik
     all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
@@ -1155,6 +1148,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
