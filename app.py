@@ -113,15 +113,15 @@ if mode == "Dashboard Data":
     
     # FUNGSI UTILITAS
     def compute_keterisian(df):
-    if "volume_saat_ini" in df.columns and "kapasitas" in df.columns:
-        df["keterisian_%"] = (df["volume_saat_ini"] / df["kapasitas"]) * 100
-        df["keterisian_%"] = df["keterisian_%"].fillna(0)
-    else:
-        if "keterisian_%" in df.columns:
+        if "volume_saat_ini" in df.columns and "kapasitas" in df.columns:
+            df["keterisian_%"] = (df["volume_saat_ini"] / df["kapasitas"]) * 100
             df["keterisian_%"] = df["keterisian_%"].fillna(0)
         else:
-            df["keterisian_%"] = 0
-    return df
+            if "keterisian_%" in df.columns:
+                df["keterisian_%"] = df["keterisian_%"].fillna(0)
+            else:
+                df["keterisian_%"] = 0
+        return df
 
     tps_df = compute_keterisian(tps_df)
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
@@ -944,5 +944,6 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
