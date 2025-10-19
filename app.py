@@ -802,60 +802,88 @@ elif mode == "Rute Pengangkutan":
                     df_segmen = pd.DataFrame(segmen_jarak)
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
-# MODE: Jadwal Pengangkutan
-elif mode == "Jadwal Pengangkutan":
-    st.header("Jadwal & Prioritas Pengangkutan Sampah")
+    #mode jadwal
+#def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0  # km
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    return R * c
 
-   if st.button("Buat Jadwal Otomatis"):
+# Threshold prioritas
+prioritas_threshold = 70
 
+# -----------------------------
+# Pembagian Truk per Wilayah
+# -----------------------------
+wilayah_truk_map = {
+    "TPA Utara": ["Truk 1", "Truk 2"],
+    "TPA Selatan": ["Truk 3", "Truk 4", "Truk 5"],
+    "TPA Timur": ["Truk 6", "Truk 7"],
+    "TPA Barat": ["Truk 8", "Truk 9", "Truk 10"]
+}
+truk_list = [f"Truk {i+1}" for i in range(10)]
+
+# -----------------------------
+# Sidebar / Filter
+# -----------------------------
+st.sidebar.header("Filter Jadwal")
+selected_truk = st.sidebar.multiselect("Filter Truk:", truk_list, default=truk_list)
+top_n_option = st.sidebar.selectbox("Top N TPS:", [5, 10, "Semua"], index=2)
+
+# -----------------------------
+# Tabel Daftar Truk & Wilayah
+# -----------------------------
+st.header("Daftar Truk & Wilayah TPA")
+truk_wilayah = []
+for wilayah, truks in wilayah_truk_map.items():
+    for truk in truks:
+        truk_wilayah.append({"Truk": truk, "Wilayah": wilayah})
+st.dataframe(pd.DataFrame(truk_wilayah))
+
+# -----------------------------
+# Mode Jadwal Pengangkutan
+# -----------------------------
+st.header("Jadwal & Prioritas Pengangkutan Sampah")
+if st.button("Buat Jadwal Otomatis"):
     if tps_df.empty or tpa_df.empty:
         st.warning("Dataset TPS atau TPA kosong.")
     else:
         # Hitung rasio keterisian
-        tps_df["rasio_keterisian"] = tps_df["volume_saat_ini"] / tps_df["kapasitas"]
+        tps_df["rasio_keterisian"] = tps_df["volume_saat_ini"] / tps_df["kapasitas"] * 100
 
         # Ambil TPS prioritas
-        prioritas = tps_df[tps_df["rasio_keterisian"] >= (prioritas_threshold / 100)].copy()
+        prioritas = tps_df[tps_df["rasio_keterisian"] >= prioritas_threshold].copy()
         if prioritas.empty:
             st.warning("Tidak ada TPS yang mencapai threshold prioritas.")
         else:
-            max_truk = 10
-            truk_list = [f"Truk {i+1}" for i in range(max_truk)]
-
-            # Assign truk ke tiap TPS prioritas secara bergilir
             prioritas["Truk"] = None
-            truk_cycle = cycle(truk_list)
-            for idx in prioritas.index:
-                prioritas.at[idx, "Truk"] = next(truk_cycle)
-
-            # Urutkan per truk & prioritas (rasio keterisian)
-            prioritas = prioritas.sort_values(["Truk", "rasio_keterisian"], ascending=[True, False]).reset_index(drop=True)
+            # Assign truk berdasarkan wilayah TPA
+            for wilayah, truks in wilayah_truk_map.items():
+                tps_wilayah = prioritas[prioritas["nearest_tpa"] == wilayah]
+                truk_cycle = cycle(truks)
+                for idx in tps_wilayah.index:
+                    prioritas.at[idx, "Truk"] = next(truk_cycle)
 
             # Hitung jarak ke TPA
             def hitung_jarak(row):
                 tpa_row = tpa_df[tpa_df["nama"] == row["nearest_tpa"]].iloc[0]
                 return haversine(row["latitude"], row["longitude"], tpa_row["latitude"], tpa_row["longitude"])
-
             prioritas["jarak_ke_TPA_km"] = prioritas.apply(hitung_jarak, axis=1)
 
-            # -----------------------------
-            # Filter Truk
-            # -----------------------------
-            selected_truk = st.multiselect(
-                "Filter Truk:",
-                truk_list,
-                default=truk_list  # default menampilkan semua truk
-            )
+            # Filter truk
+            prioritas_filtered = prioritas[prioritas["Truk"].isin(selected_truk)].copy()
 
-            if selected_truk:
-                prioritas_filtered = prioritas[prioritas["Truk"].isin(selected_truk)].copy()
-            else:
-                prioritas_filtered = prioritas.copy()
+            # Filter top N
+            if top_n_option != "Semua":
+                prioritas_filtered = prioritas_filtered.groupby("Truk").apply(
+                    lambda x: x.nlargest(top_n_option, "rasio_keterisian")
+                ).reset_index(drop=True)
 
-            # -----------------------------
-            # Tampilkan tabel jadwal per Truk
-            # -----------------------------
-            st.markdown("### Jadwal Prioritas Pengangkutan per Truk")
+            # Tampilkan tabel jadwal per truk
+            st.markdown("### Jadwal TPS per Truk")
             truk_summary = []
             for truk in selected_truk:
                 tps_truk = prioritas_filtered[prioritas_filtered["Truk"] == truk]
@@ -866,12 +894,9 @@ elif mode == "Jadwal Pengangkutan":
                     "Wilayah": wilayah_truk,
                     "TPS Dialokasikan": tps_list
                 })
-
             st.dataframe(pd.DataFrame(truk_summary))
 
-            # -----------------------------
             # Insight jadwal
-            # -----------------------------
             st.markdown("### Insight :")
             if not prioritas_filtered.empty:
                 jarak_avg = prioritas_filtered["jarak_ke_TPA_km"].mean()
@@ -1159,6 +1184,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
