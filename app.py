@@ -381,7 +381,7 @@ if mode == "Dashboard Data":
     # Tombol untuk simulasi dummy data jika tidak ada TPS penuh
     use_dummy = False
     if penuh.empty:
-    st.success("Peta rute tidak ditampilkan karena semua TPS masih di bawah 90%.")
+        st.success("Peta rute tidak ditampilkan karena semua keterisian TPS masih di bawah 90%.")
     
     # Tombol simulasi di bawah pesan
     if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
@@ -391,6 +391,7 @@ if mode == "Dashboard Data":
         dummy_tps["keterisian_%"] = np.random.uniform(91, 100, size=len(dummy_tps))
         penuh = dummy_tps
         st.info("✅ Simulasi TPS penuh diaktifkan.")
+
 
     # Jika ada data penuh (asli atau dummy)
     if not penuh.empty:
@@ -1171,6 +1172,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
