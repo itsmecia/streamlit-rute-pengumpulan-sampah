@@ -802,16 +802,19 @@ elif mode == "Rute Pengangkutan":
                     df_segmen = pd.DataFrame(segmen_jarak)
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
+#mode jadwal
+# Fungsi hitung jarak
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlon, dlat = lon2 - lon1, lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return R * c
 
-st.title("Jadwal Prioritas Pengangkutan Sampah - Max 10 Truk")
+st.title("Jadwal Prioritas Pengangkutan Sampah - 10 Truk")
 
+# Input parameter
 num_truk_total = st.number_input("Jumlah Truk Maksimal", min_value=1, max_value=10, value=10)
 prioritas_threshold = st.slider("Prioritas Keterisian TPS (%)", 0, 100, 80)
 
@@ -819,30 +822,42 @@ if st.button("Buat Jadwal Otomatis"):
     if tps_df.empty or tpa_df.empty:
         st.warning("Dataset TPS atau TPA kosong.")
     else:
+        # Hitung rasio keterisian
         tps_df["rasio_keterisian"] = tps_df["volume_saat_ini"] / tps_df["kapasitas"]
+
+        # Ambil TPS prioritas
         prioritas = tps_df[tps_df["rasio_keterisian"] >= (prioritas_threshold/100)].copy()
 
         if prioritas.empty:
             st.warning("Tidak ada TPS yang mencapai threshold prioritas.")
         else:
-            # Buat 10 truk
+            # Buat daftar 10 truk
             daftar_truk = cycle([f"Truk {i+1}" for i in range(num_truk_total)])
             prioritas["Truk"] = [next(daftar_truk) for _ in range(len(prioritas))]
 
             # Urutkan per truk & prioritas
             prioritas = prioritas.sort_values(["Truk", "rasio_keterisian"], ascending=[True, False]).reset_index(drop=True)
 
-            # Hitung jarak ke TPA
+            # Hitung jarak ke TPA dan estimasi waktu
             def hitung_jarak(row):
                 tpa_row = tpa_df[tpa_df["nama"] == row["nearest_tpa"]].iloc[0]
                 return haversine(row["latitude"], row["longitude"], tpa_row["latitude"], tpa_row["longitude"])
-
+            
             prioritas["jarak_ke_TPA_km"] = prioritas.apply(hitung_jarak, axis=1)
             prioritas["estimasi_menit"] = prioritas["jarak_ke_TPA_km"] / 5 * 60
 
-            st.markdown("### Jadwal Prioritas 10 Truk")
+            # Pilihan filter Truk
+            truk_list = sorted(prioritas["Truk"].unique())
+            truk_filter = st.multiselect("Filter Truk", truk_list, default=truk_list)
+
+            # Filter Top 5 TPS prioritas (rasio keterisian tertinggi)
+            top5_prioritas = prioritas.nlargest(5, "rasio_keterisian")
+
+            # Tampilkan tabel dengan filter truk
+            jadwal_filtered = prioritas[prioritas["Truk"].isin(truk_filter)].copy()
+            st.markdown("### Jadwal TPS Prioritas")
             st.dataframe(
-                prioritas[[
+                jadwal_filtered[[
                     "Truk", "nearest_tpa", "id_tps", "kapasitas", "volume_saat_ini",
                     "rasio_keterisian", "jarak_ke_TPA_km", "estimasi_menit"
                 ]].style.format({
@@ -852,6 +867,20 @@ if st.button("Buat Jadwal Otomatis"):
                 })
             )
 
+            # Tampilkan Top 5 TPS prioritas
+            st.markdown("### Top 5 TPS Prioritas Pengangkutan")
+            st.dataframe(
+                top5_prioritas[[
+                    "Truk", "nearest_tpa", "id_tps", "kapasitas", "volume_saat_ini",
+                    "rasio_keterisian", "jarak_ke_TPA_km", "estimasi_menit"
+                ]].style.format({
+                    "rasio_keterisian": "{:.2%}",
+                    "jarak_ke_TPA_km": "{:.2f}",
+                    "estimasi_menit": "{:.1f}"
+                })
+            )
+
+            # Insight global
             st.markdown("### Insight :")
             jarak_avg = prioritas["jarak_ke_TPA_km"].mean()
             waktu_avg = prioritas["estimasi_menit"].mean()
@@ -1140,6 +1169,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
