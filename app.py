@@ -588,7 +588,7 @@ elif mode == "Simulasi Rute":
                     rekomendasi_tpa = tpa_df.sort_values("jarak_km").iloc[0]
                     nama_tpa_terdekat = rekomendasi_tpa.get("nama", "-")
                     jarak_terpendek = rekomendasi_tpa["jarak_km"]
-                    waktu_menit = jarak_terpendek / 40 * 60  # asumsi kecepatan 40 km/h
+                    waktu_menit = jarak_terpendek / 40 * 60  
             
                     st.markdown(f"#### TPA Terdekat: {nama_tpa_terdekat}")
                     st.metric("Jarak Terpendek (km)", f"{jarak_terpendek:.2f}")
@@ -795,6 +795,7 @@ elif mode == "Simulasi Rute":
                         border-radius:8px; 
                         padding:10px; 
                         color:black;">
+                        <b>Legenda:</b><br>
                         <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
@@ -1140,6 +1141,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
