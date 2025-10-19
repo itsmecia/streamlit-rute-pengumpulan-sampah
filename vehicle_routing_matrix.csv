@@ -1,0 +1,10 @@
+lokasi,jarak_dari_TPS_km,jarak_A,jarak_B,jarak_C,jarak_D,jarak_E,jarak_F,jarak_G,jarak_H,jarak_I
+Dupont St,12,0,7,5,7,8,9,20,20,21
+Front St,15,7,0,3,15,16,8,18,12,20
+College St,14,5,3,0,6,8,8,16,12,17
+Yonge St 1,7,7,15,6,0,1,7,10,12,14
+Yonge St 2,6,8,16,8,1,0,8,9,13,15
+Danforth Ave,6,9,8,88,7,8,0,5,9,10
+Don Mills Rd,3,20,18,16,10,9,5,0,11,13
+Gerrard St,8,20,12,12,12,13,9,11,0,6
+St Claire Ave,10,21,20,17,14,15,10,13,6,0
