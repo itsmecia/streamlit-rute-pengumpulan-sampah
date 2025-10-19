@@ -571,58 +571,103 @@ elif mode == "Simulasi Rute":
         if not selected_tps:
             st.info("Silakan pilih minimal satu TPS untuk simulasi rute.")
         else:
-            # RUTE TUNGGAL 
-            if len(selected_tps) == 1:
-                tps_point = tps_df[tps_df["id_tps"].astype(str) == selected_tps[0]].iloc[0]
-
-                if tpa_df.empty or "latitude" not in tpa_df.columns:
-                    st.error("Data TPA tidak tersedia untuk menghitung rute.")
-                else:
-                    # Hitung jarak ke semua TPA (perkiraan)
-                    tpa_df = tpa_df.copy()
-                    tpa_df["jarak_km"] = np.sqrt(
-                        (tpa_df["latitude"] - tps_point["latitude"])**2 +
-                        (tpa_df["longitude"] - tps_point["longitude"])**2
-                    ) * 111
-
-                    rekomendasi_tpa = tpa_df.sort_values("jarak_km").iloc[0]
-                    nama_tpa_terdekat = rekomendasi_tpa.get("nama", "-")
-                    jarak_terpendek = rekomendasi_tpa["jarak_km"]
-                    waktu_menit = jarak_terpendek / 40 * 60  # asumi speed rata-rata 40 km/h
-
-                    st.markdown(f"#### TPA Terdekat: {nama_tpa_terdekat}")
-                    st.metric("Jarak Terpendek (km)", f"{jarak_terpendek:.2f}")
-                    st.metric("Estimasi Waktu Tempuh (menit)", f"{waktu_menit:.1f}")
-
-                    # Buat peta
-                    center_lat = float((tps_point["latitude"] + rekomendasi_tpa["latitude"]) / 2)
-                    center_lon = float((tps_point["longitude"] + rekomendasi_tpa["longitude"]) / 2)
-                    m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-
-                    # Tambah TPS + TPA + Jalur
-                    for _, row in tps_df.iterrows():
-                        style = "trash" if str(row.get("id_tps")) == selected_tps[0] else "circle"
-                        add_tps_marker(m, row, style=style)
-                    for _, row in tpa_df.iterrows():
-                        lat = row.get("latitude")
-                        lon = row.get("longitude")
-                        if pd.isna(lat) or pd.isna(lon):
-                            continue
-                        folium.Marker(
-                            [lat, lon],
-                            popup=f"TPA {row.get('nama','-')}",
-                            icon=folium.Icon(color="red", icon="recycle", prefix="fa")
-                        ).add_to(m)
-                    folium.PolyLine(
-                        [[tps_point["latitude"], tps_point["longitude"]],
-                         [rekomendasi_tpa["latitude"], rekomendasi_tpa["longitude"]]],
-                        color="blue", weight=5, tooltip="Rute Terpendek"
+         # === RUTE TUNGGAL ===
+        if len(selected_tps) == 1:
+            tps_point = tps_df[tps_df["id_tps"].astype(str) == selected_tps[0]].iloc[0]
+        
+            if tpa_df.empty or "latitude" not in tpa_df.columns:
+                st.error("Data TPA tidak tersedia untuk menghitung rute.")
+            else:
+                # Hitung jarak ke semua TPA (perkiraan)
+                tpa_df = tpa_df.copy()
+                tpa_df["jarak_km"] = np.sqrt(
+                    (tpa_df["latitude"] - tps_point["latitude"])**2 +
+                    (tpa_df["longitude"] - tps_point["longitude"])**2
+                ) * 111
+        
+                rekomendasi_tpa = tpa_df.sort_values("jarak_km").iloc[0]
+                nama_tpa_terdekat = rekomendasi_tpa.get("nama", "-")
+                jarak_terpendek = rekomendasi_tpa["jarak_km"]
+                waktu_menit = jarak_terpendek / 40 * 60  # asumsi kecepatan 40 km/h
+        
+                st.markdown(f"#### 🏁 TPA Terdekat: {nama_tpa_terdekat}")
+                st.metric("Jarak Terpendek (km)", f"{jarak_terpendek:.2f}")
+                st.metric("Estimasi Waktu Tempuh (menit)", f"{waktu_menit:.1f}")
+        
+                # PETA
+                center_lat = float((tps_point["latitude"] + rekomendasi_tpa["latitude"]) / 2)
+                center_lon = float((tps_point["longitude"] + rekomendasi_tpa["longitude"]) / 2)
+                m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
+        
+                # === Marker TPS ===
+                tps_lat, tps_lon = tps_point["latitude"], tps_point["longitude"]
+                folium.Marker(
+                    [tps_lat, tps_lon],
+                    popup=f"<b>TPS {tps_point.get('id_tps')}</b>",
+                    icon=folium.Icon(color="blue", icon="trash", prefix="fa")
+                ).add_to(m)
+                folium.map.Marker(
+                    [tps_lat, tps_lon],
+                    icon=folium.DivIcon(
+                        html=f"""
+                        <div style='
+                            font-size:14px;
+                            font-weight:bold;
+                            color:#1e40af;
+                            text-align:center;
+                            transform: translate(-25%, -200%);
+                        '>
+                            TPS {tps_point.get('id_tps')}
+                        </div>
+                        """
+                    )
+                ).add_to(m)
+        
+                # === Marker TPA ===
+                for _, row in tpa_df.iterrows():
+                    lat = row.get("latitude")
+                    lon = row.get("longitude")
+                    if pd.isna(lat) or pd.isna(lon):
+                        continue
+                    folium.Marker(
+                        [lat, lon],
+                        popup=f"<b>TPA {row.get('nama','-')}</b>",
+                        icon=folium.Icon(color="red", icon="recycle", prefix="fa")
                     ).add_to(m)
-
-                    st_folium(m, width=1000, height=550)
-                    st.markdown("### Insight")
-                    st.write(f"- Jalur terpendek dari **{selected_tps[0]} ➜ {nama_tpa_terdekat}** sejauh **{jarak_terpendek:.2f} km**.")
-                    st.write(f"- Estimasi waktu tempuh: **{waktu_menit:.1f} menit**.")
+                    # Tambahkan label besar di atas marker
+                    folium.map.Marker(
+                        [lat, lon],
+                        icon=folium.DivIcon(
+                            html=f"""
+                            <div style='
+                                font-size:14px;
+                                font-weight:bold;
+                                color:#b91c1c;
+                                text-align:center;
+                                transform: translate(-25%, -200%);
+                            '>
+                                {row.get('nama')}
+                            </div>
+                            """
+                        )
+                    ).add_to(m)
+        
+                # === Gambar Garis Jalur ===
+                folium.PolyLine(
+                    [[tps_point["latitude"], tps_point["longitude"]],
+                     [rekomendasi_tpa["latitude"], rekomendasi_tpa["longitude"]]],
+                    color="blue",
+                    weight=5,
+                    tooltip=f"Rute: TPS {tps_point.get('id_tps')} ➜ TPA {nama_tpa_terdekat}"
+                ).add_to(m)
+        
+                # === Tampilkan Peta ===
+                st_folium(m, width=1000, height=550)
+        
+                # === Insight ===
+                st.markdown("### Insight Rute")
+                st.write(f"- Jalur terpendek dari **{selected_tps[0]} ➜ {nama_tpa_terdekat}** sejauh **{jarak_terpendek:.2f} km**.")
+                st.write(f"- Estimasi waktu tempuh: **{waktu_menit:.1f} menit**.")
 
             # RUTE MULTI (GREEDY) 
             else:
@@ -1048,6 +1093,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
