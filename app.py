@@ -183,7 +183,7 @@ if mode == "Dashboard Data":
     
         # Geser hanya TPA Selatan
         if str(row["nama"]).strip().lower() == "tpa selatan":
-            offset_lat = 0.05
+            offset_lat = 0.15
             offset_lon = 0.03
             lat += offset_lat
             lon += offset_lon
@@ -1048,6 +1048,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
