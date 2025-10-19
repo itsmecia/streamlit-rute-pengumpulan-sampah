@@ -177,19 +177,18 @@ if mode == "Dashboard Data":
         attr='© OpenStreetMap contributors © CARTO'
     ).add_to(m)
 
-    # === Marker TPA ===
+  # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
-        # Geser sedikit titiknya agar tidak menumpuk dengan TPS
-        offset_lat = 0.05
-        offset_lon = 0.03
-        lat, lon = row["latitude"] + offset_lat, row["longitude"] + offset_lon
+        # Sedikit naik agar tidak menimpa ikon
+        lat, lon = row["latitude"], row["longitude"]
+        offset_label = 0.005  # jarak label ke atas (lebih kecil supaya rapi)
     
         popup_html = f"""
         <b>TPA:</b> {row.get('nama', '-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
     
-        # Marker utama (ikon)
+        # Marker ikon
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -197,50 +196,37 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label teks di atas marker
+        # Label teks (tepat di atas ikon)
         folium.Marker(
-            [lat + 0.02, lon],
+            [lat + offset_label, lon],
             icon=folium.DivIcon(
                 html=f'''
-                    <div class="label-tpa" style="
-                        font-size:14px;
+                    <div style="
+                        font-size:13px;
                         color:red;
                         font-weight:bold;
-                        text-shadow:1px 1px 3px white;
-                        text-align:center;">
+                        text-align:center;
+                        text-shadow:1px 1px 2px white;">
                         {row["nama"]}
                     </div>
                 '''
             ),
         ).add_to(m)
-
     
-        # Label teks (agar tetap muncul di zoom jauh)
-        folium.map.Marker(
-            [lat + 0.02, lon],
-            icon=folium.DivIcon(
-                html=f'''
-                <div class="label-tpa" style="
-                    font-size:13px;
-                    color:red;
-                    font-weight:bold;
-                    text-shadow:1px 1px 2px white;">
-                    {row["nama"]}
-                </div>'''
-            ),
-        ).add_to(m)
-
     
     # === Marker TPS ===
     for _, row in filtered_tps_map.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         keterisian = row.get("keterisian_%", 0)
+    
         popup_html = f"""
         <b>TPS:</b> {row.get('id_tps','-')}<br>
         <b>Kapasitas:</b> {row.get('kapasitas','N/A')}<br>
         <b>Volume:</b> {row.get('volume_saat_ini','N/A')}<br>
         <b>Keterisian:</b> {keterisian:.1f}%
         """
+    
+        # Marker ikon TPS
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -248,6 +234,23 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
     
+        # Label teks TPS
+        folium.Marker(
+            [lat + 0.003, lon],
+            icon=folium.DivIcon(
+                html=f'''
+                    <div style="
+                        font-size:12px;
+                        color:green;
+                        font-weight:bold;
+                        text-align:center;
+                        text-shadow:1px 1px 2px white;">
+                        {row["id_tps"]}
+                    </div>
+                '''
+            ),
+        ).add_to(m)
+
     # === Fit bounds semua titik ===
     all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
     if not all_points.empty:
@@ -1040,6 +1043,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
