@@ -9,7 +9,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import numpy as np
 from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt, atan2
-
+from itertools import cycle
 # KONFIGURASI HALAMAN
 st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide")
 st.title("Sistem Analisis Rute & Pengumpulan Sampah Kota Delhi")
@@ -802,73 +802,93 @@ elif mode == "Rute Pengangkutan":
                     df_segmen = pd.DataFrame(segmen_jarak)
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
-# MODE: Jadwal Pengangkutan Otomatis 
-elif mode == "Jadwal Pengangkutan":
-    st.header("🗓️ Jadwal Otomatis Berdasarkan Aktivitas & Wilayah TPS")
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0  # radius bumi km
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlon, dlat = lon2 - lon1, lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
 
-    num_truck = st.number_input("Jumlah Truk Operasional", min_value=1, value=2)
-    hari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+# -----------------------------
+# Judul Streamlit
+# -----------------------------
+st.title("Jadwal Prioritas Pengangkutan Sampah - Max 10 Truk")
 
-    if st.button("Buat Jadwal Otomatis (Realistis)"):
-        if tps_df.empty:
-            st.warning("Data TPS belum tersedia.")
+# -----------------------------
+# Input parameter
+# -----------------------------
+num_truk_total = st.number_input("Jumlah Truk Maksimal", min_value=1, max_value=10, value=10)
+prioritas_threshold = st.slider("Prioritas Keterisian TPS (%)", 0, 100, 80)
+
+# -----------------------------
+# Tombol buat jadwal
+# -----------------------------
+if st.button("Buat Jadwal Otomatis"):
+
+    # Pastikan dataset tps_df & tpa_df sudah ada
+    if tps_df.empty or tpa_df.empty:
+        st.warning("Dataset TPS atau TPA kosong.")
+    else:
+        # Hitung rasio keterisian
+        tps_df["rasio_keterisian"] = tps_df["volume_saat_ini"] / tps_df["kapasitas"]
+
+        # Ambil TPS prioritas
+        prioritas = tps_df[tps_df["rasio_keterisian"] >= (prioritas_threshold / 100)].copy()
+        if prioritas.empty:
+            st.warning("Tidak ada TPS yang mencapai threshold prioritas.")
         else:
-            # Tetapkan wilayah kerja truk berdasarkan TPA 
-            wilayah_truk = {}
-            tpa_unik = tps_df["nearest_tpa"].dropna().unique().tolist()
-            for i in range(num_truck):
-                wilayah_truk[f"Truk {i+1}"] = tpa_unik[i % len(tpa_unik)]
+            # Tentukan jumlah truk per wilayah berdasarkan proporsi
+            wilayah_unique = prioritas["nearest_tpa"].unique()
+            truk_per_wilayah = {}
+            remaining_truk = num_truk_total
+            for w in wilayah_unique:
+                truk_per_wilayah[w] = max(1, remaining_truk // len(wilayah_unique))
             
-            # Acak data TPS agar pembagian merata 
-            tps_df_shuffled = tps_df.sample(frac=1, random_state=42).reset_index(drop=True)
-            
-            # Bagi TPS menjadi kelompok per hari (merata)
-            chunks = [tps_df_shuffled[i:i+num_truck] for i in range(0, len(tps_df_shuffled), num_truck)]
-            
-            data = []
-            for i, chunk in enumerate(chunks):
-                h = hari[i % len(hari)]  
-                for j, t in enumerate(chunk.itertuples()):
-                    nama_truk = f"Truk {j+1}"
-                    tpa_target = wilayah_truk.get(nama_truk, getattr(t, "nearest_tpa", "-"))
-                    
-                    # Estimasi waktu (30 km/jam) 
-                    jarak_km = getattr(t, "nearest_dist_km", 0.0)
-                    waktu_menit = (jarak_km / 30) * 60  # 30 km/jam
-                    
-                    data.append({
-                        "Hari": h,
-                        "Truk": nama_truk,
-                        "TPS": getattr(t, "id_tps", "-"),
-                        "TPA Tujuan": tpa_target,
-                        "Jarak (km)": round(jarak_km, 2),
-                        "Estimasi Waktu (menit)": round(waktu_menit, 1)
-                    })
-            
-            # Tampilkan hasil jadwal
-            jadwal_df = pd.DataFrame(data)
-            st.success("Jadwal pengangkutan berhasil dibuat!")
-            st.dataframe(jadwal_df, use_container_width=True)
+            # Assign truk ke TPS prioritas
+            prioritas["Truk"] = None
+            for wilayah, grup in prioritas.groupby("nearest_tpa"):
+                daftar_truk = cycle([f"Truk {i+1}" for i in range(truk_per_wilayah[wilayah])])
+                prioritas.loc[prioritas["nearest_tpa"] == wilayah, "Truk"] = [next(daftar_truk) for _ in range(len(grup))]
 
-            # Grafik distribusi jarak per hari
-            if not jadwal_df.empty:
-                fig = px.bar(
-                    jadwal_df,
-                    x="Hari", y="Jarak (km)", color="Truk",
-                    barmode="group",
-                    title="Distribusi Jarak per Hari per Truk"
-                )
-                st.plotly_chart(fig, use_container_width=True)
+            # Urutkan per truk & prioritas (rasio keterisian)
+            prioritas = prioritas.sort_values(["Truk", "rasio_keterisian"], ascending=[True, False]).reset_index(drop=True)
 
-                # -Insight 
-                st.markdown("### Insight :")
-                jarak_avg = jadwal_df["Jarak (km)"].mean()
-                waktu_avg = jadwal_df["Estimasi Waktu (menit)"].mean()
-                truk_terjauh = jadwal_df.groupby("Truk")["Jarak (km)"].sum().idxmax()
-                st.info(f"• **Rata-rata jarak per rute:** {jarak_avg:.2f} km")
-                st.info(f"• **Rata-rata waktu tempuh:** {waktu_avg:.1f} menit")
-                st.info(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
-                st.write("• **Saran:** Rotasi truk agar beban jarak & waktu merata tiap minggu.")
+            # Hitung jarak ke TPA
+            def hitung_jarak(row):
+                tpa_row = tpa_df[tpa_df["nama"] == row["nearest_tpa"]].iloc[0]
+                return haversine(row["latitude"], row["longitude"], tpa_row["latitude"], tpa_row["longitude"])
+
+            prioritas["jarak_ke_TPA_km"] = prioritas.apply(hitung_jarak, axis=1)
+            prioritas["estimasi_menit"] = prioritas["jarak_ke_TPA_km"] / 5 * 60  # asumsikan kecepatan truk 5 km/jam
+
+            # -----------------------------
+            # Tampilkan tabel jadwal
+            # -----------------------------
+            st.markdown("### Jadwal Prioritas Pengangkutan")
+            st.dataframe(
+                prioritas[[
+                    "Truk", "nearest_tpa", "id_tps", "kapasitas", "volume_saat_ini",
+                    "rasio_keterisian", "jarak_ke_TPA_km", "estimasi_menit"
+                ]].style.format({
+                    "rasio_keterisian": "{:.2%}",
+                    "jarak_ke_TPA_km": "{:.2f}",
+                    "estimasi_menit": "{:.1f}"
+                })
+            )
+
+            # -----------------------------
+            # Insight jadwal
+            # -----------------------------
+            st.markdown("### Insight :")
+            jarak_avg = prioritas["jarak_ke_TPA_km"].mean()
+            waktu_avg = prioritas["estimasi_menit"].mean()
+            truk_terjauh = prioritas.groupby("Truk")["jarak_ke_TPA_km"].sum().idxmax()
+
+            st.info(f"• **Rata-rata jarak per rute:** {jarak_avg:.2f} km")
+            st.info(f"• **Rata-rata waktu tempuh:** {waktu_avg:.1f} menit")
+            st.info(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
+            st.write("• **Saran:** Rotasi truk agar beban jarak & waktu merata tiap minggu.")
 
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
@@ -1148,6 +1168,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
