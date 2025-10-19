@@ -682,26 +682,6 @@ elif mode == "Jadwal & Rute Pengangkutan":
         st.markdown("#### Jarak Antar Segmen Rute")
         st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)":"{:.2f}"}))
 
-        # Insight Jarak 
-        segmen_jarak = []
-        for i in range(len(route)-1):
-            dist = haversine(route[i]["latitude"], route[i]["longitude"], route[i+1]["latitude"], route[i+1]["longitude"])
-            segmen_jarak.append({"Dari": route[i]["id_tps"], "Ke": route[i+1]["id_tps"], "Jarak (km)": round(dist,2)})
-        dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
-        segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa,2)})
-        total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
-        avg_distance = total_distance / len(segmen_jarak)
-        urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
-
-        st.markdown("### Insight Rute")
-        st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
-        st.write(f"- **Truk menangani:** {truk_ditangani}")
-        st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
-        st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
-        st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
-
-        st.markdown("#### Jarak Antar Segmen Rute")
-        st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)":"{:.2f}"}))
 
             
 # MODE: Prediksi Volume Sampah
@@ -982,6 +962,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
