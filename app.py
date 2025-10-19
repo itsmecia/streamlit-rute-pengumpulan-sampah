@@ -127,7 +127,6 @@ if mode == "Dashboard Data":
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
-  # === PETA SEBARAN TPS & TPA ===
     # === PETA SEBARAN TPS & TPA ===
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
     
@@ -180,14 +179,17 @@ if mode == "Dashboard Data":
 
     # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
-        offset_lat = 0.05 
-        offset_lon = 0.03 
+        # Geser sedikit titiknya agar tidak menumpuk dengan TPS
+        offset_lat = 0.05
+        offset_lon = 0.03
         lat, lon = row["latitude"] + offset_lat, row["longitude"] + offset_lon
     
         popup_html = f"""
-        <b>TPA:</b> {row.get('nama','-')}<br>
+        <b>TPA:</b> {row.get('nama', '-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
+    
+        # Marker utama (ikon)
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -195,18 +197,20 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label teks agar tetap terlihat walau di-zoom jauh
-        folium.map.Marker(
-            [lat + 0.03, lon],
+        # Label teks di atas marker
+        folium.Marker(
+            [lat + 0.02, lon],
             icon=folium.DivIcon(
                 html=f'''
-                <div style="
-                    font-size:16px;
-                    color:red;
-                    font-weight:bold;
-                    text-shadow:1px 1px 3px white;">
-                    {row["nama"]}
-                </div>'''
+                    <div class="label-tpa" style="
+                        font-size:14px;
+                        color:red;
+                        font-weight:bold;
+                        text-shadow:1px 1px 3px white;
+                        text-align:center;">
+                        {row["nama"]}
+                    </div>
+                '''
             ),
         ).add_to(m)
 
@@ -1036,6 +1040,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
