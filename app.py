@@ -803,7 +803,7 @@ elif mode == "Rute Pengangkutan":
                     df_segmen = pd.DataFrame(segmen_jarak)
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
- elif mode == "Jadwal Pengangkutan":
+elif mode == "Jadwal Pengangkutan":
     st.header("📅 Jadwal Pengangkutan Berdasarkan Wilayah TPA")
 
     if tps_df.empty or "keterisian_%" not in tps_df.columns or "nearest_tpa" not in tps_df.columns:
@@ -1204,6 +1204,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
