@@ -590,7 +590,7 @@ elif mode == "Simulasi Rute":
                     jarak_terpendek = rekomendasi_tpa["jarak_km"]
                     waktu_menit = jarak_terpendek / 40 * 60  # asumsi kecepatan 40 km/h
             
-                    st.markdown(f"#### 🏁 TPA Terdekat: {nama_tpa_terdekat}")
+                    st.markdown(f"#### TPA Terdekat: {nama_tpa_terdekat}")
                     st.metric("Jarak Terpendek (km)", f"{jarak_terpendek:.2f}")
                     st.metric("Estimasi Waktu Tempuh (menit)", f"{waktu_menit:.1f}")
             
@@ -617,7 +617,7 @@ elif mode == "Simulasi Rute":
                                 text-align:center;
                                 transform: translate(-25%, -200%);
                             '>
-                                TPS {tps_point.get('id_tps')}
+                                {tps_point.get('id_tps')}
                             </div>
                             """
                         )
@@ -1093,6 +1093,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
