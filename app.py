@@ -741,14 +741,14 @@ elif mode == "Rute Pengangkutan":
             
               # -Fungsi menghitung jarak antar dua koordinat (Haversine) 
                     def haversine(lat1, lon1, lat2, lon2):
-                        R = 6371.0
+                        R = 6371.0  
                         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
                         dlon, dlat = lon2 - lon1, lat2 - lat1
-                        a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+                        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
                         c = 2 * atan2(sqrt(a), sqrt(1 - a))
                         return R * c
                     
-                    # Pastikan nearest_tpa dalam bentuk dict
+                    # Pastikan nearest_tpa dalam bentuk dictionary
                     if nearest_tpa is not None:
                         if isinstance(nearest_tpa, pd.DataFrame) and not nearest_tpa.empty:
                             nearest_tpa = nearest_tpa.iloc[0].to_dict()
@@ -759,35 +759,43 @@ elif mode == "Rute Pengangkutan":
                     else:
                         nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
                     
-                    # insight 
-                    urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
-                    st.markdown("### Insight")
-                    st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
-                    st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
-                    st.write(f"- **Rata-rata jarak antar segmen:** {total_distance/len(selected_tps):.2f} km.")
-                    st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({nearest_tpa.get('jarak_km',0.0):.2f} km dari TPS terakhir).")
-                    
-                    # Hitung jarak antar segmen & tampilkan tabel
+                    # Hitung jarak antar segmen
                     segmen_jarak = []
                     for i in range(len(route) - 1):
                         tps_a = route[i]
                         tps_b = route[i + 1]
-                        dist = haversine(tps_a["latitude"], tps_a["longitude"], tps_b["latitude"], tps_b["longitude"])
+                        dist = haversine(tps_a["latitude"], tps_a["longitude"],
+                                         tps_b["latitude"], tps_b["longitude"])
                         segmen_jarak.append({
                             "Dari": tps_a["id_tps"],
                             "Ke": tps_b["id_tps"],
                             "Jarak (km)": round(dist, 2)
                         })
                     
-                    #  segmen terakhir ke TPA
+                    # Tambahkan segmen terakhir ke TPA
                     if nearest_tpa:
                         last_tps = route[-1]
-                        dist_to_tpa = haversine(last_tps["latitude"], last_tps["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
+                        dist_to_tpa = haversine(
+                            last_tps["latitude"], last_tps["longitude"],
+                            nearest_tpa["latitude"], nearest_tpa["longitude"]
+                        )
                         segmen_jarak.append({
                             "Dari": last_tps["id_tps"],
                             "Ke": nearest_tpa["nama"],
                             "Jarak (km)": round(dist_to_tpa, 2)
                         })
+                    
+                    # Hitung total dan rata-rata jarak
+                    total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
+                    avg_distance = total_distance / len(segmen_jarak)
+                    
+                    # Tampilkan insight dan rekomendasi
+                    urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
+                    st.markdown("### Insight")
+                    st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
+                    st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
+                    st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km.")
+                    st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({dist_to_tpa:.2f} km dari TPS terakhir).")
                     
                     # Tampilkan tabel jarak antar segmen
                     st.markdown("#### Jarak Antar Segmen Rute")
@@ -1115,6 +1123,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
