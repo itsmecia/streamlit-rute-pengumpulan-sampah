@@ -166,10 +166,18 @@ if mode == "Dashboard Data":
     # === Buat peta utama ===
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
-    # Tambahkan basemap dan kontrol layer
-    folium.TileLayer('OpenStreetMap').add_to(m)
-    folium.TileLayer('Stamen Terrain').add_to(m)
-    folium.TileLayer('CartoDB positron').add_to(m)
+    folium.TileLayer('OpenStreetMap', name="OpenStreetMap").add_to(m)
+    folium.TileLayer(
+        tiles='https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
+        name='Stamen Terrain',
+        attr='Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
+    ).add_to(m)
+    folium.TileLayer(
+        tiles='https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+        name='CartoDB Positron',
+        attr='© OpenStreetMap contributors © CARTO'
+    ).add_to(m)
+
     
     # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
@@ -1011,6 +1019,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
