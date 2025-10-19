@@ -128,7 +128,6 @@ if mode == "Dashboard Data":
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
     #  PETA SEBARAN TPS & TPA
-    #  PETA SEBARAN TPS & TPA
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
     
     # Filter TPS
@@ -163,29 +162,29 @@ if mode == "Dashboard Data":
     else:
         center_lat, center_lon = -7.8, 110.4  
     
-    # Buat peta utama tanpa atribusi
+    # Buat peta utama
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
-    # Tambahkan tile layer TANPA atribusi
+    # Tambahkan tile layer tanpa tulisan atribusi (attr isi spasi)
     folium.TileLayer(
         tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         name="OpenStreetMap",
-        attr=""  # <- kosong agar tidak muncul atribusi
+        attr=" "  # <-- gunakan spasi, bukan string kosong
     ).add_to(m)
     
     folium.TileLayer(
         tiles="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
         name="Stamen Terrain",
-        attr=""
+        attr=" "
     ).add_to(m)
     
     folium.TileLayer(
         tiles="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
         name="CartoDB Positron",
-        attr=""
+        attr=" "
     ).add_to(m)
     
-    # Marker TPA 
+    # Marker TPA
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         if str(row["nama"]).strip().lower() == "tpa selatan":
@@ -202,22 +201,6 @@ if mode == "Dashboard Data":
             popup=popup_html,
             tooltip=f"TPA: {row['nama']}",
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
-        ).add_to(m)
-    
-        folium.Marker(
-            [lat + 0.006, lon],
-            icon=folium.DivIcon(
-                html=f'''
-                    <div style="
-                        font-size:13px;
-                        color:red;
-                        font-weight:bold;
-                        text-align:center;
-                        text-shadow:1px 1px 2px white;">
-                        {row["nama"]}
-                    </div>
-                '''
-            ),
         ).add_to(m)
     
     # Marker TPS
@@ -239,22 +222,6 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
     
-        folium.Marker(
-            [lat + 0.003, lon],
-            icon=folium.DivIcon(
-                html=f'''
-                    <div style="
-                        font-size:12px;
-                        color:green;
-                        font-weight:bold;
-                        text-align:center;
-                        text-shadow:1px 1px 2px white;">
-                        {row["id_tps"]}
-                    </div>
-                '''
-            ),
-        ).add_to(m)
-    
     # Fit bounds semua titik
     all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
     if not all_points.empty:
@@ -263,7 +230,7 @@ if mode == "Dashboard Data":
             [all_points["latitude"].max(), all_points["longitude"].max()],
         ])
     
-    # Tambahkan legenda 
+    # Tambahkan legenda
     legend_html = """
     <div style="
          position: fixed; 
@@ -286,7 +253,6 @@ if mode == "Dashboard Data":
     # Layer control
     folium.LayerControl().add_to(m)
     
-    # 🔥 Hilangkan teks atribusi lewat CSS
     hide_attr_css = """
     <style>
     .leaflet-control-attribution {
@@ -296,11 +262,9 @@ if mode == "Dashboard Data":
     """
     st.markdown(hide_attr_css, unsafe_allow_html=True)
     
-    # Tampilkan peta di Streamlit
+    # Tampilkan peta
     st_folium(m, width=1000, height=550)
-
     st.markdown("---")
-
 
     # SCATTER: Kapasitas vs Volume
     st.subheader("Hubungan Kapasitas vs Volume per TPS")
@@ -1138,6 +1102,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
