@@ -803,7 +803,7 @@ elif mode == "Rute Pengangkutan":
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
     #mode jadwal
-#def haversine(lat1, lon1, lat2, lon2):
+def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0  # km
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlat = lat2 - lat1
@@ -1184,6 +1184,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
