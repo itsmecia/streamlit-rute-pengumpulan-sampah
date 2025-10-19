@@ -565,85 +565,6 @@ elif mode == "Jadwal & Rute Pengangkutan":
 
     st.markdown("---")
 
-# MODE: Simulasi Rute & jadwal
-elif mode == "Jadwal & Rute Pengangkutan":
-
-    # Fungsi Haversine
-    def haversine(lat1, lon1, lat2, lon2):
-        R = 6371.0
-        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-        dlon, dlat = lon2 - lon1, lat2 - lat1
-        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return R * c
-
-    # Validasi Dataset
-    if tps_df.empty or "nearest_tpa" not in tps_df.columns or "volume_saat_ini" not in tps_df.columns:
-        st.warning("Pastikan file TPS memiliki kolom 'nearest_tpa' dan 'volume_saat_ini'.")
-        st.stop()
-    if "keterisian_%" not in tps_df.columns:
-        tps_df["keterisian_%"] = (tps_df["volume_saat_ini"] / tps_df["kapasitas"]) * 100
-
-    # Daftar Truk & Wilayah
-    tpa_list = sorted(tpa_df["nama"].unique())
-    all_trucks = [f"TR{str(i).zfill(2)}" for i in range(1, 11)]
-    tpa_truck_map = {}
-    split = [3, 3, 4]
-    idx = 0
-    for tpa, count in zip(tpa_list, split):
-        tpa_truck_map[tpa] = all_trucks[idx:idx + count]
-        idx += count
-
-    st.subheader("Daftar Truk & Pembagian Wilayah")
-    daftar_truk = []
-    for tpa, trucks in tpa_truck_map.items():
-        for truk in trucks:
-            daftar_truk.append({"Truk": truk, "Wilayah (TPA)": tpa})
-    st.dataframe(pd.DataFrame(daftar_truk), use_container_width=True)
-
-    # Jadwal TPS
-    tps_df = tps_df.copy()
-    tps_df["prioritas_rank"] = tps_df.groupby("nearest_tpa")["keterisian_%"].rank(method="first", ascending=False)
-    tps_df = tps_df.sort_values(["nearest_tpa", "prioritas_rank"])
-
-    assigned_list = []
-    for tpa in tps_df["nearest_tpa"].unique():
-        subset = tps_df[tps_df["nearest_tpa"] == tpa].copy()
-        trucks = tpa_truck_map.get(tpa, ["Cadangan"])
-        subset["Truk"] = [trucks[i % len(trucks)] for i in range(len(subset))]
-        assigned_list.append(subset)
-    jadwal_final = pd.concat(assigned_list)
-
-    jadwal_df = jadwal_final[[
-        "id_tps", "nama", "nearest_tpa", "keterisian_%", "kapasitas",
-        "volume_saat_ini", "Truk"
-    ]].rename(columns={
-        "id_tps": "ID TPS",
-        "nama": "Nama TPS",
-        "nearest_tpa": "Wilayah (TPA)",
-        "keterisian_%": "Keterisian (%)",
-        "kapasitas": "Kapasitas (m³)",
-        "volume_saat_ini": "Volume Saat Ini (m³)"
-    })
-
-    st.subheader("Jadwal Pengangkutan")
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_truck = st.selectbox("Pilih Truk:", ["Semua"] + all_trucks, key="filter_truk")
-    with col2:
-        top_filter = st.selectbox("Tampilkan:", ["Semua TPS", "Top 5 Prioritas", "Top 10 Prioritas"], key="filter_top")
-
-    filtered_df = jadwal_df.copy()
-    if selected_truck != "Semua":
-        filtered_df = filtered_df[filtered_df["Truk"] == selected_truck]
-    if top_filter == "Top 5 Prioritas":
-        filtered_df = filtered_df.sort_values("Keterisian (%)", ascending=False).head(5)
-    elif top_filter == "Top 10 Prioritas":
-        filtered_df = filtered_df.sort_values("Keterisian (%)", ascending=False).head(10)
-    st.dataframe(filtered_df.reset_index(drop=True), use_container_width=True)
-
-
-    st.markdown("---")
 
     # Rute Pengangkutan
     st.subheader("Rute Pengangkutan")
@@ -1040,6 +961,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
