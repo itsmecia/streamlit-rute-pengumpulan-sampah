@@ -165,34 +165,35 @@ if mode == "Dashboard Data":
     # Buat peta utama
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
-    folium.TileLayer('OpenStreetMap', name="OpenStreetMap").add_to(m)
     folium.TileLayer(
-        tiles='https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
-        name='Stamen Terrain',
-        attr='Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
-    ).add_to(m)
-    folium.TileLayer(
-        tiles='https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-        name='CartoDB Positron',
-        attr='© OpenStreetMap contributors © CARTO'
+        tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        name="OpenStreetMap",
+        attr='Leaflet | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     ).add_to(m)
 
-   # Marker TPA 
+    folium.TileLayer(
+        tiles="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
+        name="Stamen Terrain",
+        attr='Map tiles by Stamen Design, under CC BY 3.0.'
+    ).add_to(m)
+    folium.TileLayer(
+        tiles="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+        name="CartoDB Positron",
+        attr='Map tiles by CARTO, under CC BY 3.0.'
+    ).add_to(m)
+    
+    # Marker TPA 
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
-        # TPA Selatan 
         if str(row["nama"]).strip().lower() == "tpa selatan":
-            offset_lat = 0.30
-            offset_lon = 0.03
-            lat += offset_lat
-            lon += offset_lon
+            lat += 0.30
+            lon += 0.03
     
         popup_html = f"""
         <b>TPA:</b> {row.get('nama', '-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
     
-        # Marker ikon TPA
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -200,7 +201,6 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label teks TPA (tepat di atas ikon)
         folium.Marker(
             [lat + 0.006, lon],
             icon=folium.DivIcon(
@@ -216,7 +216,6 @@ if mode == "Dashboard Data":
                 '''
             ),
         ).add_to(m)
-
     
     # Marker TPS
     for _, row in filtered_tps_map.iterrows():
@@ -230,7 +229,6 @@ if mode == "Dashboard Data":
         <b>Keterisian:</b> {keterisian:.1f}%
         """
     
-        # Marker ikon TPS
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -238,7 +236,6 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
     
-        # Label teks TPS
         folium.Marker(
             [lat + 0.003, lon],
             icon=folium.DivIcon(
@@ -254,7 +251,7 @@ if mode == "Dashboard Data":
                 '''
             ),
         ).add_to(m)
-
+    
     # Fit bounds semua titik
     all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
     if not all_points.empty:
@@ -283,37 +280,12 @@ if mode == "Dashboard Data":
     """
     m.get_root().html.add_child(folium.Element(legend_html))
     
-    #  efek zoom untuk label 
-    zoom_script = """
-    <script>
-    var map = window.map || {};
-    map.on('zoomend', function() {
-      var zoom = map.getZoom();
-      var labels = document.getElementsByClassName('label-tpa');
-      for (var i = 0; i < labels.length; i++) {
-        labels[i].style.fontSize = (12 + zoom / 1.5) + 'px';
-      }
-    });
-    </script>
-    """
-    m.get_root().html.add_child(folium.Element(zoom_script))
-    
     folium.LayerControl().add_to(m)
+    
+    # Tampilkan di Streamlit
     st_folium(m, width=1000, height=550)
-    # Hilangkan atribusi "Leaflet | © OpenStreetMap..." di peta
-    hide_folium_css = """
-        <style>
-        .leaflet-control-attribution {
-            display: none !important;
-        }
-        .leaflet-bottom.leaflet-right {
-            display: none !important;
-        }
-        </style>
-    """
-    st.markdown(hide_folium_css, unsafe_allow_html=True)
-
     st.markdown("---")
+
 
     # SCATTER: Kapasitas vs Volume
     st.subheader("Hubungan Kapasitas vs Volume per TPS")
@@ -1151,6 +1123,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
