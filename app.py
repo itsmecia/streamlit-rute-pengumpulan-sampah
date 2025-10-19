@@ -568,18 +568,79 @@ elif mode == "Jadwal & Rute Pengangkutan":
 
     # Rute Pengangkutan
     st.subheader("Rute Pengangkutan")
+    
     tps_options = tps_df["id_tps"].astype(str).unique().tolist()
     selected_tps = st.multiselect("Pilih TPS", tps_options)
-
-    if selected_tps:
+    
+    # Tentukan titik tengah peta
+    center_lat = float(tps_df["latitude"].mean())
+    center_lon = float(tps_df["longitude"].mean())
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
+    
+    # ============ SEBELUM RUTE DICARI ============
+    # Tampilkan semua TPS (bulat merah)
+    for _, row in tps_df.iterrows():
+        folium.CircleMarker(
+            location=[row["latitude"], row["longitude"]],
+            radius=6,
+            color="red",
+            fill=True,
+            fill_color="red",
+            fill_opacity=0.8,
+            popup=f"TPS {row['id_tps']}: {row['nama']}"
+        ).add_to(m)
+        folium.map.Marker(
+            [row["latitude"], row["longitude"]],
+            icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+        ).add_to(m)
+    
+    # Tampilkan semua TPA (bulat hijau)
+    for _, row in tpa_df.iterrows():
+        folium.CircleMarker(
+            location=[row["latitude"], row["longitude"]],
+            radius=6,
+            color="green",
+            fill=True,
+            fill_color="green",
+            fill_opacity=0.8,
+            popup=f"TPA {row['nama']}"
+        ).add_to(m)
+        folium.map.Marker(
+            [row["latitude"], row["longitude"]],
+            icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#006600; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+        ).add_to(m)
+    
+    # Kalau belum pilih TPS → tampilkan legenda awal
+    if not selected_tps:
+        legend_html = """
+        <div style="
+            position: fixed; 
+            bottom: 40px; left: 40px; 
+            width: 160px; 
+            background-color: rgba(255,255,255,0.9); 
+            border: 2px solid grey; 
+            z-index: 9999; 
+            font-size: 14px; 
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3); 
+            border-radius: 8px; 
+            padding: 10px; 
+            color: black;">
+            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:red"></i> TPS</div>
+            <div><i class="fa fa-circle" style="color:green"></i> TPA</div>
+        </div>
+        """
+        m.get_root().html.add_child(folium.Element(legend_html))
+        st_folium(m, width=1000, height=550)
+    else:
+        # ============ JIKA TPS DIPILIH (RUTE DICARI) ============
         selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
-
-        # RUTE GREEDY 
+    
+        # RUTE GREEDY
         remaining = selected_tps_df.reset_index(drop=True).copy()
         current = remaining.iloc[0]
         route_order = [current]
         remaining = remaining.drop(index=0).reset_index(drop=True)
-
+    
         while not remaining.empty:
             remaining["jarak"] = np.sqrt(
                 (remaining["latitude"] - current["latitude"])**2 +
@@ -590,7 +651,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
             route_order.append(nearest)
             current = nearest
             remaining = remaining.drop(nearest_idx).reset_index(drop=True)
-
+    
         route = route_order
         last = route[-1]
         nearest_tpa_df = tpa_df.copy()
@@ -600,25 +661,23 @@ elif mode == "Jadwal & Rute Pengangkutan":
         ) * 111
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
-
-        # PETA 
-        center_lat = float(selected_tps_df["latitude"].mean())
-        center_lon = float(selected_tps_df["longitude"].mean())
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-
-        # Marker TPS
+    
+        # Tambahkan marker rute
         for i, point in enumerate(route):
             color = "green" if i == 0 else "blue"
             icon_type = "truck" if i == 0 else "trash"
             folium.Marker(
                 [point["latitude"], point["longitude"]],
-                popup=f"{i+1}.{point['id_tps']}",
+                popup=f"{i+1}. {point['id_tps']}",
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
+    
+            # Label
             folium.map.Marker(
                 [point["latitude"], point["longitude"]],
                 icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>")
             ).add_to(m)
+    
             # Garis antar TPS
             if i < len(route) - 1:
                 next_point = route[i+1]
@@ -627,8 +686,8 @@ elif mode == "Jadwal & Rute Pengangkutan":
                     color="blue", weight=4, opacity=0.8,
                     tooltip=f"{point['id_tps']} ➜ {next_point['id_tps']}"
                 ).add_to(m)
-
-        # Marker & Polyline ke TPA
+    
+        # Ke TPA
         folium.PolyLine(
             [[last["latitude"], last["longitude"]], [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
             color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
@@ -638,13 +697,13 @@ elif mode == "Jadwal & Rute Pengangkutan":
             popup=f"{nearest_tpa['nama']}",
             icon=folium.Icon(color="red", icon="flag", prefix="fa")
         ).add_to(m)
-
-        # Legenda
+    
+        # Legenda rute
         legend_html = """
         <div style="
             position: fixed; 
             bottom: 40px; left: 40px; 
-            width: 140px; 
+            width: 180px; 
             background-color: rgba(255,255,255,0.9); 
             border: 2px solid grey; 
             z-index: 9999; 
@@ -653,35 +712,41 @@ elif mode == "Jadwal & Rute Pengangkutan":
             border-radius: 8px; 
             padding: 10px; 
             color: black;">
-            <div style="margin-bottom:4px;"><i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS</div>
-            <div><i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:red"></i> TPS</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-circle" style="color:green"></i> TPA</div>
+            <div style="margin-bottom:4px;"><i class="fa fa-truck" style="color:green"></i> Start TPS</div>
+            <div><i class="fa fa-flag" style="color:red"></i> Finish TPA</div>
         </div>
         """
-        
         m.get_root().html.add_child(folium.Element(legend_html))
-
+    
         st_folium(m, width=1000, height=550)
-
-        # Insight Jarak 
+    
+        # ================= INSIGHT RUTE ==================
         segmen_jarak = []
         for i in range(len(route)-1):
-            dist = haversine(route[i]["latitude"], route[i]["longitude"], route[i+1]["latitude"], route[i+1]["longitude"])
-            segmen_jarak.append({"Dari": route[i]["id_tps"], "Ke": route[i+1]["id_tps"], "Jarak (km)": round(dist,2)})
-        dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
-        segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa,2)})
+            dist = haversine(route[i]["latitude"], route[i]["longitude"],
+                             route[i+1]["latitude"], route[i+1]["longitude"])
+            segmen_jarak.append({"Dari": route[i]["id_tps"], "Ke": route[i+1]["id_tps"], "Jarak (km)": round(dist, 2)})
+    
+        dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"],
+                                nearest_tpa["latitude"], nearest_tpa["longitude"])
+        segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa, 2)})
+    
         total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
         avg_distance = total_distance / len(segmen_jarak)
         urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
-
+    
         st.markdown("### Insight Rute")
         st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
         st.write(f"- **Truk menangani:** {truk_ditangani}")
         st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
         st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
         st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
-
+    
         st.markdown("#### Jarak Antar Segmen Rute")
-        st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)":"{:.2f}"}))
+        st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)": "{:.2f}"}))
+
         
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
@@ -961,6 +1026,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
