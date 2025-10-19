@@ -169,7 +169,7 @@ if mode == "Dashboard Data":
     folium.TileLayer(
         tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         name="OpenStreetMap",
-        attr=" "  # <-- gunakan spasi, bukan string kosong
+        attr=" "  
     ).add_to(m)
     
     folium.TileLayer(
@@ -200,7 +200,7 @@ if mode == "Dashboard Data":
         folium.Marker(
             [lat, lon],
             popup=popup_html,
-            tooltip=f"TPA: {row['nama']}",
+            tooltip=f"{row['nama']}",
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
@@ -233,7 +233,7 @@ if mode == "Dashboard Data":
         keterisian = row.get("keterisian_%", 0)
     
         popup_html = f"""
-        <b>TPS:</b> {row.get('id_tps','-')}<br>
+        {row.get('id_tps','-')}<br>
         <b>Kapasitas:</b> {row.get('kapasitas','N/A')}<br>
         <b>Volume:</b> {row.get('volume_saat_ini','N/A')}<br>
         <b>Keterisian:</b> {keterisian:.1f}%
@@ -1150,6 +1150,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
