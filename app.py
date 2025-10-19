@@ -93,7 +93,7 @@ mode = st.sidebar.radio(
     "Pilih Menu:",
     [
         "Dashboard Data",
-        "Simulasi Rute",
+        "Rute Pengangkutan",
         "Jadwal Pengangkutan",
         "Prediksi Volume Sampah"
     ],
@@ -514,8 +514,8 @@ if mode == "Dashboard Data":
         )
 
 # MODE: Simulasi Rute
-elif mode == "Simulasi Rute":
-    st.header("Simulasi Rute (Tunggal / Multi)")
+elif mode == "Rute Pengangkutan":
+    st.header("Rute Pengangkutan")
     st.write("Pilih satu atau beberapa TPS untuk mensimulasikan rute otomatis menuju TPA terdekat.")
 
     if "id_tps" not in tps_df.columns or tps_df.empty:
@@ -1103,6 +1103,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
