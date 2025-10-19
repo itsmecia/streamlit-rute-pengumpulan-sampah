@@ -655,58 +655,6 @@ elif mode == "Jadwal & Rute Pengangkutan":
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
     
-        # Semua titik TPS bulat + label
-        for _, tps_row in tps_df.iterrows():
-            folium.CircleMarker(
-                [tps_row["latitude"], tps_row["longitude"]],
-                radius=6,
-                color="green",
-                fill=True,
-                fill_color="green",
-                fill_opacity=0.8
-            ).add_to(m)
-            # Label di bawah marker TPS
-            folium.map.Marker(
-                [tps_row["latitude"], tps_row["longitude"]],
-                icon=folium.DivIcon(html=f"""
-                    <div style='
-                        font-size:11px;
-                        font-weight:bold;
-                        color:green;
-                        text-shadow:1px 1px 2px #fff;
-                        transform: translate(-50%, 14px);
-                    '>
-                        {tps_row['id_tps']}
-                    </div>
-                """)
-            ).add_to(m)
-        
-        # Semua titik TPA bulat + label
-        for _, tpa_row in tpa_df.iterrows():
-            folium.CircleMarker(
-                [tpa_row["latitude"], tpa_row["longitude"]],
-                radius=6,
-                color="red",
-                fill=True,
-                fill_color="red",
-                fill_opacity=0.8
-            ).add_to(m)
-            # Label di bawah marker TPA
-            folium.map.Marker(
-                [tpa_row["latitude"], tpa_row["longitude"]],
-                icon=folium.DivIcon(html=f"""
-                    <div style='
-                        font-size:11px;
-                        font-weight:bold;
-                        color:#660000;
-                        text-shadow:1px 1px 2px #fff;
-                        transform: translate(-50%, 14px);
-                    '>
-                        {tpa_row['nama']}
-                    </div>
-                """)
-            ).add_to(m)
-        
         # Marker rute (start - finish)
         for i, point in enumerate(route):
             color = "green" if i == 0 else "blue"
@@ -1102,6 +1050,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
