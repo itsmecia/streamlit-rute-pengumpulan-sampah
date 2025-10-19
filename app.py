@@ -453,42 +453,51 @@ if mode == "Dashboard Data":
         st.info("Tidak ada data yang cocok dengan filter TPS yang dipilih.")
     st.markdown("---")    
 
-    # TREN VOLUME HARIAN
-    st.subheader("Tren Volume Sampah Harian (Kota)")
-
-    bulan_options_tren = sorted(histori_df["bulan"].dropna().unique().tolist())
-    selected_bulan_tren = st.multiselect("Filter Bulan:", bulan_options_tren, key="filter_bulan_tren")
+# TREN VOLUME SAMPAH BULANAN (KOTA)
+    st.subheader("Tren Volume Sampah Bulanan (Kota)")
+    
+    # Pilihan filter
     tps_options_tren = sorted(histori_df["id_tps"].unique().tolist())
     selected_tps_tren = st.multiselect("Filter TPS:", tps_options_tren, key="filter_tps_tren")
-
+    
     if st.button("Reset Filter Tren", key="reset_tren"):
-        selected_bulan_tren, selected_tps_tren = [], []
-
+        selected_tps_tren = []
+    
+    # Filter data
     hist_filtered_tren = histori_df.copy()
-    if selected_bulan_tren:
-        hist_filtered_tren = hist_filtered_tren[hist_filtered_tren["bulan"].isin(selected_bulan_tren)]
     if selected_tps_tren:
         hist_filtered_tren = hist_filtered_tren[hist_filtered_tren["id_tps"].isin(selected_tps_tren)]
 
-    if not hist_filtered_tren.empty and "tanggal" in hist_filtered_tren.columns:
-        daily_trend = hist_filtered_tren.groupby("tanggal")["Volume_kg"].sum().reset_index()
-        fig_trend = px.line(daily_trend.sort_values("tanggal"), x="tanggal", y="Volume_kg", markers=True,
-                            title="Total Volume Sampah Harian")
+    if not hist_filtered_tren.empty and "bulan" in hist_filtered_tren.columns:
+        # Agregasi berdasarkan bulan
+        monthly_trend = (
+            hist_filtered_tren.groupby("bulan")["Volume_kg"].sum()
+            .reset_index()
+            .sort_values("bulan")
+        )
+    
+        # Plot tren bulanan
+        fig_trend = px.line(
+            monthly_trend,
+            x="bulan",
+            y="Volume_kg",
+            markers=True,
+            title="Total Volume Sampah Bulanan",
+            labels={"bulan": "Bulan", "Volume_kg": "Total Volume (kg)"}
+        )
         st.plotly_chart(fig_trend, use_container_width=True)
-    else:
-        st.info("Tidak ada data histori untuk periode / filter yang dipilih.")
-
-    # Insight tren
-    st.markdown("### Insight")
-    if not daily_trend.empty and "tanggal" in daily_trend.columns and "Volume_kg" in daily_trend.columns:
-        recent_avg = daily_trend.tail(7)["Volume_kg"].mean() if len(daily_trend) >= 7 else daily_trend["Volume_kg"].mean()
-        overall_avg = daily_trend["Volume_kg"].mean()
-        st.write(f"- Rata-rata volume 7 hari terakhir: **{recent_avg:.1f} kg/hari**")
-        st.write(f"- Rata-rata keseluruhan: **{overall_avg:.1f} kg/hari**")
+    
+        # ===== Insight tren =====
+        st.markdown("### Insight")
+        recent_avg = monthly_trend.tail(3)["Volume_kg"].mean() if len(monthly_trend) >= 3 else monthly_trend["Volume_kg"].mean()
+        overall_avg = monthly_trend["Volume_kg"].mean()
+        st.write(f"- Rata-rata 3 bulan terakhir: **{recent_avg:,.1f} kg/bulan**")
+        st.write(f"- Rata-rata keseluruhan: **{overall_avg:,.1f} kg/bulan**")
         trend_note = "naik" if recent_avg > overall_avg else "turun/flat"
         st.write(f"- Tren recent vs keseluruhan: **{trend_note}**")
+    
     else:
-        st.info("Data histori tidak memiliki kolom 'tanggal' atau 'Volume_kg' atau data kosong.")
+        st.info("Tidak ada data histori untuk periode / filter yang dipilih.")
 
     st.markdown("---")
 
@@ -1091,6 +1100,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
