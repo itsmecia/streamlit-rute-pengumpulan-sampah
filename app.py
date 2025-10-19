@@ -8,7 +8,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 import numpy as np
 from datetime import datetime, timedelta
-from folium.plugins import BeautifyIcon
 
 # KONFIGURASI HALAMAN
 st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide")
@@ -181,27 +180,36 @@ if mode == "Dashboard Data":
 
     # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
-        lat, lon = row["latitude"], row["longitude"]
+        offset_lat = 0.05 
+        offset_lon = 0.03 
+        lat, lon = row["latitude"] + offset_lat, row["longitude"] + offset_lon
+    
         popup_html = f"""
         <b>TPA:</b> {row.get('nama','-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
-    
-        icon_tpa = BeautifyIcon(
-            icon_shape="circle",
-            border_color="red",
-            text_color="white",
-            background_color="red",
-            number="♻️",  # atau "TPA"
-            inner_icon_style="font-size:12px; font-weight:bold;"
-        )
-    
         folium.Marker(
             [lat, lon],
             popup=popup_html,
             tooltip=f"TPA: {row['nama']}",
-            icon=icon_tpa
+            icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
+    
+        # Label teks agar tetap terlihat walau di-zoom jauh
+        folium.map.Marker(
+            [lat + 0.03, lon],
+            icon=folium.DivIcon(
+                html=f'''
+                <div style="
+                    font-size:16px;
+                    color:red;
+                    font-weight:bold;
+                    text-shadow:1px 1px 3px white;">
+                    {row["nama"]}
+                </div>'''
+            ),
+        ).add_to(m)
+
     
         # Label teks (agar tetap muncul di zoom jauh)
         folium.map.Marker(
