@@ -677,7 +677,7 @@ elif mode == "Simulasi Rute":
                 if selected_tps_df.empty:
                     st.error("Data TPS terpilih tidak tersedia.")
                 else:
-                    # Algoritma Greedy: mulai dari TPS pertama
+                    # Greedy route: mulai dari TPS pertama yang dipilih
                     remaining = selected_tps_df.reset_index(drop=True).copy()
                     current = remaining.iloc[0]
                     route_order = [current]
@@ -716,123 +716,91 @@ elif mode == "Simulasi Rute":
                     else:
                         nearest_tpa = {"nama": "-", "jarak_km": 0.0}
             
-                    # === VISUALISASI PETA ===
-                    center_lat = float(selected_tps_df["latitude"].mean())
-                    center_lon = float(selected_tps_df["longitude"].mean())
+                    avg_cap = selected_tps_df["kapasitas"].mean() if "kapasitas" in selected_tps_df.columns else 0
+            
+                    # VISUALISASI PETA
+                    center_lat = float(selected_tps_df["latitude"].mean()) if "latitude" in selected_tps_df.columns else 0
+                    center_lon = float(selected_tps_df["longitude"].mean()) if "longitude" in selected_tps_df.columns else 0
                     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
             
-                    # Tambahkan marker TPS dengan label besar
+                    # --- Tambahkan Marker dan Label Besar ---
                     for i, point in enumerate(route):
                         lat = point.get("latitude")
                         lon = point.get("longitude")
                         if pd.isna(lat) or pd.isna(lon):
                             continue
             
-                        # Icon start untuk TPS pertama, trash untuk lainnya
+                        # Icon berbeda untuk start dan titik lain
                         icon_type = "play" if i == 0 else "trash"
-                        color = "darkblue" if i == 0 else "blue"
-            
+                        color = "green" if i == 0 else "blue"
                         folium.Marker(
                             [lat, lon],
                             popup=f"{i+1}. TPS {point.get('id_tps','-')}",
-                            tooltip=f"TPS {point.get('id_tps','-')}",
                             icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
                         ).add_to(m)
             
-                        # Label besar untuk TPS
+                        # Tambahkan label besar di atas marker
                         folium.map.Marker(
                             [lat, lon],
                             icon=folium.DivIcon(
-                                html=f"""
-                                <div style='
-                                    font-size:14px;
-                                    font-weight:bold;
-                                    color:#1e3a8a;
-                                    text-align:center;
-                                    text-shadow:1px 1px 2px white;
-                                    transform: translate(-25%, -200%);
-                                '>
-                                    TPS {point.get('id_tps','')}
-                                </div>
-                                """
+                                html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>"
                             )
                         ).add_to(m)
             
-                        # Garis antar TPS
+                        # Garis antar titik TPS
                         if i < len(route) - 1:
                             next_point = route[i+1]
                             folium.PolyLine(
                                 [[point["latitude"], point["longitude"]],
                                  [next_point["latitude"], next_point["longitude"]]],
-                                color="blue", weight=3, opacity=0.7,
+                                color="blue", weight=4, opacity=0.8,
                                 tooltip=f"{point.get('id_tps')} ➜ {next_point.get('id_tps')}"
                             ).add_to(m)
             
-                    # === TPA Tujuan ===
+                    # Hubungkan ke TPA terdekat
                     if not tpa_df.empty:
                         folium.PolyLine(
                             [[last["latitude"], last["longitude"]],
                              [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
-                            color="red", weight=4, tooltip=f"TPS terakhir ➜ {nearest_tpa.get('nama')}"
+                            color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa.get('nama')}"
                         ).add_to(m)
-            
-                        # Marker Finish (TPA)
                         folium.Marker(
                             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
                             popup=f"TPA Tujuan: {nearest_tpa.get('nama')}",
-                            tooltip=f"TPA {nearest_tpa.get('nama')}",
-                            icon=folium.Icon(color="red", icon="flag-checkered", prefix="fa")
+                            icon=folium.Icon(color="red", icon="flag", prefix="fa")
                         ).add_to(m)
-            
-                        # Label besar TPA
                         folium.map.Marker(
                             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
                             icon=folium.DivIcon(
-                                html=f"""
-                                <div style='
-                                    font-size:14px;
-                                    font-weight:bold;
-                                    color:#b91c1c;
-                                    text-align:center;
-                                    text-shadow:1px 1px 2px white;
-                                    transform: translate(-25%, -200%);
-                                '>
-                                    {nearest_tpa.get('nama')}
-                                </div>
-                                """
+                                html=f"<div style='font-size:14px; font-weight:bold; color:red; text-shadow:1px 1px 2px #fff;'>{nearest_tpa.get('nama')}</div>"
                             )
                         ).add_to(m)
             
-                    # === Tambahkan Legenda ===
+                    # --- Tambahkan Legenda untuk Start & Finish ---
                     legend_html = """
-                    <div style="
-                         position: fixed;
-                         bottom: 20px; right: 20px;
-                         background-color: white;
-                         border:2px solid grey;
-                         z-index:9999;
-                         font-size:14px;
-                         border-radius:8px;
-                         padding: 10px 14px;
-                         color: #222;
-                         box-shadow:2px 2px 5px rgba(0,0,0,0.3);
-                    ">
-                    <b>Legenda:</b><br>
-                    <i class="fa fa-play" style="color:darkblue; margin-right:5px;"></i> Start (TPS Pertama)<br>
-                    <i class="fa fa-trash" style="color:blue; margin-right:5px;"></i> TPS Rute Berikutnya<br>
-                    <i class="fa fa-flag-checkered" style="color:red; margin-right:5px;"></i> Finish (TPA Tujuan)
+                    <div style="position: fixed; 
+                                bottom: 40px; left: 40px; width: 180px; 
+                                background-color: white; border:2px solid grey; z-index:9999; font-size:13px;
+                                box-shadow:2px 2px 6px rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
+                        <b>Legenda Icon:</b><br>
+                        <i class="fa fa-play fa-lg" style="color:green"></i> Start TPS<br>
+                        <i class="fa fa-trash fa-lg" style="color:blue"></i> TPS Rute<br>
+                        <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
                     """
                     m.get_root().html.add_child(folium.Element(legend_html))
-
-                    # INSIGHT & REKOMENDASI
+            
+                    # Tampilkan peta
+                    st_folium(m, width=1000, height=550)
+            
+                    # --- INSIGHT & REKOMENDASI ---
                     urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
                     st.markdown("### Insight & Rekomendasi Multi-Rute")
                     st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
                     st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
                     st.write(f"- **Rata-rata jarak antar TPS:** {total_distance/len(selected_tps):.2f} km/TPS.")
                     st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({nearest_tpa.get('jarak_km',0.0):.2f} km dari TPS terakhir).")
-
+            
                     if avg_cap > 800:
                         st.success("✅ Rute efisien — kapasitas rata-rata TPS tinggi, cocok untuk pengangkutan langsung.")
                     elif 400 <= avg_cap <= 800:
@@ -1161,6 +1129,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
