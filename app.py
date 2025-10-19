@@ -127,10 +127,11 @@ if mode == "Dashboard Data":
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
-    # PETA SEBARAN TPS & TPA
+  # === PETA SEBARAN TPS & TPA ===
+    # === PETA SEBARAN TPS & TPA ===
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
     
-    # === Filter TPS ===
+    # Filter TPS
     tps_options_map = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_map = st.multiselect(
         "Filter TPS:",
@@ -143,12 +144,12 @@ if mode == "Dashboard Data":
     
     # Filter data TPS
     if selected_tps_map:
-        filtered_tps_map = tps_df[tps_df["id_tps"].isin(selected_tps_map)].copy()
+        filtered_tps_map = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps_map)].copy()
     else:
         filtered_tps_map = tps_df.copy()
     
-    # Pastikan koordinat valid
-    for df_name, df in {"TPS": filtered_tps_map, "TPA": tpa_df}.items():
+    # Pastikan koordinat numerik
+    for df in [filtered_tps_map, tpa_df]:
         df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
         df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
     
@@ -160,35 +161,48 @@ if mode == "Dashboard Data":
         center_lat = pd.concat([filtered_tps_map, tpa_valid])["latitude"].mean()
         center_lon = pd.concat([filtered_tps_map, tpa_valid])["longitude"].mean()
     else:
-        center_lat, center_lon = 0, 0
+        center_lat, center_lon = -7.8, 110.4  # fallback
     
-    # === Buat peta ===
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=11, control_scale=True)
+    # === Buat peta utama ===
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
-   # --- Marker TPA ---
+    # Tambahkan basemap dan kontrol layer
+    folium.TileLayer('OpenStreetMap').add_to(m)
+    folium.TileLayer('Stamen Terrain').add_to(m)
+    folium.TileLayer('CartoDB positron').add_to(m)
+    
+    # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         popup_html = f"""
         <b>TPA:</b> {row.get('nama','-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
-        # Titik marker utama (ikon merah)
         folium.Marker(
             [lat, lon],
             popup=popup_html,
             tooltip=f"TPA: {row['nama']}",
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
-        
-        # Label teks sedikit di atas marker agar tidak menimpa
+    
+        # Label di atas marker (tidak menutupi ikon)
         folium.map.Marker(
-            [lat + 0.02, lon],  # naikkan sedikit posisi label
+            [lat + 0.2, lon],
             icon=folium.DivIcon(
-                html=f'<div style="font-size:15px; color:red; font-weight:bold; text-shadow:1px 1px 2px white;">{row["nama"]}</div>'
+                html=f'''
+                <div class="label-tpa" style="
+                    font-size:14px;
+                    color:red;
+                    font-weight:bold;
+                    text-shadow:1px 1px 3px white;
+                    transform: translate(-50%, -10px);
+                    z-index: 900;">
+                    {row["nama"]}
+                </div>'''
             ),
         ).add_to(m)
-
-    # --- Marker TPS ---
+    
+    # === Marker TPS ===
     for _, row in filtered_tps_map.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         keterisian = row.get("keterisian_%", 0)
@@ -204,32 +218,16 @@ if mode == "Dashboard Data":
             tooltip=f"TPS: {row['id_tps']}",
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
-        # Label besar biar terlihat saat zoom
-        folium.map.Marker(
-            [lat, lon],
-            icon=folium.DivIcon(
-                html=f'<div style="font-size:13px; color:green; font-weight:bold; text-shadow:1px 1px 2px white;">{row["id_tps"]}</div>'
-            ),
-        ).add_to(m)
     
-    # === Auto-fit agar semua titik terlihat ===
-    all_points = pd.concat([
-        filtered_tps_map[["latitude", "longitude"]],
-        tpa_valid[["latitude", "longitude"]],
-    ], ignore_index=True)
-    
+    # === Fit bounds semua titik ===
+    all_points = pd.concat([filtered_tps_map[["latitude", "longitude"]], tpa_valid[["latitude", "longitude"]]])
     if not all_points.empty:
-        if len(all_points) > 1:
-            bounds = [
-                [all_points["latitude"].min(), all_points["longitude"].min()],
-                [all_points["latitude"].max(), all_points["longitude"].max()],
-            ]
-            m.fit_bounds(bounds, padding=(100, 100))
-        else:
-            m.location = [all_points["latitude"].iloc[0], all_points["longitude"].iloc[0]]
-            m.zoom_start = 13
+        m.fit_bounds([
+            [all_points["latitude"].min(), all_points["longitude"].min()],
+            [all_points["latitude"].max(), all_points["longitude"].max()],
+        ])
     
-  # === Legenda dengan ikon + keterangan (fix warna tulisan) ===
+    # === Tambahkan legenda ===
     legend_html = """
     <div style="
          position: fixed; 
@@ -242,19 +240,32 @@ if mode == "Dashboard Data":
          border-radius:8px;
          padding: 10px 14px;
          color: #222;">
-    <div style="margin-top:5px;">
-      <i class="fa fa-trash" style="color:green; margin-right:5px;"></i>
-      TPS (Tempat Penampungan Sementara)<br>
-      <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i>
-      TPA (Tempat Pembuangan Akhir)
-    </div>
+    <b>Legenda:</b><br>
+    <i class="fa fa-trash" style="color:green; margin-right:5px;"></i> TPS (Tempat Penampungan Sementara)<br>
+    <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i> TPA (Tempat Pembuangan Akhir)
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
-
     
-    # === Tampilkan di Streamlit ===
+    # === Tambahkan efek zoom untuk label ===
+    zoom_script = """
+    <script>
+    var map = window.map || {};
+    map.on('zoomend', function() {
+      var zoom = map.getZoom();
+      var labels = document.getElementsByClassName('label-tpa');
+      for (var i = 0; i < labels.length; i++) {
+        labels[i].style.fontSize = (12 + zoom / 1.5) + 'px';
+      }
+    });
+    </script>
+    """
+    m.get_root().html.add_child(folium.Element(zoom_script))
+    
+    folium.LayerControl().add_to(m)
     st_folium(m, width=1000, height=550)
+
+
     st.markdown("---")
 
 
@@ -1000,6 +1011,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
