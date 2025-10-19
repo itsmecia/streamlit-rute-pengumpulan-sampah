@@ -665,6 +665,10 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 fill_color="green",
                 fill_opacity=0.8
             ).add_to(m)
+             folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+            ).add_to(m)
     
         for _, row in tpa_df.iterrows():
             folium.CircleMarker(
@@ -675,6 +679,10 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 fill_color="red",
                 fill_opacity=0.8
             ).add_to(m)
+             folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+            ).add_to(m)
     
         # Marker rute (start - finish)
         for i, point in enumerate(route):
@@ -684,6 +692,10 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 [point["latitude"], point["longitude"]],
                 popup=f"{i+1}. {point['id_tps']}",
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
+            ).add_to(m)
+             folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
             ).add_to(m)
     
             # Garis antar TPS
@@ -703,6 +715,10 @@ elif mode == "Jadwal & Rute Pengangkutan":
             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
             popup=f"{nearest_tpa['nama']}",
             icon=folium.Icon(color="red", icon="flag", prefix="fa")
+        ).add_to(m)
+        folium.map.Marker(
+                [row["latitude"], row["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
         ).add_to(m)
     
         # Legenda rute
@@ -1034,6 +1050,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
