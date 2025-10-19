@@ -95,8 +95,7 @@ mode = st.sidebar.radio(
     "Pilih Menu:",
     [
         "Dashboard Data",
-        "Rute Pengangkutan",
-        "Jadwal Pengangkutan",
+        "Jadwal & Rute Pengangkutan",
         "Prediksi Volume Sampah"
     ],
     index=0
@@ -486,370 +485,58 @@ if mode == "Dashboard Data":
             use_container_width=True
         )
 
-# MODE: Simulasi Rute
-elif mode == "Rute Pengangkutan":
-    st.header("Rute Pengangkutan")
-    st.write("Pilih satu atau beberapa TPS untuk mensimulasikan rute otomatis menuju TPA terdekat.")
+# MODE: Simulasi Rute & jadwal
+elif mode == "Jadwal & Rute Pengangkutan":
+    st.header("Jadwal & Rute Pengangkutan")
 
-    if "id_tps" not in tps_df.columns or tps_df.empty:
-        st.error("Kolom 'id_tps' tidak ditemukan di data TPS atau data TPS kosong.")
-    else:
-        tps_options = tps_df["id_tps"].astype(str).unique().tolist()
-        selected_tps = st.multiselect("Pilih TPS", tps_options)
+    from math import radians, sin, cos, sqrt, atan2
 
-        if not selected_tps:
-            st.info("Silakan pilih minimal satu TPS untuk simulasi rute.")
-        else:
-         # RUTE TUNGGAL
-            if len(selected_tps) == 1:
-                tps_point = tps_df[tps_df["id_tps"].astype(str) == selected_tps[0]].iloc[0]
-            
-                if tpa_df.empty or "latitude" not in tpa_df.columns:
-                    st.error("Data TPA tidak tersedia untuk menghitung rute.")
-                else:
-                    # Hitung jarak ke semua TPA 
-                    tpa_df = tpa_df.copy()
-                    tpa_df["jarak_km"] = np.sqrt(
-                        (tpa_df["latitude"] - tps_point["latitude"])**2 +
-                        (tpa_df["longitude"] - tps_point["longitude"])**2
-                    ) * 111
-            
-                    rekomendasi_tpa = tpa_df.sort_values("jarak_km").iloc[0]
-                    nama_tpa_terdekat = rekomendasi_tpa.get("nama", "-")
-                    jarak_terpendek = rekomendasi_tpa["jarak_km"]
-                    waktu_menit = jarak_terpendek / 40 * 60  
-            
-                    st.markdown(f"#### TPA Terdekat: {nama_tpa_terdekat}")
-                    st.metric("Jarak Terpendek (km)", f"{jarak_terpendek:.2f}")
-                    st.metric("Estimasi Waktu Tempuh (menit)", f"{waktu_menit:.1f}")
-            
-                    # PETA
-                    center_lat = float((tps_point["latitude"] + rekomendasi_tpa["latitude"]) / 2)
-                    center_lon = float((tps_point["longitude"] + rekomendasi_tpa["longitude"]) / 2)
-                    m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-            
-                     # Marker TPS
-                    tps_lat, tps_lon = tps_point["latitude"], tps_point["longitude"]
-                    folium.Marker(
-                        [tps_lat, tps_lon],
-                        popup=f"{tps_point.get('id_tps')}</b>",
-                        icon=folium.Icon(color="green", icon="trash", prefix="fa")
-                    ).add_to(m)
-                
-                    folium.map.Marker(
-                        [tps_lat, tps_lon],
-                        icon=folium.DivIcon(
-                            html=f"""
-                            <div style="
-                                font-size: 14px;
-                                font-weight: bold;
-                                color: green;
-                                text-shadow: 1px 1px 2px #fff;
-                                text-align: center;
-                                transform: translate(10px, -25px);
-                            ">
-                                {tps_point.get('id_tps')}
-                            </div>
-                            """
-                        )
-                    ).add_to(m)
-                    
-                    
-                    # Marker TPA
-                    for _, row in tpa_df.iterrows():
-                        lat = row.get("latitude")
-                        lon = row.get("longitude")
-                        if pd.isna(lat) or pd.isna(lon):
-                            continue
-                    
-                        folium.Marker(
-                            [lat, lon],
-                            popup=f"{row.get('nama','-')}</b>",
-                            icon=folium.Icon(color="red", icon="recycle", prefix="fa")
-                        ).add_to(m)
-                    
-                        folium.map.Marker(
-                            [lat, lon],
-                            icon=folium.DivIcon(
-                                html=f"""
-                                <div style="
-                                    font-size: 14px;
-                                    font-weight: bold;
-                                    color: red;
-                                    text-shadow: 1px 1px 2px #fff;
-                                    text-align: center;
-                                    transform: translate(10px, -25px);
-                                ">
-                                    {row.get('nama')}
-                                </div>
-                                """
-                            )
-                        ).add_to(m)
+    # ===========================
+    # Fungsi Haversine
+    # ===========================
+    def haversine(lat1, lon1, lat2, lon2):
+        R = 6371.0
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlon, dlat = lon2 - lon1, lat2 - lat1
+        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return R * c
 
-                    # Garis Jalur 
-                    folium.PolyLine(
-                        [[tps_point["latitude"], tps_point["longitude"]],
-                         [rekomendasi_tpa["latitude"], rekomendasi_tpa["longitude"]]],
-                        color="blue",
-                        weight=5,
-                        tooltip=f"Rute: TPS {tps_point.get('id_tps')} ➜ TPA {nama_tpa_terdekat}"
-                    ).add_to(m)
-            
-                    # Tampilkan Peta 
-                    st_folium(m, width=1000, height=550)
-            
-                    #  Insight
-                    st.markdown("### Insight Rute")
-                    st.write(f"- Jalur terpendek dari **{selected_tps[0]} ➜ {nama_tpa_terdekat}** sejauh **{jarak_terpendek:.2f} km**.")
-                    st.write(f"- Estimasi waktu tempuh: **{waktu_menit:.1f} menit**.")
-
-            # RUTE MULTI (GREEDY)
-            else:
-                st.subheader("Simulasi Multi-Rute")
-                selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
-            
-                if selected_tps_df.empty:
-                    st.error("Data TPS terpilih tidak tersedia.")
-                else:
-                    # Greedy route: mulai dari TPS pertama yang dipilih
-                    remaining = selected_tps_df.reset_index(drop=True).copy()
-                    current = remaining.iloc[0]
-                    route_order = [current]
-                    remaining = remaining.drop(index=0).reset_index(drop=True)
-            
-                    while not remaining.empty:
-                        remaining["jarak"] = np.sqrt(
-                            (remaining["latitude"] - current["latitude"])**2 +
-                            (remaining["longitude"] - current["longitude"])**2
-                        ) * 111
-                        nearest_idx = remaining["jarak"].idxmin()
-                        nearest = remaining.loc[nearest_idx]
-                        route_order.append(nearest)
-                        current = nearest
-                        remaining = remaining.drop(nearest_idx).reset_index(drop=True)
-            
-                    route = route_order
-            
-                    # Hitung total jarak antar TPS
-                    total_distance = 0.0
-                    for i in range(len(route) - 1):
-                        lat1, lon1 = route[i]["latitude"], route[i]["longitude"]
-                        lat2, lon2 = route[i+1]["latitude"], route[i+1]["longitude"]
-                        total_distance += np.sqrt((lat1 - lat2)**2 + (lon1 - lon2)**2) * 111
-            
-                    # Hubungkan ke TPA terdekat dari TPS terakhir
-                    last = route[-1]
-                    if not tpa_df.empty:
-                        tpa_df = tpa_df.copy()
-                        tpa_df["jarak_km"] = np.sqrt(
-                            (tpa_df["latitude"] - last["latitude"])**2 +
-                            (tpa_df["longitude"] - last["longitude"])**2
-                        ) * 111
-                        nearest_tpa = tpa_df.sort_values("jarak_km").iloc[0]
-                        total_distance += nearest_tpa["jarak_km"]
-                    else:
-                        nearest_tpa = {"nama": "-", "jarak_km": 0.0}
-            
-                    avg_cap = selected_tps_df["kapasitas"].mean() if "kapasitas" in selected_tps_df.columns else 0
-            
-                    # VISUALISASI PETA
-                    center_lat = float(selected_tps_df["latitude"].mean()) if "latitude" in selected_tps_df.columns else 0
-                    center_lon = float(selected_tps_df["longitude"].mean()) if "longitude" in selected_tps_df.columns else 0
-                    m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-            
-                    # Tambahkan Marker dan Label 
-                    for i, point in enumerate(route):
-                        lat = point.get("latitude")
-                        lon = point.get("longitude")
-                        if pd.isna(lat) or pd.isna(lon):
-                            continue
-                    
-                        # Icon
-                        if i == 0:
-                            icon_type = "truck"   
-                            color = "green"
-                        else:
-                            icon_type = "trash"
-                            color = "blue"
-                    
-                        folium.Marker(
-                            [lat, lon],
-                            popup=f"{i+1}.{point.get('id_tps','-')}",
-                            icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
-                        ).add_to(m)
-                    
-                        # Tambahkan label 
-                        folium.map.Marker(
-                            [lat, lon],
-                            icon=folium.DivIcon(
-                                html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>"
-                            )
-                        ).add_to(m)
-            
-                        # Garis antar titik TPS
-                        if i < len(route) - 1:
-                            next_point = route[i+1]
-                            folium.PolyLine(
-                                [[point["latitude"], point["longitude"]],
-                                 [next_point["latitude"], next_point["longitude"]]],
-                                color="blue", weight=4, opacity=0.8,
-                                tooltip=f"{point.get('id_tps')} ➜ {next_point.get('id_tps')}"
-                            ).add_to(m)
-            
-                    # Hubungkan ke TPA terdekat
-                    if not tpa_df.empty:
-                        folium.PolyLine(
-                            [[last["latitude"], last["longitude"]],
-                             [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
-                            color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa.get('nama')}"
-                        ).add_to(m)
-                        folium.Marker(
-                            [nearest_tpa["latitude"], nearest_tpa["longitude"]],
-                            popup=f"{nearest_tpa.get('nama')}",
-                            icon=folium.Icon(color="red", icon="flag", prefix="fa")
-                        ).add_to(m)
-                        folium.map.Marker(
-                            [nearest_tpa["latitude"], nearest_tpa["longitude"]],
-                            icon=folium.DivIcon(
-                                html=f"<div style='font-size:14px; font-weight:bold; color:red; text-shadow:1px 1px 2px #fff;'>{nearest_tpa.get('nama')}</div>"
-                            )
-                        ).add_to(m)
-            
-                    #  Legenda
-                    legend_html = """
-                    <div style="
-                        position: fixed; 
-                        bottom: 40px; left: 40px; 
-                        width: 120px; 
-                        background-color: rgba(255,255,255,0.9); 
-                        border:2px solid grey; 
-                        z-index:9999; 
-                        font-size:14px; 
-                        box-shadow:2px 2px 6px rgba(0,0,0,0.3); 
-                        border-radius:8px; 
-                        padding:10px; 
-                        color:black;">
-                        <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
-                        <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
-                    </div>
-                    """
-                    
-                    m.get_root().html.add_child(folium.Element(legend_html))
-
-
-                    # Tampilkan peta
-                    st_folium(m, width=1000, height=550)
-            
-              # -Fungsi menghitung jarak antar dua koordinat (Haversine) 
-                    def haversine(lat1, lon1, lat2, lon2):
-                        R = 6371.0  
-                        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-                        dlon, dlat = lon2 - lon1, lat2 - lat1
-                        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-                        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-                        return R * c
-                    
-                    # Pastikan nearest_tpa dalam bentuk dictionary
-                    if nearest_tpa is not None:
-                        if isinstance(nearest_tpa, pd.DataFrame) and not nearest_tpa.empty:
-                            nearest_tpa = nearest_tpa.iloc[0].to_dict()
-                        elif hasattr(nearest_tpa, "to_dict"):
-                            nearest_tpa = nearest_tpa.to_dict()
-                        elif not isinstance(nearest_tpa, dict):
-                            nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
-                    else:
-                        nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
-                    
-                    # Hitung jarak antar segmen
-                    segmen_jarak = []
-                    for i in range(len(route) - 1):
-                        tps_a = route[i]
-                        tps_b = route[i + 1]
-                        dist = haversine(tps_a["latitude"], tps_a["longitude"],
-                                         tps_b["latitude"], tps_b["longitude"])
-                        segmen_jarak.append({
-                            "Dari": tps_a["id_tps"],
-                            "Ke": tps_b["id_tps"],
-                            "Jarak (km)": round(dist, 2)
-                        })
-                    
-                    # Tambahkan segmen terakhir ke TPA
-                    if nearest_tpa:
-                        last_tps = route[-1]
-                        dist_to_tpa = haversine(
-                            last_tps["latitude"], last_tps["longitude"],
-                            nearest_tpa["latitude"], nearest_tpa["longitude"]
-                        )
-                        segmen_jarak.append({
-                            "Dari": last_tps["id_tps"],
-                            "Ke": nearest_tpa["nama"],
-                            "Jarak (km)": round(dist_to_tpa, 2)
-                        })
-                    
-                    # Hitung total dan rata-rata jarak
-                    total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
-                    avg_distance = total_distance / len(segmen_jarak)
-                    
-                    # Tampilkan insight dan rekomendasi
-                    urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
-                    st.markdown("### Insight")
-                    st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
-                    st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
-                    st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km.")
-                    st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({dist_to_tpa:.2f} km dari TPS terakhir).")
-                    
-                    # Tampilkan tabel jarak antar segmen
-                    st.markdown("#### Jarak Antar Segmen Rute")
-                    df_segmen = pd.DataFrame(segmen_jarak)
-                    st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
-                    
-elif mode == "Jadwal Pengangkutan":
-    st.header("📅 Jadwal Pengangkutan Berdasarkan Data TPS dan TPA")
-
-    # =====================================
-    # 🔍 Validasi Dataset
-    # =====================================
+    # ===========================
+    # Validasi Dataset
+    # ===========================
     if tps_df.empty or "nearest_tpa" not in tps_df.columns or "volume_saat_ini" not in tps_df.columns:
         st.warning("Pastikan file TPS memiliki kolom 'nearest_tpa' dan 'volume_saat_ini'.")
         st.stop()
-
-    # =====================================
-    # 🧮 Hitung keterisian jika belum ada
-    # =====================================
     if "keterisian_%" not in tps_df.columns:
         tps_df["keterisian_%"] = (tps_df["volume_saat_ini"] / tps_df["kapasitas"]) * 100
 
-    # =====================================
-    # 🚛 Daftar truk dan wilayah otomatis
-    # =====================================
+    # ===========================
+    # Daftar Truk & Wilayah
+    # ===========================
     tpa_list = sorted(tpa_df["nama"].unique())
     all_trucks = [f"TR{str(i).zfill(2)}" for i in range(1, 11)]
-
-    # Bagi 10 truk ke 3 wilayah secara proporsional
     tpa_truck_map = {}
-    split = [3, 3, 4]  # total 10 truk
+    split = [3, 3, 4]
     idx = 0
     for tpa, count in zip(tpa_list, split):
         tpa_truck_map[tpa] = all_trucks[idx:idx + count]
         idx += count
 
-    # Tampilkan tabel daftar truk dan wilayah
-    st.subheader("🚛 Daftar Truk & Pembagian Wilayah")
+    st.subheader("Daftar Truk & Pembagian Wilayah")
     daftar_truk = []
     for tpa, trucks in tpa_truck_map.items():
         for truk in trucks:
             daftar_truk.append({"Truk": truk, "Wilayah (TPA)": tpa})
-    df_truk = pd.DataFrame(daftar_truk)
-    st.dataframe(df_truk, use_container_width=True)
+    st.dataframe(pd.DataFrame(daftar_truk), use_container_width=True)
 
-    # =====================================
-    # 🧩 Buat jadwal otomatis
-    # =====================================
+    # ===========================
+    # Jadwal TPS
+    # ===========================
     tps_df = tps_df.copy()
     tps_df["prioritas_rank"] = tps_df.groupby("nearest_tpa")["keterisian_%"].rank(method="first", ascending=False)
     tps_df = tps_df.sort_values(["nearest_tpa", "prioritas_rank"])
 
-    # Assign truk berdasarkan wilayah TPA
     assigned_list = []
     for tpa in tps_df["nearest_tpa"].unique():
         subset = tps_df[tps_df["nearest_tpa"] == tpa].copy()
@@ -858,19 +545,16 @@ elif mode == "Jadwal Pengangkutan":
         assigned_list.append(subset)
     jadwal_final = pd.concat(assigned_list)
 
-    # Buat tanggal otomatis (kelompok per 10 TPS)
     today = datetime.today()
     jadwal_final["Tanggal Pengangkutan"] = [
         (today + timedelta(days=int((rank - 1) // 10))).strftime("%Y-%m-%d")
         for rank in jadwal_final["prioritas_rank"]
     ]
 
-    # =====================================
-    # 📋 Tabel Jadwal Pengangkutan
-    # =====================================
-    jadwal_df = jadwal_final[
-        ["id_tps", "nama", "nearest_tpa", "keterisian_%", "kapasitas", "volume_saat_ini", "Truk", "Tanggal Pengangkutan"]
-    ].rename(columns={
+    jadwal_df = jadwal_final[[
+        "id_tps", "nama", "nearest_tpa", "keterisian_%", "kapasitas",
+        "volume_saat_ini", "Truk", "Tanggal Pengangkutan"
+    ]].rename(columns={
         "id_tps": "ID TPS",
         "nama": "Nama TPS",
         "nearest_tpa": "Wilayah (TPA)",
@@ -879,9 +563,6 @@ elif mode == "Jadwal Pengangkutan":
         "volume_saat_ini": "Volume Saat Ini (m³)"
     })
 
-    # =====================================
-    # 🎛️ Filter (di halaman, bukan sidebar)
-    # =====================================
     st.subheader("📋 Jadwal Pengangkutan Otomatis")
     col1, col2 = st.columns(2)
     with col1:
@@ -892,26 +573,139 @@ elif mode == "Jadwal Pengangkutan":
     filtered_df = jadwal_df.copy()
     if selected_truck != "Semua":
         filtered_df = filtered_df[filtered_df["Truk"] == selected_truck]
-
     if top_filter == "Top 5 Prioritas":
         filtered_df = filtered_df.sort_values("Keterisian (%)", ascending=False).head(5)
     elif top_filter == "Top 10 Prioritas":
         filtered_df = filtered_df.sort_values("Keterisian (%)", ascending=False).head(10)
-
     st.dataframe(filtered_df.reset_index(drop=True), use_container_width=True)
 
-    # =====================================
-    # 💡 Insight otomatis
-    # =====================================
+    # ===========================
+    # Insight Jadwal
+    # ===========================
     st.markdown("### 💡 Insight Otomatis")
     if not filtered_df.empty:
         tertinggi = filtered_df.iloc[0]
-        st.write(f"- 🚨 TPS dengan keterisian tertinggi: **{tertinggi['Nama TPS']}** ({tertinggi['Keterisian (%)']:.1f}%)")
-        st.write(f"- 🚛 Ditangani oleh: **{tertinggi['Truk']} ({tertinggi['Wilayah (TPA)']})**")
-        st.write(f"- 📅 Jadwal: **{tertinggi['Tanggal Pengangkutan']}**")
+        st.write(f"- TPS dengan keterisian tertinggi: **{tertinggi['Nama TPS']}** ({tertinggi['Keterisian (%)']:.1f}%)")
+        st.write(f"- Jadwal: **{tertinggi['Tanggal Pengangkutan']}**")
+        st.write(f"- Ditangani oleh: **{tertinggi['Truk']} ({tertinggi['Wilayah (TPA)']})**")
         st.write(f"- Total TPS dijadwalkan: **{len(filtered_df)} titik**")
     else:
         st.info("Belum ada TPS yang memenuhi kriteria filter.")
+
+    st.markdown("---")
+
+    # ===========================
+    # Rute Pengangkutan
+    # ===========================
+    st.subheader("Rute Pengangkutan")
+    tps_options = tps_df["id_tps"].astype(str).unique().tolist()
+    selected_tps = st.multiselect("Pilih TPS", tps_options)
+
+    if selected_tps:
+        selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
+
+        # ================= RUTE GREEDY =================
+        remaining = selected_tps_df.reset_index(drop=True).copy()
+        current = remaining.iloc[0]
+        route_order = [current]
+        remaining = remaining.drop(index=0).reset_index(drop=True)
+
+        while not remaining.empty:
+            remaining["jarak"] = np.sqrt(
+                (remaining["latitude"] - current["latitude"])**2 +
+                (remaining["longitude"] - current["longitude"])**2
+            ) * 111
+            nearest_idx = remaining["jarak"].idxmin()
+            nearest = remaining.loc[nearest_idx]
+            route_order.append(nearest)
+            current = nearest
+            remaining = remaining.drop(nearest_idx).reset_index(drop=True)
+
+        route = route_order
+        last = route[-1]
+        nearest_tpa_df = tpa_df.copy()
+        nearest_tpa_df["jarak_km"] = np.sqrt(
+            (nearest_tpa_df["latitude"] - last["latitude"])**2 +
+            (nearest_tpa_df["longitude"] - last["longitude"])**2
+        ) * 111
+        nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
+        truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
+
+        # ================= PETA =================
+        center_lat = float(selected_tps_df["latitude"].mean())
+        center_lon = float(selected_tps_df["longitude"].mean())
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
+
+        # Marker TPS
+        for i, point in enumerate(route):
+            color = "green" if i == 0 else "blue"
+            icon_type = "truck" if i == 0 else "trash"
+            folium.Marker(
+                [point["latitude"], point["longitude"]],
+                popup=f"{i+1}.{point['id_tps']}",
+                icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
+            ).add_to(m)
+            folium.map.Marker(
+                [point["latitude"], point["longitude"]],
+                icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366;'>{point['id_tps']}</div>")
+            ).add_to(m)
+            # Garis antar TPS
+            if i < len(route) - 1:
+                next_point = route[i+1]
+                folium.PolyLine(
+                    [[point["latitude"], point["longitude"]], [next_point["latitude"], next_point["longitude"]]],
+                    color="blue", weight=4, opacity=0.8,
+                    tooltip=f"{point['id_tps']} ➜ {next_point['id_tps']}"
+                ).add_to(m)
+
+        # Marker & Polyline ke TPA
+        folium.PolyLine(
+            [[last["latitude"], last["longitude"]], [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
+            color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
+        ).add_to(m)
+        folium.Marker(
+            [nearest_tpa["latitude"], nearest_tpa["longitude"]],
+            popup=f"{nearest_tpa['nama']}",
+            icon=folium.Icon(color="red", icon="flag", prefix="fa")
+        ).add_to(m)
+
+        # Legenda
+        legend_html = """
+        <div style="
+            position: fixed; bottom: 40px; left: 40px; 
+            width: 140px; background-color: rgba(255,255,255,0.9);
+            border:2px solid grey; z-index:9999; font-size:14px; 
+            box-shadow:2px 2px 6px rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
+            <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
+            <i class="fa fa-trash fa-lg" style="color:blue"></i> TPS Lain<br>
+            <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
+        </div>
+        """
+        m.get_root().html.add_child(folium.Element(legend_html))
+
+        st_folium(m, width=1000, height=550)
+
+        # ================= Insight Jarak =================
+        segmen_jarak = []
+        for i in range(len(route)-1):
+            dist = haversine(route[i]["latitude"], route[i]["longitude"], route[i+1]["latitude"], route[i+1]["longitude"])
+            segmen_jarak.append({"Dari": route[i]["id_tps"], "Ke": route[i+1]["id_tps"], "Jarak (km)": round(dist,2)})
+        dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
+        segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa,2)})
+        total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
+        avg_distance = total_distance / len(segmen_jarak)
+        urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
+
+        st.markdown("### Insight Rute")
+        st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
+        st.write(f"- **Truk menangani:** {truk_ditangani}")
+        st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+        st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
+        st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
+
+        st.markdown("#### Jarak Antar Segmen Rute")
+        st.dataframe(pd.DataFrame(segmen_jarak).style.format({"Jarak (km)":"{:.2f}"}))
+                    
 
             
 # MODE: Prediksi Volume Sampah
@@ -1192,6 +986,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
