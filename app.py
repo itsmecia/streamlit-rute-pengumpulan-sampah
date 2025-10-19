@@ -128,6 +128,7 @@ if mode == "Dashboard Data":
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
     #  PETA SEBARAN TPS & TPA
+    #  PETA SEBARAN TPS & TPA
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
     
     # Filter TPS
@@ -162,24 +163,26 @@ if mode == "Dashboard Data":
     else:
         center_lat, center_lon = -7.8, 110.4  
     
-    # Buat peta utama
+    # Buat peta utama tanpa atribusi
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
+    # Tambahkan tile layer TANPA atribusi
     folium.TileLayer(
         tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         name="OpenStreetMap",
-        attr='Leaflet | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attr=""  # <- kosong agar tidak muncul atribusi
     ).add_to(m)
-
+    
     folium.TileLayer(
         tiles="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
         name="Stamen Terrain",
-        attr='Map tiles by Stamen Design, under CC BY 3.0.'
+        attr=""
     ).add_to(m)
+    
     folium.TileLayer(
         tiles="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
         name="CartoDB Positron",
-        attr='Map tiles by CARTO, under CC BY 3.0.'
+        attr=""
     ).add_to(m)
     
     # Marker TPA 
@@ -280,10 +283,22 @@ if mode == "Dashboard Data":
     """
     m.get_root().html.add_child(folium.Element(legend_html))
     
+    # Layer control
     folium.LayerControl().add_to(m)
     
-    # Tampilkan di Streamlit
+    # 🔥 Hilangkan teks atribusi lewat CSS
+    hide_attr_css = """
+    <style>
+    .leaflet-control-attribution {
+        display: none !important;
+    }
+    </style>
+    """
+    st.markdown(hide_attr_css, unsafe_allow_html=True)
+    
+    # Tampilkan peta di Streamlit
     st_folium(m, width=1000, height=550)
+
     st.markdown("---")
 
 
@@ -1123,6 +1138,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
