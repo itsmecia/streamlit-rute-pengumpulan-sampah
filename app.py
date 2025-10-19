@@ -282,7 +282,7 @@ if mode == "Dashboard Data":
     legend_html = """
     <div style="
          position: absolute; 
-         bottom: 15px; left: 160px;  
+         bottom: 10px; left: 154px;  
          z-index: 9999;
          background-color: rgba(255, 255, 255, 0.95);
          border: 1px solid #555;
@@ -1073,6 +1073,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
