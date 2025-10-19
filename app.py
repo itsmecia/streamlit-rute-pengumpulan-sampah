@@ -372,139 +372,6 @@ if mode == "Dashboard Data":
     st.write(f"- Korelasi kapasitas vs volume: **{corr:.2f}**")
     st.markdown("---")
     
-# REKOMENDASI PENGANGKUTAN PRIORITAS
-    st.markdown("## Rekomendasi Pengangkutan Prioritas")
-    
-    # Cek apakah ada TPS dengan keterisian >90%
-    penuh = tps_df[tps_df["keterisian_%"] > 90]
-    
-    # Gunakan session_state untuk menyimpan status simulasi
-    if "use_dummy" not in st.session_state:
-        st.session_state.use_dummy = False
-    
-    # ================================
-    # 🔘 TOMBOL SIMULASI / KEMBALI
-    # ================================
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        if not st.session_state.use_dummy:
-            if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
-                st.session_state.use_dummy = True
-        else:
-            if st.button("🔁 Kembalikan ke Data Asli"):
-                st.session_state.use_dummy = False
-    
-    # ================================
-    # ⚙️ MODE SIMULASI
-    # ================================
-    if st.session_state.use_dummy:
-        dummy_tps = tps_df.sample(n=min(3, len(tps_df))).copy()
-        dummy_tps["keterisian_%"] = np.random.uniform(91, 100, size=len(dummy_tps))
-        penuh = dummy_tps
-        st.info("✅ Simulasi TPS penuh diaktifkan (data dummy digunakan).")
-    
-    # ================================
-    # 🗺️ TAMPILKAN PETA / PESAN
-    # ================================
-    if penuh.empty and not st.session_state.use_dummy:
-        st.success("Peta rute tidak ditampilkan karena semua TPS masih di bawah 90%.")
-    else:
-        rekom_list = []
-        m_rekom = folium.Map(location=[center_lat, center_lon], zoom_start=12)
-        prioritas_ids = set(penuh["id_tps"].astype(str).tolist())
-    
-        # --- Tambahkan marker TPS ---
-        for _, row in tps_df.iterrows():
-            lat, lon = row["latitude"], row["longitude"]
-            nama = row["nama"]
-            persentase = row["keterisian_%"]
-            warna = "red" if row["id_tps"] in prioritas_ids else "green"
-    
-            # Marker utama
-            folium.CircleMarker(
-                location=[lat, lon],
-                radius=8,
-                color=warna,
-                fill=True,
-                fill_opacity=0.9,
-                popup=f"{nama} ({persentase:.1f}%)"
-            ).add_to(m_rekom)
-    
-            # Label nama
-            folium.map.Marker(
-                [lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""
-                    <div style="
-                        font-size: 13px;
-                        color: red;
-                        font-weight: bold;
-                        white-space: nowrap;
-                        transform: translate(12px, -10px);
-                    ">
-                        {nama}
-                    </div>
-                    """
-                ),
-            ).add_to(m_rekom)
-    
-        # --- Tambahkan marker TPA ---
-        for _, row in tpa_df.iterrows():
-            lat, lon = row["latitude"], row["longitude"]
-            nama = row["nama"]
-            folium.Marker(
-                [lat, lon],
-                popup=f"{nama}",
-                icon=folium.Icon(color="blue", icon="recycle", prefix="fa"),
-            ).add_to(m_rekom)
-            folium.map.Marker(
-                [lat, lon],
-                icon=folium.DivIcon(
-                    html=f'<div style="font-size:13px; color:blue; font-weight:bold;">{nama}</div>'
-                ),
-            ).add_to(m_rekom)
-    
-        # --- Gambarkan rute TPS penuh → TPA terdekat ---
-        for _, tps in penuh.iterrows():
-            tps_lat, tps_lon = tps.get("latitude"), tps.get("longitude")
-            if pd.isna(tps_lat) or pd.isna(tps_lon) or tpa_df.empty:
-                continue
-            tpa_df = tpa_df.copy()
-            tpa_df["jarak_km"] = np.sqrt(
-                (tpa_df["latitude"] - tps_lat)**2 +
-                (tpa_df["longitude"] - tps_lon)**2
-            ) * 111
-            nearest = tpa_df.loc[tpa_df["jarak_km"].idxmin()]
-            folium.PolyLine(
-                locations=[[tps_lat, tps_lon], [nearest["latitude"], nearest["longitude"]]],
-                color="blue", weight=3, opacity=0.7,
-                tooltip=f"Rute {tps.get('id_tps')} → {nearest.get('nama','-')}"
-            ).add_to(m_rekom)
-    
-            rekom_list.append({
-                "TPS": tps.get("id_tps"),
-                "Keterisian (%)": f"{tps.get('keterisian_%', 0):.1f}",
-                "TPA Terdekat": nearest.get("nama", "-"),
-                "Jarak ke TPA (km)": round(nearest["jarak_km"], 2)
-            })
-    
-        # --- Tabel & Peta ---
-        rekom_df = pd.DataFrame(rekom_list)
-        st_folium(m_rekom, width=1000, height=500)
-        st.dataframe(rekom_df, use_container_width=True)
-    
-        # --- Insight ---
-        st.markdown("### Insight")
-        st.write(f"- Total TPS penuh: **{len(rekom_df)} lokasi**")
-        if not rekom_df.empty:
-            st.write(f"- Rata-rata jarak TPS penuh → TPA terdekat: **{rekom_df['Jarak ke TPA (km)'].mean():.2f} km**")
-            try:
-                st.write(f"- TPA yang paling sering menjadi tujuan: **{rekom_df['TPA Terdekat'].mode()[0]}**")
-            except Exception:
-                pass
-
-    
-    st.markdown("---")
 
     # TOP 5 TPS
     st.subheader("Top 5 TPS Berdasarkan Volume dan Persentase Keterisian")
@@ -1213,6 +1080,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
