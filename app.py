@@ -294,7 +294,6 @@ if mode == "Dashboard Data":
          font-family: Arial, sans-serif;
          color: #222;
     ">
-    <b style="font-size:15px; color:#111;">Legenda</b><br>
     <i class="fa fa-trash" style="color:green;"></i>
     <span style="font-weight:600; margin-left:6px;">TPS</span><br>
     <i class="fa fa-recycle" style="color:red;"></i>
@@ -1073,6 +1072,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
