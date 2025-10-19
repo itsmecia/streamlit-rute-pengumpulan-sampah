@@ -282,16 +282,17 @@ if mode == "Dashboard Data":
     legend_html = """
     <div style="
          position: absolute; 
-         bottom: 10px; left: 80px; 
+         bottom: 10px; left: 75px; 
          z-index: 9999;
-         background-color: rgba(255, 255, 255, 0.9);
+         background-color: rgba(255, 255, 255, 0.95);
          border: 1px solid #888;
          border-radius: 8px;
-         padding: 8px 12px;
+         padding: 8px 10px;
          font-size: 13px;
-         box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+         line-height: 1.4;
+         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     ">
-    <b>🔍 Legenda</b><br>
+    <b> Legenda</b><br>
     <i class="fa fa-trash" style="color:green"></i> TPS<br>
     <i class="fa fa-recycle" style="color:red"></i> TPA
     </div>
@@ -1069,6 +1070,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
