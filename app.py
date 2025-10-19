@@ -802,48 +802,73 @@ elif mode == "Rute Pengangkutan":
                     df_segmen = pd.DataFrame(segmen_jarak)
                     st.dataframe(df_segmen.style.format({"Jarak (km)": "{:.2f}"}))
 
-# MODE: Jadwal Otomatis 
+# MODE: Jadwal Pengangkutan Otomatis 
 elif mode == "Jadwal Pengangkutan":
-    st.header("Jadwal Otomatis Berdasarkan Aktivitas TPS")
+    st.header("🗓️ Jadwal Otomatis Berdasarkan Aktivitas & Wilayah TPS")
 
     num_truck = st.number_input("Jumlah Truk Operasional", min_value=1, value=2)
     hari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
-    if st.button("Buat Jadwal Otomatis"):
-        data = []
-        for i, h in enumerate(hari):
-            n = min(num_truck, len(tps_df)) if not tps_df.empty else 0
-            if n == 0:
-                continue
-            tps_hari = tps_df.sample(n)
-            for j, t in enumerate(tps_hari.itertuples()):
-                data.append({
-                    "Hari": h,
-                    "Truk": f"Truk {j+1}",
-                    "ID_TPS": getattr(t, "id_tps", None),
-                    "TPA": getattr(t, "nearest_tpa", None),
-                    "Jarak (km)": getattr(t, "nearest_dist_km", None)
-                })
-        jadwal_df = pd.DataFrame(data)
-        if jadwal_df.empty:
-            st.info("Tidak ada jadwal yang dapat dibuat (data TPS kosong).")
+    if st.button("Buat Jadwal Otomatis (Realistis)"):
+        if tps_df.empty:
+            st.warning("Data TPS belum tersedia.")
         else:
+            # Tetapkan wilayah kerja truk berdasarkan TPA 
+            wilayah_truk = {}
+            tpa_unik = tps_df["nearest_tpa"].dropna().unique().tolist()
+            for i in range(num_truck):
+                wilayah_truk[f"Truk {i+1}"] = tpa_unik[i % len(tpa_unik)]
+            
+            # Acak data TPS agar pembagian merata 
+            tps_df_shuffled = tps_df.sample(frac=1, random_state=42).reset_index(drop=True)
+            
+            # Bagi TPS menjadi kelompok per hari (merata)
+            chunks = [tps_df_shuffled[i:i+num_truck] for i in range(0, len(tps_df_shuffled), num_truck)]
+            
+            data = []
+            for i, chunk in enumerate(chunks):
+                h = hari[i % len(hari)]  
+                for j, t in enumerate(chunk.itertuples()):
+                    nama_truk = f"Truk {j+1}"
+                    tpa_target = wilayah_truk.get(nama_truk, getattr(t, "nearest_tpa", "-"))
+                    
+                    # Estimasi waktu (30 km/jam) 
+                    jarak_km = getattr(t, "nearest_dist_km", 0.0)
+                    waktu_menit = (jarak_km / 30) * 60  # 30 km/jam
+                    
+                    data.append({
+                        "Hari": h,
+                        "Truk": nama_truk,
+                        "TPS": getattr(t, "id_tps", "-"),
+                        "TPA Tujuan": tpa_target,
+                        "Jarak (km)": round(jarak_km, 2),
+                        "Estimasi Waktu (menit)": round(waktu_menit, 1)
+                    })
+            
+            # Tampilkan hasil jadwal
+            jadwal_df = pd.DataFrame(data)
+            st.success("Jadwal pengangkutan berhasil dibuat!")
             st.dataframe(jadwal_df, use_container_width=True)
-            if "Jarak (km)" in jadwal_df.columns and not jadwal_df["Jarak (km)"].isna().all():
-                fig = px.bar(jadwal_df, x="Hari", y="Jarak (km)", color="Truk",
-                             barmode="group", title="Distribusi Jarak per Hari per Truk")
+
+            # Grafik distribusi jarak per hari
+            if not jadwal_df.empty:
+                fig = px.bar(
+                    jadwal_df,
+                    x="Hari", y="Jarak (km)", color="Truk",
+                    barmode="group",
+                    title="Distribusi Jarak per Hari per Truk"
+                )
                 st.plotly_chart(fig, use_container_width=True)
 
-            # Insight Jadwal
-            st.markdown("### Insight:")
-            jarak_avg = jadwal_df["Jarak (km)"].mean() if "Jarak (km)" in jadwal_df.columns else 0
-            st.info(f"• **Rata-rata jarak per rute:** {jarak_avg:.2f} km")
-            try:
+                # -Insight 
+                st.markdown("### Insight :")
+                jarak_avg = jadwal_df["Jarak (km)"].mean()
+                waktu_avg = jadwal_df["Estimasi Waktu (menit)"].mean()
                 truk_terjauh = jadwal_df.groupby("Truk")["Jarak (km)"].sum().idxmax()
-                st.write(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
-            except Exception:
-                st.write("• Tidak dapat menentukan truk terjauh.")
-            st.write("• **Saran:** Rotasi truk agar beban kerja lebih merata tiap hari.")
+                st.info(f"• **Rata-rata jarak per rute:** {jarak_avg:.2f} km")
+                st.info(f"• **Rata-rata waktu tempuh:** {waktu_avg:.1f} menit")
+                st.info(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
+                st.write("• **Saran:** Rotasi truk agar beban jarak & waktu merata tiap minggu.")
 
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
@@ -1123,6 +1148,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
