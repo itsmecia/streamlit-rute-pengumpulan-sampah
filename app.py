@@ -22,11 +22,11 @@ def safe_read_csv(path, parse_dates=None):
         st.warning(f"⚠️ Gagal memuat {path}: {e}")
         return pd.DataFrame()
 
-tps_df = safe_read_csv("data/tps.csv")
-tpa_df = safe_read_csv("data/tpa.csv")
-histori_df = safe_read_csv("data/histori_rute.csv", parse_dates=["tanggal"])
-routes_df = safe_read_csv("data/routes.csv")
-vehicle_df = safe_read_csv("data/vehicle_routing_matrix.csv")
+tps_df = safe_read_csv("tps.csv")
+tpa_df = safe_read_csv("tpa.csv")
+histori_df = safe_read_csv("histori_rute.csv", parse_dates=["tanggal"])
+routes_df = safe_read_csv("routes.csv")
+vehicle_df = safe_read_csv("vehicle_routing_matrix.csv")
 
 if tps_df.empty:
     st.info("Dataset TPS kosong / gagal dimuat. Beberapa fitur akan dinonaktifkan.")
@@ -113,14 +113,15 @@ if mode == "Dashboard Data":
     
     # FUNGSI UTILITAS
     def compute_keterisian(df):
-        df = df.copy()
-        if {"kapasitas", "volume_saat_ini"}.issubset(df.columns):
-            df["kapasitas"] = df["kapasitas"].replace({0: np.nan})
-            df["keterisian_%"] = (df["volume_saat_ini"] / df["kapasitas"]) * 100
+    if "volume_saat_ini" in df.columns and "kapasitas" in df.columns:
+        df["keterisian_%"] = (df["volume_saat_ini"] / df["kapasitas"]) * 100
+        df["keterisian_%"] = df["keterisian_%"].fillna(0)
+    else:
+        if "keterisian_%" in df.columns:
             df["keterisian_%"] = df["keterisian_%"].fillna(0)
         else:
-            df["keterisian_%"] = df.get("keterisian_%", 0).fillna(0)
-        return df
+            df["keterisian_%"] = 0
+    return df
 
     tps_df = compute_keterisian(tps_df)
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
@@ -943,4 +944,5 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
