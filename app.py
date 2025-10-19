@@ -282,7 +282,7 @@ if mode == "Dashboard Data":
     legend_html = """
     <div style="
          position: absolute; 
-         bottom: 25px; left: 160px;  /* geser kanan dan naik sedikit */
+         bottom: 15px; left: 160px;  
          z-index: 9999;
          background-color: rgba(255, 255, 255, 0.95);
          border: 1px solid #555;
@@ -294,7 +294,7 @@ if mode == "Dashboard Data":
          font-family: Arial, sans-serif;
          color: #222;
     ">
-    <b style="font-size:15px; color:#111;">🗺️ Legenda</b><br>
+    <b style="font-size:15px; color:#111;">Legenda</b><br>
     <i class="fa fa-trash" style="color:green;"></i>
     <span style="font-weight:600; margin-left:6px;">TPS</span><br>
     <i class="fa fa-recycle" style="color:red;"></i>
@@ -1073,6 +1073,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
