@@ -655,35 +655,58 @@ elif mode == "Jadwal & Rute Pengangkutan":
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
     
-        # Semua titik lain tetap muncul tapi bulat
-        for _, row in tps_df.iterrows():
+        # Semua titik TPS tetap muncul tapi bulat + label
+        for _, tps_row in tps_df.iterrows():
             folium.CircleMarker(
-                [row["latitude"], row["longitude"]],
+                [tps_row["latitude"], tps_row["longitude"]],
                 radius=6,
                 color="green",
                 fill=True,
                 fill_color="green",
                 fill_opacity=0.8
             ).add_to(m)
-             folium.map.Marker(
-                [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+            # Label di bawah marker TPS
+            folium.map.Marker(
+                [tps_row["latitude"], tps_row["longitude"]],
+                icon=folium.DivIcon(html=f"""
+                    <div style='
+                        font-size:11px;
+                        font-weight:bold;
+                        color:green;
+                        text-shadow:1px 1px 2px #fff;
+                        transform: translate(-50%, 14px);
+                    '>
+                        {tps_row['id_tps']}
+                    </div>
+                """)
             ).add_to(m)
-    
-        for _, row in tpa_df.iterrows():
+        
+        # Semua titik TPA tetap muncul tapi bulat + label
+        for _, tpa_row in tpa_df.iterrows():
             folium.CircleMarker(
-                [row["latitude"], row["longitude"]],
+                [tpa_row["latitude"], tpa_row["longitude"]],
                 radius=6,
                 color="red",
                 fill=True,
                 fill_color="red",
                 fill_opacity=0.8
             ).add_to(m)
-             folium.map.Marker(
-                [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+            # Label di bawah marker TPA
+            folium.map.Marker(
+                [tpa_row["latitude"], tpa_row["longitude"]],
+                icon=folium.DivIcon(html=f"""
+                    <div style='
+                        font-size:11px;
+                        font-weight:bold;
+                        color:#660000;
+                        text-shadow:1px 1px 2px #fff;
+                        transform: translate(-50%, 14px);
+                    '>
+                        {tpa_row['nama']}
+                    </div>
+                """)
             ).add_to(m)
-    
+        
         # Marker rute (start - finish)
         for i, point in enumerate(route):
             color = "green" if i == 0 else "blue"
@@ -693,34 +716,63 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 popup=f"{i+1}. {point['id_tps']}",
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
-             folium.map.Marker(
-                [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
+        
+            # Label titik rute (di bawah marker)
+            folium.map.Marker(
+                [point["latitude"], point["longitude"]],
+                icon=folium.DivIcon(html=f"""
+                    <div style='
+                        font-size:11px;
+                        font-weight:bold;
+                        color:green;
+                        text-shadow:1px 1px 2px #fff;
+                        transform: translate(-50%, 14px);
+                    '>
+                        {point['id_tps']}
+                    </div>
+                """)
             ).add_to(m)
-    
+        
             # Garis antar TPS
             if i < len(route) - 1:
                 next_point = route[i+1]
                 folium.PolyLine(
-                    [[point["latitude"], point["longitude"]], [next_point["latitude"], next_point["longitude"]]],
+                    [[point["latitude"], point["longitude"]],
+                     [next_point["latitude"], next_point["longitude"]]],
                     color="blue", weight=4, opacity=0.8
                 ).add_to(m)
-    
-        # Ke TPA
+        
+        # Garis ke TPA terakhir
+        last = route[-1]
         folium.PolyLine(
-            [[last["latitude"], last["longitude"]], [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
-            color="red", weight=5, tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
+            [[last["latitude"], last["longitude"]],
+             [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
+            color="red", weight=5,
+            tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
         ).add_to(m)
+        
+        # Marker TPA tujuan + label
         folium.Marker(
             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
             popup=f"{nearest_tpa['nama']}",
             icon=folium.Icon(color="red", icon="flag", prefix="fa")
         ).add_to(m)
+        
         folium.map.Marker(
-                [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+            [nearest_tpa["latitude"], nearest_tpa["longitude"]],
+            icon=folium.DivIcon(html=f"""
+                <div style='
+                    font-size:11px;
+                    font-weight:bold;
+                    color:#660000;
+                    text-shadow:1px 1px 2px #fff;
+                    transform: translate(-50%, 14px);
+                '>
+                    {nearest_tpa['nama']}
+                </div>
+            """)
         ).add_to(m)
-    
+
         # Legenda rute
         legend_html = """
         <div style="
@@ -1050,6 +1102,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
