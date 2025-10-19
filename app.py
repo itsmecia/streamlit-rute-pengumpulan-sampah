@@ -140,8 +140,7 @@ if mode == "Dashboard Data":
     
     if st.button("Reset Filter Peta", key="reset_peta"):
         selected_tps_map = []
-    
-    # Filter data TPS
+
     if selected_tps_map:
         filtered_tps_map = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps_map)].copy()
     else:
@@ -165,7 +164,6 @@ if mode == "Dashboard Data":
     # Buat peta utama
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, control_scale=True)
     
-    # Tambahkan tile layer tanpa tulisan atribusi (attr isi spasi)
     folium.TileLayer(
         tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         name="OpenStreetMap",
@@ -204,7 +202,7 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label teks di samping kanan marker
+        # Label di samping kanan marker
         folium.map.Marker(
             [lat, lon],
             icon=folium.DivIcon(
@@ -243,8 +241,7 @@ if mode == "Dashboard Data":
             tooltip=f"{row['id_tps']}",
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
-    
-        # Label teks di samping kanan marker
+
         folium.map.Marker(
             [lat, lon],
             icon=folium.DivIcon(
@@ -271,7 +268,7 @@ if mode == "Dashboard Data":
             [all_points["latitude"].max(), all_points["longitude"].max()],
         ])
     
-    ## Tambahkan legenda di dalam peta
+    # Tambahkan legenda 
     legend_html = """
     <div style="
         position: absolute; 
@@ -296,7 +293,6 @@ if mode == "Dashboard Data":
     """
     
     m.get_root().html.add_child(folium.Element(legend_html))
-
 
 
     # Layer control
@@ -359,7 +355,7 @@ if mode == "Dashboard Data":
     st.markdown("### Insight Hubungan Kapasitas vs Volume per TPS")
     
     if not tps_filtered_scatter.empty:
-        # 🔧 Ambang dinamis
+        # Ambang dinamis
         threshold = st.slider(
             "Atur ambang keterisian (%) untuk peringatan penuh:",
             50, 100, 85, step=1, key="slider_threshold_scatter"
@@ -389,7 +385,6 @@ if mode == "Dashboard Data":
         else:
             st.success(f"✅ Semua TPS masih di bawah {threshold-10}% keterisian.")
     
-        # Insight tambahan tetap tampil
         avg_fill_all = tps_df["keterisian_%"].mean()
         corr = tps_df["kapasitas"].corr(tps_df["volume_saat_ini"])
         st.write(f"- Rata-rata keterisian TPS (keseluruhan): **{avg_fill_all:.1f}%**")
@@ -461,7 +456,7 @@ if mode == "Dashboard Data":
         st.info("Tidak ada data yang cocok dengan filter TPS yang dipilih.")
     st.markdown("---")    
 
-# TREN VOLUME SAMPAH BULANAN (KOTA)
+# TREN VOLUME SAMPAH 
     st.subheader("Tren Volume Sampah Bulanan (Kota)")
     
     # Pilihan filter
@@ -495,7 +490,7 @@ if mode == "Dashboard Data":
         )
         st.plotly_chart(fig_trend, use_container_width=True)
     
-        # ===== Insight tren =====
+        # Insight tren
         st.markdown("### Insight")
         recent_avg = monthly_trend.tail(3)["Volume_kg"].mean() if len(monthly_trend) >= 3 else monthly_trend["Volume_kg"].mean()
         overall_avg = monthly_trend["Volume_kg"].mean()
@@ -532,14 +527,14 @@ elif mode == "Simulasi Rute":
         if not selected_tps:
             st.info("Silakan pilih minimal satu TPS untuk simulasi rute.")
         else:
-         # === RUTE TUNGGAL ===
+         # RUTE TUNGGAL
             if len(selected_tps) == 1:
                 tps_point = tps_df[tps_df["id_tps"].astype(str) == selected_tps[0]].iloc[0]
             
                 if tpa_df.empty or "latitude" not in tpa_df.columns:
                     st.error("Data TPA tidak tersedia untuk menghitung rute.")
                 else:
-                    # Hitung jarak ke semua TPA (perkiraan)
+                    # Hitung jarak ke semua TPA 
                     tpa_df = tpa_df.copy()
                     tpa_df["jarak_km"] = np.sqrt(
                         (tpa_df["latitude"] - tps_point["latitude"])**2 +
@@ -560,7 +555,7 @@ elif mode == "Simulasi Rute":
                     center_lon = float((tps_point["longitude"] + rekomendasi_tpa["longitude"]) / 2)
                     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
             
-                     # === Marker TPS ===
+                     # Marker TPS
                     tps_lat, tps_lon = tps_point["latitude"], tps_point["longitude"]
                     folium.Marker(
                         [tps_lat, tps_lon],
@@ -587,7 +582,7 @@ elif mode == "Simulasi Rute":
                     ).add_to(m)
                     
                     
-                    # === Marker TPA ===
+                    # Marker TPA
                     for _, row in tpa_df.iterrows():
                         lat = row.get("latitude")
                         lon = row.get("longitude")
@@ -618,7 +613,7 @@ elif mode == "Simulasi Rute":
                             )
                         ).add_to(m)
 
-                    # === Gambar Garis Jalur ===
+                    # Garis Jalur 
                     folium.PolyLine(
                         [[tps_point["latitude"], tps_point["longitude"]],
                          [rekomendasi_tpa["latitude"], rekomendasi_tpa["longitude"]]],
@@ -627,15 +622,15 @@ elif mode == "Simulasi Rute":
                         tooltip=f"Rute: TPS {tps_point.get('id_tps')} ➜ TPA {nama_tpa_terdekat}"
                     ).add_to(m)
             
-                    # === Tampilkan Peta ===
+                    # Tampilkan Peta 
                     st_folium(m, width=1000, height=550)
             
-                    # === Insight ===
+                    #  Insight
                     st.markdown("### Insight Rute")
                     st.write(f"- Jalur terpendek dari **{selected_tps[0]} ➜ {nama_tpa_terdekat}** sejauh **{jarak_terpendek:.2f} km**.")
                     st.write(f"- Estimasi waktu tempuh: **{waktu_menit:.1f} menit**.")
 
-            # === RUTE MULTI (GREEDY) ===
+            # RUTE MULTI (GREEDY)
             else:
                 st.subheader("Simulasi Multi-Rute")
                 selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
@@ -689,14 +684,14 @@ elif mode == "Simulasi Rute":
                     center_lon = float(selected_tps_df["longitude"].mean()) if "longitude" in selected_tps_df.columns else 0
                     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
             
-                    # --- Tambahkan Marker dan Label Besar ---
+                    # Tambahkan Marker dan Label 
                     for i, point in enumerate(route):
                         lat = point.get("latitude")
                         lon = point.get("longitude")
                         if pd.isna(lat) or pd.isna(lon):
                             continue
                     
-                        # Icon berbeda untuk start dan titik lain
+                        # Icon
                         if i == 0:
                             icon_type = "truck"   
                             color = "green"
@@ -710,7 +705,7 @@ elif mode == "Simulasi Rute":
                             icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
                         ).add_to(m)
                     
-                        # Tambahkan label besar di atas marker
+                        # Tambahkan label 
                         folium.map.Marker(
                             [lat, lon],
                             icon=folium.DivIcon(
@@ -747,7 +742,7 @@ elif mode == "Simulasi Rute":
                             )
                         ).add_to(m)
             
-                    # --- Tambahkan Legenda untuk Start & Finish ---
+                    #  Legenda
                     legend_html = """
                     <div style="
                         position: fixed; 
@@ -772,7 +767,7 @@ elif mode == "Simulasi Rute":
                     # Tampilkan peta
                     st_folium(m, width=1000, height=550)
             
-                    # --- INSIGHT & REKOMENDASI ---
+                    # INSIGHT & REKOMENDASI
                     urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
                     st.markdown("### Insight & Rekomendasi Multi-Rute")
                     st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
@@ -892,11 +887,11 @@ elif mode == "Prediksi Volume Sampah":
             X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
             y_train, y_test = y.iloc[:split_idx], df["Volume_kg"].iloc[split_idx:]
 
-            # --- Model RandomForest ---
+            # Model RandomForest 
             model = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
             model.fit(X_train, y_train)
 
-            # --- Prediksi & Evaluasi ---
+            # Prediksi & Evaluasi
             y_pred = np.expm1(model.predict(X_test))
             y_pred = np.maximum(y_pred, 0.1)
 
@@ -904,7 +899,7 @@ elif mode == "Prediksi Volume Sampah":
             r2 = r2_score(y_test, y_pred)
             mape = (abs((y_test - y_pred) / y_test).mean()) * 100
 
-            # --- Scatter Plot Aktual vs Prediksi ---
+            # Scatter Plot Aktual vs Prediksi
             compare_df = pd.DataFrame({
                 "Tanggal": df["tanggal"].iloc[split_idx:].values,
                 "id_tps": df["id_tps"].iloc[split_idx:].values,
@@ -919,7 +914,7 @@ elif mode == "Prediksi Volume Sampah":
             fig_comp.add_shape(type="line", x0=0, y0=0, x1=max_val, y1=max_val, line=dict(color="gray", dash="dash"))
             st.plotly_chart(fig_comp, use_container_width=True)
 
-            # --- Insight (Grafik 1) ---
+            # Insight (Grafik 1)
             selisih = abs(compare_df["Aktual"] - compare_df["Prediksi"])
             threshold = selisih.mean() + 2 * selisih.std()
             outlier_mask = selisih > threshold
@@ -943,7 +938,7 @@ elif mode == "Prediksi Volume Sampah":
             Model menunjukkan performa {kualitas}, dengan prediksi volume per TPS relatif akurat dan konsisten.
             """)
 
-            # --- Tambahan: tampilkan daftar titik outlier ---
+            # tampilkan daftar titik outlier 
             if outlier_count > 0:
                 st.write("**📍 Daftar Titik Outlier (Prediksi jauh dari aktual):**")
                 st.dataframe(
@@ -955,7 +950,7 @@ elif mode == "Prediksi Volume Sampah":
 
             st.markdown("---")
 
-            # --- Prediksi 6 Bulan ke Depan: Jan–Jun 2021 ---
+            # Prediksi 6 Bulan ke Depan
             st.subheader("Prediksi Volume Sampah 6 Bulan ke Depan (Jan–Jun 2021)")
 
             future_months = pd.date_range("2021-01-01", periods=6, freq="MS")
@@ -999,7 +994,7 @@ elif mode == "Prediksi Volume Sampah":
             ])
             combined_df["Tipe"] = ["Aktual"] * len(df) + ["Prediksi"] * len(future_df)
 
-            # --- Filter Dropdown ---
+            #  Filter 
             col1, col2 = st.columns(2)
             tps_list = sorted(combined_df["id_tps"].unique())
             selected_tps = col1.selectbox("Pilih TPS", ["Semua"] + tps_list, index=0)
@@ -1011,7 +1006,7 @@ elif mode == "Prediksi Volume Sampah":
             if selected_tipe == "Hanya Prediksi":
                 plot_df = plot_df[plot_df["Tipe"] == "Prediksi"]
 
-            # --- Visualisasi Tren ---
+            #  Visualisasi Tren 
             if selected_tps == "Semua":
                 avg_df = plot_df.groupby(["tanggal", "Tipe"])["Nilai"].mean().reset_index()
                 fig_future = px.line(
@@ -1047,7 +1042,7 @@ elif mode == "Prediksi Volume Sampah":
                 columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
             ).round(2), use_container_width=True)  
 
-           # --- Insight Otomatis di bawah grafik kedua ---
+           #  Insight grafik kedua 
             st.markdown("#### Insight")
 
             # Pastikan kolom tanggal datetime
@@ -1065,7 +1060,7 @@ elif mode == "Prediksi Volume Sampah":
                 & (future_df["tanggal"].dt.month <= 6)
             ]
 
-            # --- Hitung rata-rata ---
+            #  Hitung rata-rata 
             avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
             avg_pred = (
                 pred_df["Prediksi_Volume_kg"].mean()
@@ -1073,7 +1068,7 @@ elif mode == "Prediksi Volume Sampah":
                 else None
             )
 
-            # --- Hitung tren total prediksi ---
+            #  Hitung tren total prediksi 
             if not pred_df.empty:
                 trend_total = pred_df.groupby("tanggal")["Prediksi_Volume_kg"].sum().reset_index()
                 diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
@@ -1108,6 +1103,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
