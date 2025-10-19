@@ -177,18 +177,23 @@ if mode == "Dashboard Data":
         attr='© OpenStreetMap contributors © CARTO'
     ).add_to(m)
 
-  # === Marker TPA ===
+   # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
-        # Sedikit naik agar tidak menimpa ikon
         lat, lon = row["latitude"], row["longitude"]
-        offset_label = 0.005  # jarak label ke atas (lebih kecil supaya rapi)
+    
+        # Geser hanya TPA Selatan
+        if str(row["nama"]).strip().lower() == "tpa selatan":
+            offset_lat = 0.05
+            offset_lon = 0.03
+            lat += offset_lat
+            lon += offset_lon
     
         popup_html = f"""
         <b>TPA:</b> {row.get('nama', '-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
     
-        # Marker ikon
+        # Marker ikon TPA
         folium.Marker(
             [lat, lon],
             popup=popup_html,
@@ -196,9 +201,9 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label teks (tepat di atas ikon)
+        # Label teks TPA (tepat di atas ikon)
         folium.Marker(
-            [lat + offset_label, lon],
+            [lat + 0.006, lon],
             icon=folium.DivIcon(
                 html=f'''
                     <div style="
@@ -212,7 +217,7 @@ if mode == "Dashboard Data":
                 '''
             ),
         ).add_to(m)
-    
+
     
     # === Marker TPS ===
     for _, row in filtered_tps_map.iterrows():
@@ -1043,6 +1048,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
