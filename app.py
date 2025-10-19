@@ -577,9 +577,9 @@ elif mode == "Jadwal & Rute Pengangkutan":
     center_lon = float(tps_df["longitude"].mean())
     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
     
-    # ============ SEBELUM RUTE DICARI ============
+    # SEBELUM RUTE DICARI 
     if not selected_tps:
-        # TPS icon (tong sampah hijau)
+        # TPS icon 
         for _, row in tps_df.iterrows():
             folium.Marker(
                 location=[row["latitude"], row["longitude"]],
@@ -591,7 +591,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:green; text-shadow:1px 1px 2px #fff;'>{row['id_tps']}</div>")
             ).add_to(m)
     
-        # TPA icon (daur ulang merah)
+        # TPA icon 
         for _, row in tpa_df.iterrows():
             folium.Marker(
                 location=[row["latitude"], row["longitude"]],
@@ -603,7 +603,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
             ).add_to(m)
     
-        # Legenda awal (ikon tong & recycle)
+        # Legenda 
         legend_html = """
         <div style="
             position: fixed; 
@@ -625,7 +625,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         st_folium(m, width=1000, height=550)
     
     else:
-        # ============ SESUDAH RUTE DICARI ============
+        # SESUDAH RUTE DICARI 
         selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
     
         # RUTE GREEDY
@@ -655,7 +655,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
     
-        # Semua titik TPS tetap muncul tapi bulat + label
+        # Semua titik TPS bulat + label
         for _, tps_row in tps_df.iterrows():
             folium.CircleMarker(
                 [tps_row["latitude"], tps_row["longitude"]],
@@ -681,7 +681,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 """)
             ).add_to(m)
         
-        # Semua titik TPA tetap muncul tapi bulat + label
+        # Semua titik TPA bulat + label
         for _, tpa_row in tpa_df.iterrows():
             folium.CircleMarker(
                 [tpa_row["latitude"], tpa_row["longitude"]],
@@ -717,7 +717,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
         
-            # Label titik rute (di bawah marker)
+            # Label titik rute
             folium.map.Marker(
                 [point["latitude"], point["longitude"]],
                 icon=folium.DivIcon(html=f"""
@@ -798,7 +798,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         st_folium(m, width=1000, height=550)
 
     
-        # ================= INSIGHT RUTE ==================
+        #  INSIGHT RUTE 
         segmen_jarak = []
         for i in range(len(route)-1):
             dist = haversine(route[i]["latitude"], route[i]["longitude"],
@@ -1102,6 +1102,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
