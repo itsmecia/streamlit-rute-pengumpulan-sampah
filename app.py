@@ -375,39 +375,48 @@ if mode == "Dashboard Data":
 # REKOMENDASI PENGANGKUTAN PRIORITAS
     st.markdown("## Rekomendasi Pengangkutan Prioritas")
     
-    # Cek apakah ada TPS dengan keterisian >90%
-    penuh = tps_df[tps_df["keterisian_%"] > 90]
+   # --- CEK KETERISIAN TPS ---
+    if "use_dummy" not in st.session_state:
+        st.session_state.use_dummy = False
     
-    # Tombol untuk simulasi dummy data jika tidak ada TPS penuh
-    use_dummy = False
-    if penuh.empty:
-        st.success("Peta rute tidak ditampilkan karena semua keterisian TPS masih di bawah 90%.")
-    
-    # Tombol simulasi di bawah pesan
-    if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
-        use_dummy = True
-        # Buat data dummy acak untuk simulasi
+    # --- Mode Simulasi TPS Penuh ---
+    if st.session_state.use_dummy:
+        # Buat data dummy simulasi (>90%)
         dummy_tps = tps_df.sample(n=min(3, len(tps_df))).copy()
         dummy_tps["keterisian_%"] = np.random.uniform(91, 100, size=len(dummy_tps))
         penuh = dummy_tps
         st.info("✅ Simulasi TPS penuh diaktifkan.")
-
-
-    # Jika ada data penuh (asli atau dummy)
+        
+        if st.button("🔁 Kembalikan ke Data Asli"):
+            st.session_state.use_dummy = False
+            st.rerun()
+    
+    # --- Mode Normal (tanpa simulasi) ---
+    else:
+        penuh = tps_df[tps_df["keterisian_%"] > 90]
+    
+        if penuh.empty:
+            st.success("Peta rute tidak ditampilkan karena semua TPS masih di bawah 90%.")
+            if st.button("🔄 Aktifkan Simulasi TPS Penuh (>90%)"):
+                st.session_state.use_dummy = True
+                st.rerun()
+    
+    # --- Jika ada data penuh (asli atau dummy) ---
     if not penuh.empty:
         rekom_list = []
         m_rekom = folium.Map(location=[center_lat, center_lon], zoom_start=12)
         prioritas_ids = set(penuh["id_tps"].astype(str).tolist())
     
-        # Tambahkan marker TPS
+        # Tambahkan marker TPS prioritas dan rute
         for _, tps in tps_df.iterrows():
             style = "trash" if str(tps.get("id_tps")) in prioritas_ids else "circle"
             popup_extra = "<b>Prioritas: Penuh</b>" if style == "trash" else None
             add_tps_marker(m_rekom, tps, style=style, popup_extra=popup_extra)
     
-        # Tambahkan marker TPA
+        # Tambahkan TPA dan label
         for _, row in tpa_df.iterrows():
-            lat, lon = row.get("latitude"), row.get("longitude")
+            lat = row.get("latitude")
+            lon = row.get("longitude")
             if pd.isna(lat) or pd.isna(lon):
                 continue
             folium.Marker(
@@ -422,18 +431,16 @@ if mode == "Dashboard Data":
                 ),
             ).add_to(m_rekom)
     
-        # Gambarkan rute TPS prioritas → TPA terdekat
+        # Gambarkan rute TPS penuh → TPA terdekat
         for _, tps in penuh.iterrows():
             tps_lat, tps_lon = tps.get("latitude"), tps.get("longitude")
             if pd.isna(tps_lat) or pd.isna(tps_lon) or tpa_df.empty:
                 continue
-    
-            # Hitung jarak sederhana (Euklidean dikonversi ke km)
             tpa_df = tpa_df.copy()
             tpa_df["jarak_km"] = np.sqrt(
-                (tpa_df["latitude"] - tps_lat)**2 + (tpa_df["longitude"] - tps_lon)**2
+                (tpa_df["latitude"] - tps_lat)**2 + 
+                (tpa_df["longitude"] - tps_lon)**2
             ) * 111
-    
             nearest = tpa_df.loc[tpa_df["jarak_km"].idxmin()]
             folium.PolyLine(
                 locations=[[tps_lat, tps_lon], [nearest["latitude"], nearest["longitude"]]],
@@ -448,12 +455,12 @@ if mode == "Dashboard Data":
                 "Jarak ke TPA (km)": round(nearest["jarak_km"], 2)
             })
     
-        # Tampilkan tabel rekomendasi & peta
+        # Tabel & Peta
         rekom_df = pd.DataFrame(rekom_list)
         st.dataframe(rekom_df, use_container_width=True)
         st_folium(m_rekom, width=1000, height=500)
     
-        # Insight tambahan
+        # Insight
         st.markdown("### Insight")
         st.write(f"- Total TPS penuh: **{len(rekom_df)} lokasi**")
         if not rekom_df.empty:
@@ -1172,6 +1179,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
