@@ -282,19 +282,23 @@ if mode == "Dashboard Data":
     legend_html = """
     <div style="
          position: absolute; 
-         bottom: 10px; left: 100px;  /* geser ke kanan */
+         bottom: 25px; left: 160px;  /* geser kanan dan naik sedikit */
          z-index: 9999;
          background-color: rgba(255, 255, 255, 0.95);
-         border: 1px solid #888;
-         border-radius: 8px;
-         padding: 8px 12px;
+         border: 1px solid #555;
+         border-radius: 10px;
+         padding: 10px 14px;
          font-size: 14px;
-         line-height: 1.6;
-         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+         line-height: 1.8;
+         box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+         font-family: Arial, sans-serif;
+         color: #222;
     ">
-    <b style="font-size:15px;">Legenda</b><br>
-    <i class="fa fa-trash" style="color:green;"></i> <span style="font-weight:bold; margin-left:5px;">TPS</span><br>
-    <i class="fa fa-recycle" style="color:red;"></i> <span style="font-weight:bold; margin-left:5px;">TPA</span>
+    <b style="font-size:15px; color:#111;">🗺️ Legenda</b><br>
+    <i class="fa fa-trash" style="color:green;"></i>
+    <span style="font-weight:600; margin-left:6px;">TPS</span><br>
+    <i class="fa fa-recycle" style="color:red;"></i>
+    <span style="font-weight:600; margin-left:6px;">TPA</span>
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
@@ -1069,6 +1073,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
