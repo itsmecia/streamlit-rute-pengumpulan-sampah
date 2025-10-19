@@ -487,8 +487,6 @@ if mode == "Dashboard Data":
 
 # MODE: Simulasi Rute & jadwal
 elif mode == "Jadwal & Rute Pengangkutan":
-    st.header("Jadwal & Rute Pengangkutan")
-
 
     # Fungsi Haversine
     def haversine(lat1, lon1, lat2, lon2):
@@ -536,15 +534,9 @@ elif mode == "Jadwal & Rute Pengangkutan":
         assigned_list.append(subset)
     jadwal_final = pd.concat(assigned_list)
 
-    today = datetime.today()
-    jadwal_final["Tanggal Pengangkutan"] = [
-        (today + timedelta(days=int((rank - 1) // 10))).strftime("%Y-%m-%d")
-        for rank in jadwal_final["prioritas_rank"]
-    ]
-
     jadwal_df = jadwal_final[[
         "id_tps", "nama", "nearest_tpa", "keterisian_%", "kapasitas",
-        "volume_saat_ini", "Truk", "Tanggal Pengangkutan"
+        "volume_saat_ini", "Truk"
     ]].rename(columns={
         "id_tps": "ID TPS",
         "nama": "Nama TPS",
@@ -554,7 +546,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         "volume_saat_ini": "Volume Saat Ini (m³)"
     })
 
-    st.subheader("📋 Jadwal Pengangkutan Otomatis")
+    st.subheader("Jadwal Pengangkutan")
     col1, col2 = st.columns(2)
     with col1:
         selected_truck = st.selectbox("Pilih Truk:", ["Semua"] + all_trucks, key="filter_truk")
@@ -624,7 +616,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
             ).add_to(m)
             folium.map.Marker(
                 [point["latitude"], point["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366;'>{point['id_tps']}</div>")
+                icon=folium.DivIcon(html=f"<div style='font-size:14px; font-weight:bold; color:#003366; text-shadow:1px 1px 2px #fff;'>{point.get('id_tps')}</div>")
             ).add_to(m)
             # Garis antar TPS
             if i < len(route) - 1:
@@ -969,6 +961,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
