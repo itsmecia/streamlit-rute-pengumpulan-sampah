@@ -165,27 +165,29 @@ if mode == "Dashboard Data":
     # === Buat peta ===
     m = folium.Map(location=[center_lat, center_lon], zoom_start=11, control_scale=True)
     
-    # --- Marker TPA ---
+   # --- Marker TPA ---
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
         popup_html = f"""
         <b>TPA:</b> {row.get('nama','-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
+        # Titik marker utama (ikon merah)
         folium.Marker(
             [lat, lon],
             popup=popup_html,
             tooltip=f"TPA: {row['nama']}",
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
-        # Label besar biar terlihat saat zoom
+        
+        # Label teks sedikit di atas marker agar tidak menimpa
         folium.map.Marker(
-            [lat, lon],
+            [lat + 0.02, lon],  # naikkan sedikit posisi label
             icon=folium.DivIcon(
                 html=f'<div style="font-size:15px; color:red; font-weight:bold; text-shadow:1px 1px 2px white;">{row["nama"]}</div>'
             ),
         ).add_to(m)
-    
+
     # --- Marker TPS ---
     for _, row in filtered_tps_map.iterrows():
         lat, lon = row["latitude"], row["longitude"]
@@ -998,6 +1000,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
