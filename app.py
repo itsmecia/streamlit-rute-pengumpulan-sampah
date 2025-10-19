@@ -300,17 +300,20 @@ if mode == "Dashboard Data":
     
     folium.LayerControl().add_to(m)
     st_folium(m, width=1000, height=550)
-    # Tata atribusi agar rapi di kanan bawah
+    # Hilangkan atribusi "Leaflet | © OpenStreetMap..." di peta
     hide_folium_css = """
         <style>
         .leaflet-control-attribution {
             display: none !important;
         }
+        .leaflet-bottom.leaflet-right {
+            display: none !important;
+        }
         </style>
     """
     st.markdown(hide_folium_css, unsafe_allow_html=True)
-    st.markdown("---")
 
+    st.markdown("---")
 
     # SCATTER: Kapasitas vs Volume
     st.subheader("Hubungan Kapasitas vs Volume per TPS")
@@ -1148,6 +1151,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
