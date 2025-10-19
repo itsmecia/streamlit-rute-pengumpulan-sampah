@@ -281,23 +281,22 @@ if mode == "Dashboard Data":
     
     legend_html = """
     <div style="
-         position: absolute;
-         bottom: 25px; right: 25px;
+         position: absolute; 
+         bottom: 10px; left: 80px; 
          z-index: 9999;
          background-color: rgba(255, 255, 255, 0.9);
-         border: 2px solid #888;
+         border: 1px solid #888;
          border-radius: 8px;
-         padding: 10px 12px;
-         box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+         padding: 8px 12px;
          font-size: 13px;
-         color: #333;
-         line-height: 1.4;
+         box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     ">
-    <b>Legenda</b><br>
-    <i class="fa fa-trash" style="color:green"></i> TPS <br>
-    <i class="fa fa-recycle" style="color:red"></i> TPA 
+    <b>🔍 Legenda</b><br>
+    <i class="fa fa-trash" style="color:green"></i> TPS<br>
+    <i class="fa fa-recycle" style="color:red"></i> TPA
     </div>
     """
+
     m.get_root().html.add_child(folium.Element(legend_html))
 
     
@@ -1070,6 +1069,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
