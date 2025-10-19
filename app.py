@@ -620,15 +620,12 @@ elif mode == "Simulasi Rute":
                         icon=folium.DivIcon(
                             html=f"""
                             <div style="
-                                font-size: 11px;
+                                font-size: 16px;
+                                font-weight: 900;
                                 color: green;
-                                font-weight: bold;
-                                background: rgba(255,255,255,0.8);
-                                padding: 2px 5px;
-                                border-radius: 4px;
-                                box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-                                white-space: nowrap;
-                                transform: translate(15px, -10px);
+                                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                text-align: center;
+                                transform: translate(10px, -25px);
                             ">
                                 {tps_point.get('id_tps')}
                             </div>
@@ -655,15 +652,12 @@ elif mode == "Simulasi Rute":
                             icon=folium.DivIcon(
                                 html=f"""
                                 <div style="
-                                    font-size: 11px;
+                                    font-size: 16px;
+                                    font-weight: 900;
                                     color: red;
-                                    font-weight: bold;
-                                    background: rgba(255,255,255,0.8);
-                                    padding: 2px 5px;
-                                    border-radius: 4px;
-                                    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-                                    white-space: nowrap;
-                                    transform: translate(15px, -10px);
+                                    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                    text-align: center;
+                                    transform: translate(10px, -25px);
                                 ">
                                     {row.get('nama')}
                                 </div>
@@ -1161,6 +1155,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
