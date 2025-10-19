@@ -747,21 +747,28 @@ elif mode == "Rute Pengangkutan":
                         a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
                         c = 2 * atan2(sqrt(a), sqrt(1 - a))
                         return R * c
-                    
+                        
                     if nearest_tpa is not None:
-                        if hasattr(nearest_tpa, "to_dict"):  
-                            if hasattr(nearest_tpa, "iloc"):
+                        if isinstance(nearest_tpa, pd.DataFrame):
+                            if not nearest_tpa.empty:
                                 nearest_tpa = nearest_tpa.iloc[0].to_dict()
                             else:
-                                nearest_tpa = nearest_tpa.to_dict()
+                                nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
+                        elif hasattr(nearest_tpa, "to_dict"):
+                            nearest_tpa = nearest_tpa.to_dict()
+                        elif not isinstance(nearest_tpa, dict):
+                            nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
+                    else:
+                        nearest_tpa = {"nama": "-", "latitude": 0.0, "longitude": 0.0, "jarak_km": 0.0}
                     
-                        urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
-                        st.markdown("### Insight & Rekomendasi Multi-Rute")
-                        st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
-                        st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
-                        st.write(f"- **Rata-rata jarak antar TPS:** {total_distance/len(selected_tps):.2f} km/TPS.")
-                        st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({nearest_tpa.get('jarak_km',0.0):.2f} km dari TPS terakhir).")
-                    
+                    # Tampilkan insight dan rekomendasi multi-rute 
+                    urutan_tps = " ➜ ".join([str(r.get("id_tps")) for r in route])
+                    st.markdown("### Insight & Rekomendasi Multi-Rute")
+                    st.write(f"- **Rute terpendek yang direkomendasikan:** {urutan_tps} ➜ {nearest_tpa.get('nama','-')}")
+                    st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km untuk {len(selected_tps)} TPS.")
+                    st.write(f"- **Rata-rata jarak antar TPS:** {total_distance/len(selected_tps):.2f} km/TPS.")
+                    st.write(f"- **TPA tujuan akhir:** {nearest_tpa.get('nama','-')} ({nearest_tpa.get('jarak_km',0.0):.2f} km dari TPS terakhir).")
+
                         # Tambahkan jarak antar segmen
                         st.markdown("#### Jarak Antar Segmen Rute:")
                         for i in range(len(route) - 1):
@@ -775,7 +782,7 @@ elif mode == "Rute Pengangkutan":
                         dist_to_tpa = haversine(last_tps["latitude"], last_tps["longitude"], nearest_tpa["latitude"], nearest_tpa["longitude"])
                         st.write(f"- {last_tps['id_tps']} ➜ {nearest_tpa['nama']}: **{dist_to_tpa:.2f} km**")
                     
-                        # 🔹Analisis efisiensi
+                        #Analisis efisiensi
                         if avg_cap > 800:
                             st.success("✅ Rute efisien — kapasitas rata-rata TPS tinggi, cocok untuk pengangkutan langsung.")
                         elif 400 <= avg_cap <= 800:
@@ -1104,6 +1111,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
