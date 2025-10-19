@@ -607,59 +607,70 @@ elif mode == "Simulasi Rute":
                     center_lon = float((tps_point["longitude"] + rekomendasi_tpa["longitude"]) / 2)
                     m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
             
-                    # === Marker TPS ===
+                     # === Marker TPS ===
                     tps_lat, tps_lon = tps_point["latitude"], tps_point["longitude"]
                     folium.Marker(
                         [tps_lat, tps_lon],
-                        popup=f"<b>TPS {tps_point.get('id_tps')}</b>",
-                        icon=folium.Icon(color="blue", icon="trash", prefix="fa")
+                        popup=f"{tps_point.get('id_tps')}</b>",
+                        icon=folium.Icon(color="green", icon="trash", prefix="fa")
                     ).add_to(m)
+                
                     folium.map.Marker(
                         [tps_lat, tps_lon],
                         icon=folium.DivIcon(
                             html=f"""
-                            <div style='
-                                font-size:14px;
-                                font-weight:bold;
-                                color:#1e40af;
-                                text-align:center;
-                                transform: translate(-25%, -200%);
-                            '>
+                            <div style="
+                                font-size: 11px;
+                                color: green;
+                                font-weight: bold;
+                                background: rgba(255,255,255,0.8);
+                                padding: 2px 5px;
+                                border-radius: 4px;
+                                box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                                white-space: nowrap;
+                                transform: translate(15px, -10px);
+                            ">
                                 {tps_point.get('id_tps')}
                             </div>
                             """
                         )
                     ).add_to(m)
-            
+                    
+                    
                     # === Marker TPA ===
                     for _, row in tpa_df.iterrows():
                         lat = row.get("latitude")
                         lon = row.get("longitude")
                         if pd.isna(lat) or pd.isna(lon):
                             continue
+                    
                         folium.Marker(
                             [lat, lon],
-                            popup=f"<b>TPA {row.get('nama','-')}</b>",
+                            popup=f"{row.get('nama','-')}</b>",
                             icon=folium.Icon(color="red", icon="recycle", prefix="fa")
                         ).add_to(m)
-                        # Tambahkan label besar di atas marker
+                    
                         folium.map.Marker(
                             [lat, lon],
                             icon=folium.DivIcon(
                                 html=f"""
-                                <div style='
-                                    font-size:14px;
-                                    font-weight:bold;
-                                    color:#b91c1c;
-                                    text-align:center;
-                                    transform: translate(-25%, -200%);
-                                '>
+                                <div style="
+                                    font-size: 11px;
+                                    color: red;
+                                    font-weight: bold;
+                                    background: rgba(255,255,255,0.8);
+                                    padding: 2px 5px;
+                                    border-radius: 4px;
+                                    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                                    white-space: nowrap;
+                                    transform: translate(15px, -10px);
+                                ">
                                     {row.get('nama')}
                                 </div>
                                 """
                             )
                         ).add_to(m)
-            
+
                     # === Gambar Garis Jalur ===
                     folium.PolyLine(
                         [[tps_point["latitude"], tps_point["longitude"]],
@@ -1150,6 +1161,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
