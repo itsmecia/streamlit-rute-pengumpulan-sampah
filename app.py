@@ -812,7 +812,6 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * asin(sqrt(a))
     return R * c
 
-# Threshold prioritas
 prioritas_threshold = 70
 
 # -----------------------------
@@ -825,13 +824,6 @@ wilayah_truk_map = {
     "TPA Barat": ["Truk 8", "Truk 9", "Truk 10"]
 }
 truk_list = [f"Truk {i+1}" for i in range(10)]
-
-# -----------------------------
-# Sidebar / Filter
-# -----------------------------
-st.sidebar.header("Filter Jadwal")
-selected_truk = st.sidebar.multiselect("Filter Truk:", truk_list, default=truk_list)
-top_n_option = st.sidebar.selectbox("Top N TPS:", [5, 10, "Semua"], index=2)
 
 # -----------------------------
 # Tabel Daftar Truk & Wilayah
@@ -873,7 +865,20 @@ if st.button("Buat Jadwal Otomatis"):
                 return haversine(row["latitude"], row["longitude"], tpa_row["latitude"], tpa_row["longitude"])
             prioritas["jarak_ke_TPA_km"] = prioritas.apply(hitung_jarak, axis=1)
 
-            # Filter truk
+            # -----------------------------
+            # Filter dalam halaman jadwal
+            # -----------------------------
+            selected_truk = st.multiselect(
+                "Filter Truk:",
+                truk_list,
+                default=truk_list
+            )
+            top_n_option = st.selectbox(
+                "Top N TPS:",
+                [5, 10, "Semua"],
+                index=2
+            )
+
             prioritas_filtered = prioritas[prioritas["Truk"].isin(selected_truk)].copy()
 
             # Filter top N
@@ -882,7 +887,9 @@ if st.button("Buat Jadwal Otomatis"):
                     lambda x: x.nlargest(top_n_option, "rasio_keterisian")
                 ).reset_index(drop=True)
 
+            # -----------------------------
             # Tampilkan tabel jadwal per truk
+            # -----------------------------
             st.markdown("### Jadwal TPS per Truk")
             truk_summary = []
             for truk in selected_truk:
@@ -896,7 +903,9 @@ if st.button("Buat Jadwal Otomatis"):
                 })
             st.dataframe(pd.DataFrame(truk_summary))
 
+            # -----------------------------
             # Insight jadwal
+            # -----------------------------
             st.markdown("### Insight :")
             if not prioritas_filtered.empty:
                 jarak_avg = prioritas_filtered["jarak_ke_TPA_km"].mean()
@@ -904,7 +913,6 @@ if st.button("Buat Jadwal Otomatis"):
                 st.info(f"• **Rata-rata jarak per rute:** {jarak_avg:.2f} km")
                 st.info(f"• **Truk dengan jarak tempuh tertinggi:** {truk_terjauh}")
                 st.write("• **Saran:** Rotasi truk agar beban jarak merata tiap minggu.")
-
             
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
@@ -1184,6 +1192,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
