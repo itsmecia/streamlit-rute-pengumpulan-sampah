@@ -457,7 +457,7 @@ if mode == "Dashboard Data":
     
     # Pilihan filter
     tps_options_tren = sorted(histori_df["id_tps"].unique().tolist())
-    selected_tps_tren = st.multiselect("Filter TPS:", tps_options_tren, key="filter_tps_tren")
+    selected_tps_tren = st.multiselect("Pilih TPS:", tps_options_tren, key="filter_tps_tren")
     
     if st.button("Reset Filter Tren", key="reset_tren"):
         selected_tps_tren = []
@@ -1081,6 +1081,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
