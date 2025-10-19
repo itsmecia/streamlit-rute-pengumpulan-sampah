@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 import numpy as np
 from datetime import datetime, timedelta
+from folium.plugins import BeautifyIcon
 
 # KONFIGURASI HALAMAN
 st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide")
@@ -177,9 +178,6 @@ if mode == "Dashboard Data":
         name='CartoDB Positron',
         attr='© OpenStreetMap contributors © CARTO'
     ).add_to(m)
-
-    
-  from folium.plugins import BeautifyIcon
 
     # === Marker TPA ===
     for _, row in tpa_valid.iterrows():
@@ -1030,6 +1028,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
