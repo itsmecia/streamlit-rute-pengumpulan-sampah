@@ -275,7 +275,7 @@ if mode == "Dashboard Data":
     legend_html = """
     <div style="
          position: absolute; 
-         bottom: 15px; right: 15px;
+         bottom: 20px; right: 20px;
          z-index: 9999;
          background-color: rgba(255, 255, 255, 0.9);
          border: 1px solid #888;
@@ -284,6 +284,8 @@ if mode == "Dashboard Data":
          font-size: 13px;
          line-height: 1.4;
          box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+         max-width: 130px;
+         overflow-wrap: break-word;
     ">
     <b>Legenda:</b><br>
     <i class="fa fa-trash" style="color:green; margin-right:5px;"></i> TPS<br>
@@ -292,7 +294,7 @@ if mode == "Dashboard Data":
     """
     m.get_root().html.add_child(folium.Element(legend_html))
 
-    
+
     # Layer control
     folium.LayerControl().add_to(m)
     
@@ -1102,6 +1104,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
