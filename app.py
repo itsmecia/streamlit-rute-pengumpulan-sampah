@@ -273,31 +273,30 @@ if mode == "Dashboard Data":
     
     ## Tambahkan legenda di dalam peta
     legend_html = """
-    <style>
-    .maplegend {
-        position: absolute;
-        bottom: 25px;
-        right: 25px;
-        z-index: 9999;
-        background-color: rgba(255, 255, 255, 0.9);
-        border: 1px solid #888;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 13px;
-        line-height: 1.4;
-        box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
-        max-width: 130px;
-    }
-    </style>
-    
-    <div class='maplegend'>
-    <b>Legenda:</b><br>
-    <i class="fa fa-trash" style="color:green; margin-right:5px;"></i> TPS<br>
-    <i class="fa fa-recycle" style="color:red; margin-right:5px;"></i> TPA
+    <div style="
+        position: absolute; 
+        bottom: 15px; 
+        right: 15px; 
+        background-color: rgba(255, 255, 255, 0.9); 
+        border: 1.5px solid #888; 
+        z-index: 9999; 
+        font-size: 13px; 
+        box-shadow: 1px 1px 4px rgba(0,0,0,0.2); 
+        border-radius: 8px; 
+        padding: 8px 12px; 
+        color: #222;
+        max-width: 250px;
+    ">
+        <b>🗺️ Legenda:</b><br>
+        <i class="fa fa-trash" style="color:green; margin-right:6px;"></i> 
+        TPS (Tempat Penampungan Sementara)<br>
+        <i class="fa fa-recycle" style="color:red; margin-right:6px;"></i> 
+        TPA (Tempat Pembuangan Akhir)
     </div>
     """
     
     m.get_root().html.add_child(folium.Element(legend_html))
+
 
 
     # Layer control
@@ -1109,6 +1108,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
