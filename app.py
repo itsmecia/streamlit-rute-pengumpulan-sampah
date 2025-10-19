@@ -794,9 +794,7 @@ elif mode == "Simulasi Rute":
                         box-shadow:2px 2px 6px rgba(0,0,0,0.3); 
                         border-radius:8px; 
                         padding:10px; 
-                        color:black;   /* teks jadi hitam */
-                        font-weight:bold;">
-                        <b>Legenda Icon:</b><br>
+                        color:black;  
                         <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
@@ -1142,6 +1140,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
