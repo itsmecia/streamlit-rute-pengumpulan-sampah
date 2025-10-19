@@ -192,7 +192,7 @@ if mode == "Dashboard Data":
             lon += 0.03
     
         popup_html = f"""
-        <b>TPA:</b> {row.get('nama', '-')}<br>
+        {row.get('nama', '-')}<br>
         <b>Koordinat:</b> {lat:.5f}, {lon:.5f}
         """
     
@@ -243,7 +243,7 @@ if mode == "Dashboard Data":
         folium.Marker(
             [lat, lon],
             popup=popup_html,
-            tooltip=f"TPS: {row['id_tps']}",
+            tooltip=f"{row['id_tps']}",
             icon=folium.Icon(color="green", icon="trash", prefix="fa"),
         ).add_to(m)
     
@@ -1150,6 +1150,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
