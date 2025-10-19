@@ -782,19 +782,19 @@ elif mode == "Simulasi Rute":
                         ).add_to(m)
             
                     # --- Tambahkan Legenda untuk Start & Finish ---
-                    legend_html = """
+                   legend_html = """
                     <div style="
                         position: fixed; 
                         bottom: 40px; left: 40px; 
                         width: 220px; 
-                        background-color: rgba(255,255,255,0.9);  /* semi-transparan */
+                        background-color: rgba(255,255,255,0.9);
                         border:2px solid grey; 
                         z-index:9999; 
                         font-size:14px; 
                         box-shadow:2px 2px 6px rgba(0,0,0,0.3); 
                         border-radius:8px; 
                         padding:10px; 
-                        color:black;  
+                        color:black;">
                         <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
@@ -1140,6 +1140,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
