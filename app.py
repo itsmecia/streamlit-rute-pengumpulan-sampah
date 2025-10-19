@@ -786,7 +786,7 @@ elif mode == "Simulasi Rute":
                     <div style="
                         position: fixed; 
                         bottom: 40px; left: 40px; 
-                        width: 220px; 
+                        width: 120px; 
                         background-color: rgba(255,255,255,0.9); 
                         border:2px solid grey; 
                         z-index:9999; 
@@ -794,12 +794,14 @@ elif mode == "Simulasi Rute":
                         box-shadow:2px 2px 6px rgba(0,0,0,0.3); 
                         border-radius:8px; 
                         padding:10px; 
-                        color:black;   
-                        <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS
+                        color:black;">
+                        <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
                     """
+                    
                     m.get_root().html.add_child(folium.Element(legend_html))
+
 
                     # Tampilkan peta
                     st_folium(m, width=1000, height=550)
@@ -1140,6 +1142,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
