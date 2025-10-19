@@ -566,7 +566,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
     st.markdown("---")
 
     # Rute Pengangkutan
-st.subheader("Rute Pengangkutan")
+    st.subheader("Rute Pengangkutan")
     st.write("Pilih satu atau beberapa TPS untuk mensimulasikan rute otomatis menuju TPA terdekat.")
 
     if "id_tps" not in tps_df.columns or tps_df.empty:
@@ -748,7 +748,6 @@ st.subheader("Rute Pengangkutan")
                 ).add_to(m)
 
                 st_folium(m, width=1000, height=550)
-
         # Legenda
         legend_html = """
         <div style="
@@ -1072,6 +1071,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
