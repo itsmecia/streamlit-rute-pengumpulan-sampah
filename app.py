@@ -759,7 +759,7 @@ elif mode == "Simulasi Rute":
                     
                         folium.Marker(
                             [lat, lon],
-                            popup=f"{i+1}. TPS {point.get('id_tps','-')}",
+                            popup=f"{i+1}.{point.get('id_tps','-')}",
                             icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
                         ).add_to(m)
                     
@@ -790,7 +790,7 @@ elif mode == "Simulasi Rute":
                         ).add_to(m)
                         folium.Marker(
                             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
-                            popup=f"TPA Tujuan: {nearest_tpa.get('nama')}",
+                            popup=f"Tujuan: {nearest_tpa.get('nama')}",
                             icon=folium.Icon(color="red", icon="flag", prefix="fa")
                         ).add_to(m)
                         folium.map.Marker(
@@ -1161,6 +1161,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
