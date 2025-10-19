@@ -375,9 +375,16 @@ if mode == "Dashboard Data":
 # REKOMENDASI PENGANGKUTAN PRIORITAS
     st.markdown("## Rekomendasi Pengangkutan Prioritas")
     
-   # --- CEK KETERISIAN TPS ---
+  # --- CEK KETERISIAN TPS ---
     if "use_dummy" not in st.session_state:
         st.session_state.use_dummy = False
+    
+    # Tentukan posisi tengah awal dari gabungan TPS & TPA
+    if not pd.concat([tps_df, tpa_df]).empty:
+        center_lat = pd.concat([tps_df, tpa_df])["latitude"].mean()
+        center_lon = pd.concat([tps_df, tpa_df])["longitude"].mean()
+    else:
+        center_lat, center_lon = -7.8, 110.4  # default Jawa Tengah
     
     # --- Mode Simulasi TPS Penuh ---
     if st.session_state.use_dummy:
@@ -385,7 +392,7 @@ if mode == "Dashboard Data":
         dummy_tps = tps_df.sample(n=min(3, len(tps_df))).copy()
         dummy_tps["keterisian_%"] = np.random.uniform(91, 100, size=len(dummy_tps))
         penuh = dummy_tps
-        st.info("✅ Simulasi TPS penuh diaktifkan.")
+        st.info("✅ Simulasi TPS penuh diaktifkan (menampilkan 3 TPS dengan keterisian >90%).")
         
         if st.button("🔁 Kembalikan ke Data Asli"):
             st.session_state.use_dummy = False
@@ -407,13 +414,13 @@ if mode == "Dashboard Data":
         m_rekom = folium.Map(location=[center_lat, center_lon], zoom_start=12)
         prioritas_ids = set(penuh["id_tps"].astype(str).tolist())
     
-        # Tambahkan marker TPS prioritas dan rute
+        # --- Tambahkan marker TPS ---
         for _, tps in tps_df.iterrows():
             style = "trash" if str(tps.get("id_tps")) in prioritas_ids else "circle"
             popup_extra = "<b>Prioritas: Penuh</b>" if style == "trash" else None
             add_tps_marker(m_rekom, tps, style=style, popup_extra=popup_extra)
     
-        # Tambahkan TPA dan label
+        # --- Tambahkan marker TPA ---
         for _, row in tpa_df.iterrows():
             lat = row.get("latitude")
             lon = row.get("longitude")
@@ -431,14 +438,14 @@ if mode == "Dashboard Data":
                 ),
             ).add_to(m_rekom)
     
-        # Gambarkan rute TPS penuh → TPA terdekat
+        # --- Gambarkan rute TPS penuh → TPA terdekat ---
         for _, tps in penuh.iterrows():
             tps_lat, tps_lon = tps.get("latitude"), tps.get("longitude")
             if pd.isna(tps_lat) or pd.isna(tps_lon) or tpa_df.empty:
                 continue
             tpa_df = tpa_df.copy()
             tpa_df["jarak_km"] = np.sqrt(
-                (tpa_df["latitude"] - tps_lat)**2 + 
+                (tpa_df["latitude"] - tps_lat)**2 +
                 (tpa_df["longitude"] - tps_lon)**2
             ) * 111
             nearest = tpa_df.loc[tpa_df["jarak_km"].idxmin()]
@@ -455,12 +462,12 @@ if mode == "Dashboard Data":
                 "Jarak ke TPA (km)": round(nearest["jarak_km"], 2)
             })
     
-        # Tabel & Peta
+        # --- Tabel & Peta ---
         rekom_df = pd.DataFrame(rekom_list)
         st.dataframe(rekom_df, use_container_width=True)
         st_folium(m_rekom, width=1000, height=500)
     
-        # Insight
+        # --- Insight ---
         st.markdown("### Insight")
         st.write(f"- Total TPS penuh: **{len(rekom_df)} lokasi**")
         if not rekom_df.empty:
@@ -469,6 +476,7 @@ if mode == "Dashboard Data":
                 st.write(f"- TPA yang paling sering menjadi tujuan: **{rekom_df['TPA Terdekat'].mode()[0]}**")
             except Exception:
                 pass
+
     
     st.markdown("---")
 
@@ -1179,6 +1187,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
