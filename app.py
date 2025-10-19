@@ -134,7 +134,7 @@ if mode == "Dashboard Data":
     # Filter TPS
     tps_options_map = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_map = st.multiselect(
-        "Filter TPS:",
+        "Pilih TPS:",
         tps_options_map,
         key="filter_tps_map"
     )
@@ -312,7 +312,7 @@ if mode == "Dashboard Data":
 
     tps_options_scatter = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_scatter = st.multiselect(
-        "Filter TPS:",
+        "Pilih TPS:",
         tps_options_scatter,
         key="filter_tps_scatter"
     )
@@ -396,7 +396,7 @@ if mode == "Dashboard Data":
 
     # FILTER INPUT (TPS SAJA)
     tps_options_top5 = sorted(histori_df["id_tps"].astype(str).unique().tolist())
-    selected_tps_top5 = st.multiselect("Filter TPS:", tps_options_top5, key="filter_tps_top5")
+    selected_tps_top5 = st.multiselect("Pilih TPS:", tps_options_top5, key="filter_tps_top5")
 
     if st.button("Reset Filter Top 5", key="reset_top5"):
         selected_tps_top5 = []
@@ -419,7 +419,7 @@ if mode == "Dashboard Data":
 
     # PILIH KRITERIA 
     pilihan_kriteria = st.selectbox(
-        "Filter Kriteria Peringkat:",
+        "Pilih Kriteria Peringkat:",
         ["Volume Sampah Saat Ini", "Total Volume (Histori)", "Persentase Keterisian (%)"],
         key="kriteria_top5"
     )
@@ -1081,6 +1081,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
