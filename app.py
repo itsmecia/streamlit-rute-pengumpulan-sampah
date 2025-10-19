@@ -185,9 +185,6 @@ if mode == "Dashboard Data":
       # Marker TPA
     for _, row in tpa_valid.iterrows():
         lat, lon = row["latitude"], row["longitude"]
-        if str(row["nama"]).strip().lower() == "tpa selatan":
-            lat += 0.30
-            lon += 0.03
     
         popup_html = f"""
         {row.get('nama', '-')}<br>
@@ -1103,6 +1100,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
