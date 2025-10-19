@@ -732,7 +732,7 @@ elif mode == "Simulasi Rute":
                     
                         # Icon berbeda untuk start dan titik lain
                         if i == 0:
-                            icon_type = "truck"   # ganti play menjadi truck
+                            icon_type = "truck"   
                             color = "green"
                         else:
                             icon_type = "trash"
@@ -783,13 +783,21 @@ elif mode == "Simulasi Rute":
             
                     # --- Tambahkan Legenda untuk Start & Finish ---
                     legend_html = """
-                    <div style="position: fixed; 
-                                bottom: 40px; left: 40px; width: 200px; 
-                                background-color: white; border:2px solid grey; z-index:9999; font-size:13px;
-                                box-shadow:2px 2px 6px rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
+                    <div style="
+                        position: fixed; 
+                        bottom: 40px; left: 40px; 
+                        width: 220px; 
+                        background-color: rgba(255,255,255,0.9);  /* semi-transparan */
+                        border:2px solid grey; 
+                        z-index:9999; 
+                        font-size:14px; 
+                        box-shadow:2px 2px 6px rgba(0,0,0,0.3); 
+                        border-radius:8px; 
+                        padding:10px; 
+                        color:black;   /* teks jadi hitam */
+                        font-weight:bold;">
                         <b>Legenda Icon:</b><br>
                         <i class="fa fa-truck fa-lg" style="color:green"></i> Start TPS<br>
-                        <i class="fa fa-trash fa-lg" style="color:blue"></i> TPS Rute<br>
                         <i class="fa fa-flag fa-lg" style="color:red"></i> TPA Finish
                     </div>
                     """
@@ -1134,6 +1142,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
