@@ -384,10 +384,11 @@ if mode == "Dashboard Data":
         </div>
         """
         st.markdown(legend_html, unsafe_allow_html=True)
-    
+        
     else:
         st.info("Tidak ada data untuk Scatter (TPS tidak dipilih).")
-    
+        
+    st.markdown("### Insight")
     if not tps_filtered_scatter.empty:
         avg_fill = tps_filtered_scatter["keterisian_%"].mean()
         penuh = tps_filtered_scatter[tps_filtered_scatter["Status"] == "Penuh"]
@@ -933,7 +934,7 @@ elif mode == "Prediksi Volume Sampah":
             kualitas = (
                 "sangat baik" if r2 >= 0.9 else
                 ("baik" if r2 >= 0.75 else
-                ("cukup" if r2 >= 0.5 else "perlu perbaikan ⚠️"))
+                ("cukup" if r2 >= 0.5 else "perlu perbaikan"))
             )
 
             st.markdown("### Insight")
@@ -953,7 +954,7 @@ elif mode == "Prediksi Volume Sampah":
                     use_container_width=True
                 )
             else:
-                st.success("Tidak ditemukan titik outlier yang signifikan 👍")
+                st.success("Tidak ditemukan titik outlier yang signifikan")
 
             st.markdown("---")
 
@@ -1110,6 +1111,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
