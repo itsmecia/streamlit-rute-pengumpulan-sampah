@@ -388,18 +388,23 @@ if mode == "Dashboard Data":
     else:
         st.info("Tidak ada data untuk Scatter (TPS tidak dipilih).")
     
+    if not tps_filtered_scatter.empty:
+        avg_fill = tps_filtered_scatter["keterisian_%"].mean()
+        penuh = tps_filtered_scatter[tps_filtered_scatter["Status"] == "Penuh"]
+        hampir = tps_filtered_scatter[tps_filtered_scatter["Status"] == "Hampir Penuh"]
+    
         # Tampilkan insight utama
         st.write(f"- Rata-rata keterisian TPS (terfilter): **{avg_fill:.1f}%**")
     
         if not penuh.empty:
             st.warning(
-                f"{len(penuh)} TPS melebihi ambang {threshold}%:"
-                f" {', '.join(penuh['id_tps'].astype(str))}"
+                f" {len(penuh)} TPS melebihi ambang {threshold}%: "
+                f"{', '.join(penuh['id_tps'].astype(str))}"
             )
         elif not hampir.empty:
             st.info(
-                f"{len(hampir)} TPS mendekati ambang ({threshold-10}–{threshold}%):"
-                f" {', '.join(hampir['id_tps'].astype(str))}"
+                f"{len(hampir)} TPS mendekati ambang ({threshold-10}–{threshold}%): "
+                f"{', '.join(hampir['id_tps'].astype(str))}"
             )
         else:
             st.success(f"Semua TPS masih di bawah {threshold-10}% keterisian.")
@@ -408,6 +413,7 @@ if mode == "Dashboard Data":
         corr = tps_df["kapasitas"].corr(tps_df["volume_saat_ini"])
         st.write(f"- Rata-rata keterisian TPS (keseluruhan): **{avg_fill_all:.1f}%**")
         st.write(f"- Korelasi kapasitas vs volume: **{corr:.2f}**")
+    
     else:
         st.info("Tidak ada data TPS terfilter untuk dianalisis.")
 
@@ -1104,6 +1110,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
