@@ -1210,9 +1210,31 @@ elif mode == "Prediksi Volume Sampah":
                     f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
                 )
                 
+                # Pastikan pred_df sudah ada dan tanggal bertipe datetime
+                pred_df["tanggal"] = pd.to_datetime(pred_df["tanggal"])
+                
+                # Hitung total dan rata-rata volume prediksi per bulan
+                monthly_summary = (
+                    pred_df.groupby(pred_df["tanggal"].dt.to_period("M"))["Prediksi_Volume_kg"]
+                    .agg(total_volume="sum", avg_daily_volume="mean")
+                    .reset_index()
+                )
+                
+                # Konversi periode kembali ke datetime untuk tampilan
+                monthly_summary["bulan"] = monthly_summary["tanggal"].dt.to_timestamp()
+                
+                # Hitung selisih bulan ke bulan
+                monthly_summary["selisih"] = monthly_summary["total_volume"].diff()
+                
+                # Tampilkan tabel ringkasan
+                st.markdown("#### Tabel Ringkasan Prediksi per Bulan")
+                st.dataframe(monthly_summary[["bulan", "total_volume", "avg_daily_volume", "selisih"]])
+
+                
             
             
     
+
 
 
 
