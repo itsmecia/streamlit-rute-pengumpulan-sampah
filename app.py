@@ -1210,15 +1210,10 @@ elif mode == "Prediksi Volume Sampah":
                     f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
                 )
                 
-            st.markdown("---")
-            st.subheader("Rekomendasi")
-            top3 = high_pred.head(3).index.tolist()
-            st.write(f"- **Prioritaskan pengangkutan** di TPS: **{', '.join(top3)}** bulan depan.")
-            st.write("- **Atur kapasitas TPA** untuk lonjakan volume dari TPS tersebut.")
-            st.write("- **Pantau tren kenaikan vol_slope** sebagai indikasi peningkatan aktivitas.")
             
             
     
+
 
 
 
