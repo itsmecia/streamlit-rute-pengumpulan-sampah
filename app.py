@@ -1115,58 +1115,99 @@ elif mode == "Prediksi Volume Sampah":
                 st.caption(f"Data ini menunjukkan prediksi untuk bulan terdekat: {next_month.strftime('%B %Y')}")
 
 
-           #  Insight grafik kedua 
-            st.markdown("#### Insight")
+                st.markdown("#### Insight")
 
-            # Pastikan kolom tanggal datetime
-            histori_df ["tanggal"] = pd.to_datetime(histori_df["tanggal"])
-            future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
-
-            # Pisahkan data aktual Jan–Des 2020 dari HISTORI RUTE
-            actual_df = histori_df[
-                (histori_df["tanggal"].dt.year == 2020)
-            ]
-
-            # Pisahkan data prediksi Jan–Jun 2021 dari FUTURE_DF
-            pred_df = future_df[
-                (future_df["tanggal"].dt.year == 2021)
-                & (future_df["tanggal"].dt.month <= 6)
-            ]
-
-            #  Hitung rata-rata 
-            avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
-            avg_pred = (
-                pred_df["Prediksi_Volume_kg"].mean()
-                if "Prediksi_Volume_kg" in pred_df.columns and not pred_df.empty
-                else None
-            )
-
-            #  Hitung tren total prediksi 
-            if not pred_df.empty:
-                trend_total = pred_df.groupby("tanggal")["Prediksi_Volume_kg"].sum().reset_index()
-                diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
-                trend_status = "meningkat" if diff > 0 else "menurun"
-            else:
-                trend_status = "tidak tersedia"
-                diff = 0  
-
-            st.write(f"- Total volume sampah kota diprediksi **{trend_status}** hingga Juni 2021 (selisih {diff:.2f} kg).")
-
-            if avg_actual is not None:
-                st.write(f"- Rata-rata volume aktual (Jan–Des 2020): **{avg_actual:.2f} kg/hari**")
-            else:
-                st.write("- Data volume aktual (Jan–Des 2020) tidak tersedia.")
-
-            if avg_pred is not None:
-                st.write(f"- Rata-rata volume prediksi (Jan–Jun 2021): **{avg_pred:.2f} kg/hari**")
-
-            if avg_actual is not None and avg_pred is not None:
-                selisih = avg_pred - avg_actual
-                arah = "lebih tinggi" if selisih > 0 else "lebih rendah"
-                st.write(f"- Volume prediksi rata-rata **{abs(selisih):.2f} kg {arah}** dibandingkan volume aktual tahun sebelumnya.")
-            high_pred = future_df.groupby("id_tps")["Prediksi_Volume_kg"].mean().sort_values(ascending=False).head(3)
-            st.write(f"- TPS dengan volume tertinggi diprediksi: **{', '.join(high_pred.index)}**.")
-            
+                # Pastikan kolom tanggal datetime
+                histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
+                future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
+                
+                # Tentukan periode otomatis dari data
+                periode_hist_awal = histori_df["tanggal"].min().strftime("%b %Y")
+                periode_hist_akhir = histori_df["tanggal"].max().strftime("%b %Y")
+                periode_pred_awal = future_df["tanggal"].min().strftime("%b %Y")
+                periode_pred_akhir = future_df["tanggal"].max().strftime("%b %Y")
+                
+                # Data aktual (histori_df)
+                actual_df = histori_df.copy()
+                # Data prediksi (future_df)
+                pred_df = future_df.copy()
+                
+                # Hitung rata-rata volume aktual dan prediksi
+                avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
+                avg_pred = pred_df["Prediksi_Volume_kg"].mean() if not pred_df.empty else None
+                
+                # Hitung tren total prediksi (awal vs akhir)
+                if not pred_df.empty:
+                    trend_total = (
+                        pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
+                        .sum()
+                        .reset_index()
+                        .sort_values("tanggal")
+                    )
+                    diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
+                    trend_status = "meningkat" if diff > 0 else "menurun"
+                else:
+                    trend_status = "tidak tersedia"
+                    diff = 0
+                
+                # Tampilkan insight utama
+                st.write(
+                    f"- Total volume sampah kota diprediksi **{trend_status}** hingga "
+                    f"**{periode_pred_akhir}** (selisih {diff:.2f} kg)."
+                )
+                
+                if avg_actual is not None:
+                    st.write(
+                        f"- Rata-rata volume aktual (**{periode_hist_awal} – {periode_hist_akhir}**): "
+                        f"**{avg_actual:.2f} kg/hari**"
+                    )
+                else:
+                    st.write("- Data volume aktual tidak tersedia.")
+                
+                if avg_pred is not None:
+                    st.write(
+                        f"- Rata-rata volume prediksi (**{periode_pred_awal} – {periode_pred_akhir}**): "
+                        f"**{avg_pred:.2f} kg/hari**"
+                    )
+                
+                if avg_actual is not None and avg_pred is not None:
+                    selisih = avg_pred - avg_actual
+                    arah = "lebih tinggi" if selisih > 0 else "lebih rendah"
+                    st.write(
+                        f"- Volume prediksi rata-rata **{abs(selisih):.2f} kg {arah}** "
+                        f"dibandingkan volume aktual periode sebelumnya."
+                    )
+                
+                # Top 3 TPS prediksi tertinggi
+                high_pred = (
+                    future_df.groupby("id_tps")["Prediksi_Volume_kg"]
+                    .mean()
+                    .sort_values(ascending=False)
+                    .head(5)
+                )
+                if not high_pred.empty:
+                    st.write(
+                        f"- TPS dengan volume prediksi tertinggi: **{', '.join(high_pred.index)}**."
+                    )
+                
+                # Tambahan: Bulan dengan kenaikan terbesar
+                if not pred_df.empty:
+                    monthly_sum = (
+                        pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
+                        .sum()
+                        .reset_index()
+                        .sort_values("tanggal")
+                    )
+                    monthly_sum["selisih"] = monthly_sum["Prediksi_Volume_kg"].diff()
+                    max_increase = monthly_sum.loc[monthly_sum["selisih"].idxmax()]
+                    bulan_max = max_increase["tanggal"].strftime("%B %Y")
+                    nilai_max = max_increase["selisih"]
+                    if nilai_max > 0:
+                        st.write(
+                            f"- Kenaikan terbesar diproyeksikan terjadi pada **{bulan_max}**, "
+                            f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
+                        )
+                
             st.markdown("---")
             st.subheader("Rekomendasi")
             top3 = high_pred.head(3).index.tolist()
@@ -1176,6 +1217,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
