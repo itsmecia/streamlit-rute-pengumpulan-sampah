@@ -309,46 +309,21 @@ if mode == "Dashboard Data":
 
     # SCATTER: Kapasitas vs Volume
     st.subheader("Hubungan Kapasitas vs Volume per TPS")
-
+    
     tps_options_scatter = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_scatter = st.multiselect(
         "Pilih TPS:",
         tps_options_scatter,
         key="filter_tps_scatter"
     )
-
+    
     if st.button("Reset Filter Scatter", key="reset_scatter"):
         selected_tps_scatter = []
-
+    
     if selected_tps_scatter:
         tps_filtered_scatter = tps_df[tps_df["id_tps"].isin(selected_tps_scatter)]
     else:
         tps_filtered_scatter = tps_df.copy()
-
-    if not tps_filtered_scatter.empty:
-        fig_scatter = px.scatter(
-            tps_filtered_scatter,
-            x="kapasitas",
-            y="volume_saat_ini",
-            color="keterisian_%",
-            size="keterisian_%",
-            hover_name="id_tps",
-            color_continuous_scale="RdYlGn_r",
-            title="Kapasitas vs Volume Aktual TPS"
-        )
-        max_val = max(
-            tps_filtered_scatter["kapasitas"].max(),
-            tps_filtered_scatter["volume_saat_ini"].max()
-        )
-        fig_scatter.add_shape(type="line", x0=0, y0=0, x1=max_val, y1=max_val,
-                              line=dict(color="gray", dash="dash"))
-        fig_scatter.add_annotation(x=max_val*0.7, y=max_val*0.9,
-                                   text="Volume = Kapasitas", showarrow=False)
-        st.plotly_chart(fig_scatter, use_container_width=True)
-    else:
-        st.info("Tidak ada data untuk Scatter (TPS tidak dipilih).")
-
-    st.markdown("### Insight Hubungan Kapasitas vs Volume per TPS")
     
     if not tps_filtered_scatter.empty:
         # Ambang dinamis
@@ -357,29 +332,77 @@ if mode == "Dashboard Data":
             50, 100, 85, step=1, key="slider_threshold_scatter"
         )
     
-        # Hitung nilai dan kelompokkan
-        avg_fill = tps_filtered_scatter["keterisian_%"].mean()
-        penuh = tps_filtered_scatter[tps_filtered_scatter["keterisian_%"] >= threshold]
-        hampir = tps_filtered_scatter[
-            (tps_filtered_scatter["keterisian_%"] >= threshold - 10) &
-            (tps_filtered_scatter["keterisian_%"] < threshold)
-        ]
+        # Tambahkan kolom status warna berdasarkan ambang
+        def kategori_warna(x):
+            if x >= threshold:
+                return "Penuh"
+            elif x >= threshold - 10:
+                return "Hampir Penuh"
+            else:
+                return "Aman"
+    
+        tps_filtered_scatter["Status"] = tps_filtered_scatter["keterisian_%"].apply(kategori_warna)
+    
+        # Scatter plot dengan warna kategori
+        fig_scatter = px.scatter(
+            tps_filtered_scatter,
+            x="kapasitas",
+            y="volume_saat_ini",
+            color="Status",
+            size="keterisian_%",
+            hover_name="id_tps",
+            color_discrete_map={
+                "Penuh": "red",
+                "Hampir Penuh": "orange",
+                "Aman": "green"
+            },
+            title=f"Kapasitas vs Volume Aktual TPS (Ambang {threshold}%)"
+        )
+    
+        # Garis referensi Volume = Kapasitas
+        max_val = max(
+            tps_filtered_scatter["kapasitas"].max(),
+            tps_filtered_scatter["volume_saat_ini"].max()
+        )
+        fig_scatter.add_shape(
+            type="line", x0=0, y0=0, x1=max_val, y1=max_val,
+            line=dict(color="gray", dash="dash")
+        )
+        fig_scatter.add_annotation(
+            x=max_val*0.7, y=max_val*0.9,
+            text="Volume = Kapasitas", showarrow=False
+        )
+    
+        st.plotly_chart(fig_scatter, use_container_width=True)
+    
+        # Tambahkan legenda warna kustom
+        legend_html = f"""
+        <div style='text-align:center; margin-top:-10px;'>
+            <span style='color:green;'>🟢 Aman (&lt; {threshold-10}%)</span> &nbsp;&nbsp;
+            <span style='color:orange;'>🟠 Hampir Penuh ({threshold-10}–{threshold}%)</span> &nbsp;&nbsp;
+            <span style='color:red;'>🔴 Penuh (&gt;= {threshold}%)</span>
+        </div>
+        """
+        st.markdown(legend_html, unsafe_allow_html=True)
+    
+    else:
+        st.info("Tidak ada data untuk Scatter (TPS tidak dipilih).")
     
         # Tampilkan insight utama
         st.write(f"- Rata-rata keterisian TPS (terfilter): **{avg_fill:.1f}%**")
     
         if not penuh.empty:
             st.warning(
-                f"🚨 {len(penuh)} TPS melebihi ambang {threshold}%:"
+                f"{len(penuh)} TPS melebihi ambang {threshold}%:"
                 f" {', '.join(penuh['id_tps'].astype(str))}"
             )
         elif not hampir.empty:
             st.info(
-                f"⚠️ {len(hampir)} TPS mendekati ambang ({threshold-10}–{threshold}%):"
+                f"{len(hampir)} TPS mendekati ambang ({threshold-10}–{threshold}%):"
                 f" {', '.join(hampir['id_tps'].astype(str))}"
             )
         else:
-            st.success(f"✅ Semua TPS masih di bawah {threshold-10}% keterisian.")
+            st.success(f"Semua TPS masih di bawah {threshold-10}% keterisian.")
     
         avg_fill_all = tps_df["keterisian_%"].mean()
         corr = tps_df["kapasitas"].corr(tps_df["volume_saat_ini"])
@@ -1081,6 +1104,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
