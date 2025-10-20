@@ -1150,9 +1150,9 @@ elif mode == "Prediksi Volume Sampah":
         
         # Tampilkan insight utama
         st.write(
-            f"- Total volume sampah kota diprediksi **{trend_status}** dari "
+            f"- Total volume sampah kota selama {len(trend_total)} bulan diprediksi **{trend_status}** dari "
             f"**{periode_pred_awal}** hingga **{periode_pred_akhir}** "
-            f"(selisih {diff:.2f} kg selama {len(trend_total)} bulan)."
+            f"(selisih {diff:.2f} kg )."
         )
         
         # Rata-rata volume aktual
@@ -1219,6 +1219,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
