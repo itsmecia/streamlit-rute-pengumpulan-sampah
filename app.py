@@ -21,7 +21,7 @@ def safe_read_csv(path, parse_dates=None):
     try:
         return pd.read_csv(path, parse_dates=parse_dates)
     except Exception as e:
-        st.warning(f"⚠️ Gagal memuat {path}: {e}")
+        st.warning(f"Gagal memuat {path}: {e}")
         return pd.DataFrame()
 
 tps_df = safe_read_csv("tps.csv")
@@ -539,7 +539,7 @@ if mode == "Dashboard Data":
             use_container_width=True
         )
 
-# MODE: Simulasi Rute & jadwal
+# MODE: Rute & jadwal
 elif mode == "Jadwal & Rute Pengangkutan":
 
     # Fungsi Haversine
@@ -654,7 +654,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
             ).add_to(m)
             folium.map.Marker(
                 [row["latitude"], row["longitude"]],
-                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:#660000; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
+                icon=folium.DivIcon(html=f"<div style='font-size:12px; font-weight:bold; color:red; text-shadow:1px 1px 2px #fff;'>{row['nama']}</div>")
             ).add_to(m)
     
         # Legenda 
@@ -948,7 +948,7 @@ elif mode == "Prediksi Volume Sampah":
 
             # tampilkan daftar titik outlier 
             if outlier_count > 0:
-                st.write("**📍 Daftar Titik Outlier (Prediksi jauh dari aktual):**")
+                st.write("**Daftar Titik Outlier (Prediksi jauh dari aktual):**")
                 st.dataframe(
                     outlier_df.sort_values("Tanggal").reset_index(drop=True).round(2),
                     use_container_width=True
@@ -1111,6 +1111,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
