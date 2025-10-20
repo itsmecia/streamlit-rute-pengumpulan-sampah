@@ -957,7 +957,7 @@ elif mode == "Prediksi Volume Sampah":
 
             st.markdown("---")
 
-            # Prediksi Volume Sampah Beberapa Bulan ke Depan (Dinamis)
+            # Prediksi Volume Sampah Beberapa Bulan ke Depan
             st.subheader("Prediksi Volume Sampah Beberapa Bulan ke Depan")
             
             # Pilih berapa bulan ke depan mau diprediksi
@@ -1063,17 +1063,21 @@ elif mode == "Prediksi Volume Sampah":
             st.plotly_chart(fig_future, use_container_width=True)
             
             # Ringkasan
-            st.write("### Ringkasan Prediksi")
-            st.dataframe(future_df.head(10))
-            
             st.write("### Statistik Prediksi")
             st.write(future_df["Prediksi_Volume_kg"].describe())
             
-            high_pred = future_df.groupby("id_tps")["Prediksi_Volume_kg"].mean().sort_values(ascending=False).head(10)
-            st.write("**Top TPS dengan Prediksi Volume Tertinggi:**")
-            st.dataframe(high_pred.reset_index().rename(
-                columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
-            ).round(2), use_container_width=True)
+            colA, colB = st.columns(2)
+            with colA:
+                st.write("**Top TPS (Rata-rata Seluruh Periode):**")
+                st.dataframe(high_pred.reset_index().rename(
+                    columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
+                ).round(2))
+            
+            with colB:
+                st.write(f"**Top TPS (Bulan {next_month.strftime('%b %Y')}):**")
+                st.dataframe(high_pred_next.reset_index().rename(
+                    columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Prediksi (kg)"}
+                ).round(2))
 
 
            #  Insight grafik kedua 
@@ -1137,6 +1141,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
