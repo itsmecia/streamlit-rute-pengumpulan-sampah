@@ -766,7 +766,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
                 <div style='
                     font-size:11px;
                     font-weight:bold;
-                    color:#660000;
+                    color:red;
                     text-shadow:1px 1px 2px #fff;
                     transform: translate(-50%, 14px);
                 '>
@@ -1111,6 +1111,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
