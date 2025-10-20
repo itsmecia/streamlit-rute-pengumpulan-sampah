@@ -957,17 +957,34 @@ elif mode == "Prediksi Volume Sampah":
 
             st.markdown("---")
 
-            # Prediksi 6 Bulan ke Depan
-            st.subheader("Prediksi Volume Sampah 6 Bulan ke Depan (Jan–Jun 2021)")
-
-            future_months = pd.date_range("2021-01-01", periods=6, freq="MS")
-
+            # Prediksi Volume Sampah Beberapa Bulan ke Depan (Dinamis)
+            st.subheader("Prediksi Volume Sampah Beberapa Bulan ke Depan")
+            
+            # Pilih berapa bulan ke depan mau diprediksi
+            col_pred1, col_pred2 = st.columns(2)
+            n_months = col_pred1.selectbox(
+                "Pilih Jumlah Bulan Prediksi",
+                [3, 6, 12],
+                index=1,
+                help="Pilih berapa bulan ke depan yang ingin diprediksi."
+            )
+            
+            # Tentukan periode otomatis dari tanggal terakhir data
+            last_date = df["tanggal"].max()
+            future_months = pd.date_range(last_date + pd.offsets.MonthBegin(1), periods=n_months, freq="MS")
+            
+            start_label = future_months[0].strftime("%b %Y")
+            end_label = future_months[-1].strftime("%b %Y")
+            
+            st.caption(f"Periode prediksi otomatis: **{start_label} – {end_label}**")
+            
+            # Buat Data Prediksi
             pred_rows = []
             for tps in df["id_tps"].unique():
                 last_data = df[df["id_tps"] == tps].iloc[-3:]
                 slope = calc_slope(last_data["Volume_kg"].values)
                 last_row = df[df["id_tps"] == tps].iloc[-1]
-
+            
                 for d in future_months:
                     bulan_ke = (d.year - df["tahun"].min()) * 12 + (d.month - df["bulan"].min())
                     row = {
@@ -989,31 +1006,32 @@ elif mode == "Prediksi Volume Sampah":
                         "id_tps": tps
                     }
                     pred_rows.append(row)
-
+            
             future_df = pd.DataFrame(pred_rows)
             X_future = future_df[feature_cols].fillna(0)
             y_future = np.expm1(model.predict(X_future))
             future_df["Prediksi_Volume_kg"] = np.maximum(y_future, 0.1)
-
+            
+            # Gabungkan Aktual dan Prediksi
             combined_df = pd.concat([
                 df[["tanggal", "id_tps", "Volume_kg"]].rename(columns={"Volume_kg": "Nilai"}),
                 future_df[["tanggal", "id_tps", "Prediksi_Volume_kg"]].rename(columns={"Prediksi_Volume_kg": "Nilai"})
             ])
             combined_df["Tipe"] = ["Aktual"] * len(df) + ["Prediksi"] * len(future_df)
-
-            #  Filter 
+            
+            # Filter Pilihan TPS & Tipe
             col1, col2 = st.columns(2)
             tps_list = sorted(combined_df["id_tps"].unique())
             selected_tps = col1.selectbox("Pilih TPS", ["Semua"] + tps_list, index=0)
             selected_tipe = col2.selectbox("Tampilkan Data", ["Aktual + Prediksi", "Hanya Prediksi"], index=0)
-
+            
             plot_df = combined_df.copy()
             if selected_tps != "Semua":
                 plot_df = plot_df[plot_df["id_tps"] == selected_tps]
             if selected_tipe == "Hanya Prediksi":
                 plot_df = plot_df[plot_df["Tipe"] == "Prediksi"]
-
-            #  Visualisasi Tren 
+            
+            # Visualisasi Tren
             if selected_tps == "Semua":
                 avg_df = plot_df.groupby(["tanggal", "Tipe"])["Nilai"].mean().reset_index()
                 fig_future = px.line(
@@ -1022,7 +1040,7 @@ elif mode == "Prediksi Volume Sampah":
                     y="Nilai",
                     color="Tipe",
                     markers=True,
-                    title="Tren Rata-rata Volume Sampah (Aktual vs Prediksi Jan–Jun 2021)"
+                    title=f"Tren Rata-rata Volume Sampah (Aktual vs Prediksi {start_label} – {end_label})"
                 )
             else:
                 fig_future = px.line(
@@ -1031,23 +1049,32 @@ elif mode == "Prediksi Volume Sampah":
                     y="Nilai",
                     color="Tipe",
                     markers=True,
-                    title=f"Tren Volume Sampah {selected_tps} (Aktual vs Prediksi Jan–Jun 2021)"
+                    title=f"Tren Volume Sampah {selected_tps} (Aktual vs Prediksi {start_label} – {end_label})"
                 )
-
+            
             fig_future.update_traces(line=dict(width=3))
+            fig_future.update_layout(
+                yaxis_title="Volume Sampah (kg)",
+                xaxis_title="Tanggal",
+                template="plotly_dark",
+                legend_title="Tipe Data"
+            )
+            
             st.plotly_chart(fig_future, use_container_width=True)
-                 
-            st.write("Ringkasan Prediksi:")
+            
+            # Ringkasan
+            st.write("### Ringkasan Prediksi")
             st.dataframe(future_df.head(10))
-
-            st.write("Statistik Prediksi:")
+            
+            st.write("### Statistik Prediksi")
             st.write(future_df["Prediksi_Volume_kg"].describe())
             
             high_pred = future_df.groupby("id_tps")["Prediksi_Volume_kg"].mean().sort_values(ascending=False).head(10)
-            st.write("**Top TPS dengan Prediksi Volume Tertinggi (Jan–Jun 2021):**")
+            st.write("**Top TPS dengan Prediksi Volume Tertinggi:**")
             st.dataframe(high_pred.reset_index().rename(
                 columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
-            ).round(2), use_container_width=True)  
+            ).round(2), use_container_width=True)
+
 
            #  Insight grafik kedua 
             st.markdown("#### Insight")
@@ -1110,6 +1137,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
