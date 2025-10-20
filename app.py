@@ -16,7 +16,6 @@ st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide
 st.title("Sistem Analisis Rute & Pengumpulan Sampah Kota Delhi")
 st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
 
-# MUAT DATA 
 def safe_read_csv(path, parse_dates=None):
     try:
         return pd.read_csv(path, parse_dates=parse_dates)
@@ -147,7 +146,7 @@ if mode == "Dashboard Data":
     else:
         filtered_tps_map = tps_df.copy()
     
-    # Pastikan koordinat numerik
+    # koordinat numerik
     for df in [filtered_tps_map, tpa_df]:
         df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
         df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
@@ -200,7 +199,7 @@ if mode == "Dashboard Data":
             icon=folium.Icon(color="red", icon="recycle", prefix="fa"),
         ).add_to(m)
     
-        # Label di samping kanan marker
+        # Label 
         folium.map.Marker(
             [lat, lon],
             icon=folium.DivIcon(
@@ -1111,6 +1110,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
