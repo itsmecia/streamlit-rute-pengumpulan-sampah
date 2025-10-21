@@ -100,7 +100,6 @@ h1, h2, h3 {
 #header
 st.title("🌍 Sistem Analisis Rute & Pengumpulan Sampah")
 st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
-st.markdown("---")
 
 # data
 def safe_read_csv(path, parse_dates=None):
@@ -1353,6 +1352,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
