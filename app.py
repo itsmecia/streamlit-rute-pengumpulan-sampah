@@ -1335,29 +1335,6 @@ elif mode == "Prediksi Volume Sampah":
             else:
                 st.warning("Data prediksi atau aktual tidak ditemukan.")
 
-            # Rata-rata aktual
-            if avg_actual is not None:
-                st.write(
-                    f"- Rata-rata volume aktual (**{periode_hist_awal} – {periode_hist_akhir}**): "
-                    f"**{avg_actual:.2f} kg/hari**"
-                )
-            else:
-                st.write("- Data volume aktual tidak tersedia.")
-            
-            # Rata-rata prediksi
-            if avg_pred is not None:
-                st.write(
-                    f"- Rata-rata volume prediksi (**{periode_pred_awal} – {periode_pred_akhir}**): "
-                    f"**{avg_pred:.2f} kg/hari**"
-                )
-            
-            # Selisih antara aktual dan prediksi
-            if avg_actual is not None and avg_pred is not None:
-                selisih = avg_pred - avg_actual
-                arah = "lebih tinggi" if selisih > 0 else "lebih rendah"
-                st.write(
-                    f"- Volume prediksi rata-rata **{abs(selisih):.2f} kg {arah}** dibandingkan periode aktual sebelumnya."
-                )
             
             #  Top 5 TPS Berdasarkan Prediksi
             if not future_df.empty:
@@ -1450,6 +1427,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
