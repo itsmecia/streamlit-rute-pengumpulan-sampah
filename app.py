@@ -75,21 +75,29 @@ h1, h2, h3 {
 
 /* METRIK */ 
 [data-testid="stMetricValue"] { 
-    color: #71AF72 !important; 
+    color: #71AF72 !important;
+    text-align: center !important;
 }
+
+[data-testid="stMetricLabel"] {
+    text-align: center !important;
+    display: block;
+    margin: 0 auto;
+}
+
 [data-testid="stMetric"] {
-        text-align: center;
-        align-items: center;
-        justify-content: center;
-    }
+    text-align: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
-    /* Menengahkan seluruh container metrik */
-    .center-metric {
-        display: flex;
-        justify-content: center;
-        text-align: center;
-    }
+.center-metric {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
 
+    
 /* INFO CARD */ 
 .info-card { 
     background-color: #FFFFFF !important; 
@@ -1488,6 +1496,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
