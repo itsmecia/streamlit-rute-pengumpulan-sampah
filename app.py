@@ -1271,14 +1271,10 @@ elif mode == "Prediksi Volume Sampah":
             avg_pred = pred_df["Prediksi_Volume_kg"].mean() if not pred_df.empty else None
             
             # Hitung tren total prediksi
-            if not pred_df.empty:
-                trend_total = (
-                    pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
-                    .sum()
-                    .reset_index()
-                    .sort_values("tanggal")
-                )
-                diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
+            if not pred_df.empty and not actual_df.empty:
+                total_pred = pred_df["Prediksi_Volume_kg"].sum()
+                total_actual = actual_df["Volume_kg"].sum()
+                diff = total_pred - total_actual
                 trend_status = "meningkat" if diff > 0 else "menurun"
             else:
                 trend_status = "tidak tersedia"
@@ -1286,11 +1282,10 @@ elif mode == "Prediksi Volume Sampah":
             
             # Insight umum
             st.write(
-                f"- Total volume sampah kota selama {len(pred_df['tanggal'].unique())} bulan diprediksi **{trend_status}** dari "
-                f"**{periode_pred_awal}** hingga **{periode_pred_akhir}** "
-                f"(selisih {diff:.2f} kg)."
+                f"- Total volume sampah kota selama periode **{periode_pred_awal} – {periode_pred_akhir}** "
+                f"diprediksi **{trend_status}** sebesar **{abs(diff):.2f} kg** dibandingkan periode sebelumnya (**{periode_hist_awal} – {periode_hist_akhir}**)."
             )
-            
+
             # Rata-rata aktual
             if avg_actual is not None:
                 st.write(
@@ -1406,6 +1401,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
