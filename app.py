@@ -198,46 +198,51 @@ menu_items = {
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# Fungsi ubah menu
-def set_active(menu_name):
-    st.session_state.active_menu = menu_name
-
-# Render menu manual
+# Render tombol menu
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
-    bg_color = "#388e3c" if is_active else "#ffffff"
-    text_color = "white" if is_active else "#2e7d32"
-    shadow = "0 3px 8px rgba(0,0,0,0.3)" if is_active else "0 2px 4px rgba(0,0,0,0.1)"
-    font_weight = "600" if is_active else "500"
 
-    # HTML custom tombol
-    button_html = f"""
-    <div onclick="window.location.href='/?active_menu={key.replace(' ', '%20')}'"
-         style="
-            background-color:{bg_color};
-            color:{text_color};
-            border:1px solid #a5d6a7;
-            border-radius:12px;
-            padding:10px 16px;
-            margin-top:8px;
-            font-weight:{font_weight};
-            box-shadow:{shadow};
-            cursor:pointer;
-            transition:all 0.25s ease-in-out;
-        "
-        onmouseover="this.style.backgroundColor='#66bb6a'; this.style.color='white'; this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.backgroundColor='{bg_color}'; this.style.color='{text_color}'; this.style.transform='none'">
-        {label}
-    </div>
+    # Style tombol aktif dan tidak aktif
+    button_style = f"""
+        background-color: {'#388e3c' if is_active else '#ffffff'};
+        color: {'white' if is_active else '#2e7d32'};
+        border: 1px solid #a5d6a7;
+        border-radius: 12px;
+        padding: 10px 16px;
+        margin-top: 8px;
+        width: 100%;
+        text-align: left;
+        font-weight: {'600' if is_active else '500'};
+        box-shadow: {'0 3px 8px rgba(0,0,0,0.3)' if is_active else '0 2px 4px rgba(0,0,0,0.1)'};
+        transition: all 0.25s ease-in-out;
     """
 
-    st.sidebar.markdown(button_html, unsafe_allow_html=True)
+    # Render tombol (klik berfungsi)
+    clicked = st.sidebar.button(label, key=f"btn_{key}")
 
-# Ambil parameter dari URL (jika ada)
-query_params = st.query_params
-if "active_menu" in query_params:
-    st.session_state.active_menu = query_params["active_menu"]
+    # Gaya CSS untuk tiap tombol
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stSidebar"] button[kind="secondary"][key="btn_{key}"] {{
+            {button_style}
+        }}
+        div[data-testid="stSidebar"] button[kind="secondary"][key="btn_{key}"]:hover {{
+            background-color: #66bb6a !important;
+            color: white !important;
+            transform: translateY(-2px);
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
+    # Jika tombol diklik, update state
+    if clicked:
+        st.session_state.active_menu = key
+        st.rerun()
+
+# Mode aktif
 mode = st.session_state.active_menu
 
 # dayaset
@@ -1413,6 +1418,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
