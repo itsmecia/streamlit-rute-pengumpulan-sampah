@@ -188,17 +188,18 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
+# --- Daftar Menu
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Inisialisasi hanya sekali
+# --- Inisialisasi menu aktif pertama kali
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# --- CSS GLOBAL (tidak diulang tiap klik)
+# --- CSS GLOBAL sekali saja
 st.markdown("""
 <style>
 div[data-testid="stSidebar"] button {
@@ -207,43 +208,36 @@ div[data-testid="stSidebar"] button {
     padding: 10px 16px;
     margin-top: 6px;
     transition: all 0.2s ease-in-out;
+    border: 1px solid #a5d6a7;
 }
 div[data-testid="stSidebar"] button:hover {
-    background-color: #66bb6a !important;
+    background-color: #81c784 !important;
     color: white !important;
-    transform: translateY(-2px);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Render tombol
+# --- Render tombol menu
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
 
-    # tombol "aktif" terlihat berbeda
-    bg_color = "#2e7d32" if is_active else "#ffffff"
+    # Warna tombol aktif
+    bg_color = "#388e3c" if is_active else "#ffffff"
     text_color = "white" if is_active else "#2e7d32"
-    border_color = "#1b5e20" if is_active else "#a5d6a7"
-    shadow = "0 3px 8px rgba(0,0,0,0.3)" if is_active else "0 2px 4px rgba(0,0,0,0.1)"
+    font_weight = "700" if is_active else "500"
 
-    # tombol dengan style unik (via inline style)
-    clicked = st.sidebar.button(
-        label,
-        key=f"btn_{key}",
-        use_container_width=True,
-        help=f"Buka {key}"
-    )
+    # Tombol sidebar
+    clicked = st.sidebar.button(label, key=f"btn_{key}", use_container_width=True)
 
-    # Terapkan gaya inline
+    # CSS tombol aktif (langsung tampil tanpa perlu hover)
     st.markdown(
         f"""
         <style>
         div[data-testid="stSidebar"] button[key="btn_{key}"] {{
             background-color: {bg_color};
             color: {text_color};
-            border: 1px solid {border_color};
-            box-shadow: {shadow};
-            font-weight: {'600' if is_active else '500'};
+            font-weight: {font_weight};
+            box-shadow: {'0 3px 6px rgba(0,0,0,0.2)' if is_active else 'none'};
         }}
         </style>
         """,
@@ -254,8 +248,9 @@ for key, label in menu_items.items():
         st.session_state.active_menu = key
         st.rerun()
 
-# --- Ambil menu aktif
+# --- Tentukan halaman aktif
 mode = st.session_state.active_menu
+
 
 # dayaset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
@@ -1430,6 +1425,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
