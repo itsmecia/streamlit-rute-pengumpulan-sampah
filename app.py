@@ -13,94 +13,126 @@ from itertools import cycle
 
 st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide")
 
-# Warna dan gaya global
 st.markdown("""
-<style> 
-/* WARNA DASAR*/ 
-html, body, .main, .block-container { 
-    background-color: #E7F5F5 !important; 
-    font-family: 'Poppins', sans-serif; 
-    color: #000000 !important; 
-} 
+<style>
+/* === TEMA DASAR === */
+html, body, .main, .block-container {
+    background-color: #E7F5F5 !important;
+    font-family: 'Poppins', sans-serif;
+    color: #000000 !important;
+}
 
-/* SIDEBAR*/ 
-[data-testid="stSidebar"] { 
-    background: linear-gradient(to bottom right, #E7F5F5, #E1F5E1); 
-    padding: 20px 10px 60px 10px; 
-    border-right: 2px solid #B5E0B7; 
-} 
+/* === SIDEBAR === */
+[data-testid="stSidebar"] {
+    background: linear-gradient(to bottom right, #E7F5F5, #E1F5E1);
+    padding: 20px 10px 60px 10px;
+    border-right: 2px solid #B5E0B7;
+}
 
-[data-testid="stSidebar"] h1, 
-[data-testid="stSidebar"] h2, 
-[data-testid="stSidebar"] h3 { 
-    color: #1b4d3e !important; 
-    text-align: center; 
-} 
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: #1b4d3e !important;
+    text-align: center;
+}
 
-/* NAVIGASI CARD */ 
-.menu-card { 
-    background-color: #FFFFFF !important; 
-    border: 1px solid #a5d6a7; 
-    border-radius: 12px; 
-    padding: 14px; 
-    margin: 10px 0; 
-    text-align: center; 
-    transition: all 0.3s ease; 
-    font-weight: 500; 
-    color: #2e7d32; 
-    cursor: pointer; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-} 
+/* === NAVIGASI CARD === */
+.menu-card {
+    background-color: #FFFFFF !important;
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #2e7d32;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-.menu-card:hover { 
-    background-color: #c8e6c9 !important; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
-    transform: translateY(-3px); 
-} 
+.menu-card:hover {
+    background-color: #c8e6c9 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+}
 
-.menu-card.active { 
-    background-color: #81c784 !important; 
-    color: white !important; 
-    font-weight: 600; 
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3); 
-} 
+.menu-card.active {
+    background-color: #81c784 !important;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
 
-a.menu-link { 
-    text-decoration: none; 
-} 
+a.menu-link {
+    text-decoration: none;
+}
 
-/* HEADER */ 
-h1, h2, h3 { 
-    color: #000000 !important; 
-} 
+/* === HEADER === */
+h1, h2, h3 {
+    color: #000000 !important;
+}
 
-/* METRIK */ 
-[data-testid="stMetricValue"] { 
-    color: #2e7d32 !important; 
-} 
+/* === METRIK === */
+[data-testid="stMetricValue"] {
+    color: #2e7d32 !important;
+}
 
-/* INFO CARD */ 
-.info-card { 
-    background-color: #FFFFFF !important; 
-    border-radius: 10px; 
-    padding: 12px 16px; 
-    margin-top: 10px; 
-    font-size: 14px; 
-    color: #1b4d3e; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
-} 
+/* === INFO CARD === */
+.info-card {
+    background-color: #FFFFFF !important;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #1b4d3e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-/* SCROLLBAR */ 
-::-webkit-scrollbar { 
-    width: 8px; 
-} 
+/* === INPUT (Filter TPS, Selectbox, Multiselect, Text Input, dll) === */
+div[data-baseweb="select"],
+div[data-testid="stMultiSelect"],
+div[data-testid="stSelectbox"],
+div[data-testid="stTextInput"] {
+    background-color: #FFFFFF !important;
+    border-radius: 8px !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #000000 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
 
-::-webkit-scrollbar-thumb { 
-    background: #81c784; 
-    border-radius: 10px; 
-} 
+/* === PILIHAN DALAM SELECT === */
+div[role="listbox"] {
+    background-color: #FFFFFF !important;
+}
+
+/* === TOMBOL === */
+button[kind="secondary"], button[kind="primary"], button {
+    background-color: #FFFFFF !important;
+    color: #2e7d32 !important;
+    border: 1px solid #a5d6a7 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: #c8e6c9 !important;
+    color: #000000 !important;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #81c784;
+    border-radius: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 #header
 st.markdown("<h2 style='font-weight:bold; text-align:center;'>♻️ Sistem Analisis Rute & Pengumpulan Sampah</h2>", unsafe_allow_html=True)
@@ -1423,6 +1455,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
