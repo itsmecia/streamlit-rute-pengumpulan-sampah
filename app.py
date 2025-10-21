@@ -156,7 +156,7 @@ div[data-testid="stNotification"][role="alert"][class*="success"] {
 
 
 #header
-st.markdown("<h2 style='font-weight:bold; text-align:center;'>♻️ Sistem Analisis Rute & Pengumpulan Sampah</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-weight:bold; text-align:center;'>♻️ Analisis Rute & Pengumpulan Sampah</h2>", unsafe_allow_html=True)
 st.markdown(
     "<p style='text-align:center; font-weight:normal; font-size:18px; margin-top:0;'>Analitik dan optimasi rute pengangkutan sampah berbasis Big Data</p>",
     unsafe_allow_html=True
@@ -1476,6 +1476,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
