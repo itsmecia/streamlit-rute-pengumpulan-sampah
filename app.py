@@ -75,7 +75,7 @@ h1, h2, h3 {
 
 /* METRIK */ 
 [data-testid="stMetricValue"] { 
-    color: #75A075 !important;
+    color: #577757 !important;
     text-align: center !important;
     font-weight: bold
 }
@@ -1474,6 +1474,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
