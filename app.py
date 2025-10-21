@@ -1304,9 +1304,10 @@ elif mode == "Prediksi Volume Sampah":
                     # Format tanggal untuk ditampilkan
                     periode_hist_awal = actual_start.strftime("%b %Y")
                     periode_hist_akhir = actual_end.strftime("%b %Y")
-            
+                    
+                    months_diff = (pred_end.year - pred_start.year) * 12 + (pred_end.month - pred_start.month) + 1
                     st.write(
-                        f"Selama periode **{(pred_duration//30)} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
+                        f"Selama periode **{months_diff} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
                         f"total volume sampah kota diprediksi **{trend_status} sebesar {abs(diff):,.2f} kg** "
                         f"dibandingkan total volume periode sebelumnya dengan panjang waktu yang sama "
                         f"(**{periode_hist_awal} – {periode_hist_akhir}**)."
@@ -1449,6 +1450,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
