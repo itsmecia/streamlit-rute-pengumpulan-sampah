@@ -215,11 +215,11 @@ mode = st.session_state.active_menu
 st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
 <div class='info-card'>
-<b>tps.csv</b> — {len(tps_df)} baris<br>
-<b>tpa.csv</b> — {len(tpa_df)} baris<br>
-<b>histori_rute.csv</b> — {len(histori_df)} baris<br>
-<b>routes.csv</b> — {len(routes_df)} baris<br>
-<b>vehicle_routing_matrix.csv</b> — {len(vehicle_df)} baris
+<b>tps.csv</b> - {len(tps_df)} baris<br>
+<b>tpa.csv</b> - {len(tpa_df)} baris<br>
+<b>histori_rute.csv</b> - {len(histori_df)} baris<br>
+<b>routes.csv</b> - {len(routes_df)} baris<br>
+<b>vehicle_routing_matrix.csv</b> - {len(vehicle_df)} baris
 </div>
 """, unsafe_allow_html=True)
 
@@ -1361,6 +1361,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
