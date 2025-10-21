@@ -183,52 +183,117 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
         pass
     
 # sidebar
-st.sidebar.markdown("<h2>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
-# Daftar menu
+# --- Definisi menu ---
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Inisialisasi halaman aktif
+# --- Inisialisasi menu aktif (default Dashboard Data) ---
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# Loop menu navigasi
+# --- CSS Sidebar Lengkap ---
+st.markdown("""
+<style>
+[data-testid="stSidebar"] {
+    background: linear-gradient(to bottom right, #c8e6c9, #DFFDDF);
+    padding: 20px 15px 40px 15px;
+    border-right: 2px solid #a5d6a7;
+}
+.sidebar-title {
+    text-align: center;
+    color: #1b4d3e;
+    font-weight: 600;
+    font-size: 20px;
+}
+.menu-card {
+    display: block;
+    background-color: #ffffff !important;
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 12px 0;
+    margin: 8px 0;
+    text-align: center;
+    font-weight: 500;
+    color: #2e7d32;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.menu-card:hover {
+    background-color: #c8e6c9 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.menu-card.active {
+    background-color: #81c784 !important;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+a.menu-link {
+    text-decoration: none !important;
+    display: block;
+    color: inherit !important;
+}
+.info-card {
+    background-color: #ffffff !important;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #1b4d3e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #81c784;
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Render tombol navigasi (dengan highlight aktif) ---
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
-    card_class = "menu-card active" if is_active else "menu-card"
-    
-    # Tombol klik navigasi
-    if st.sidebar.button(label, key=f"menu_{key}"):
+    button_class = "menu-card active" if is_active else "menu-card"
+    button_html = f"""
+        <a class='menu-link' href='#' onclick="window.location.reload()">
+            <div class='{button_class}' id='{key}'>{label}</div>
+        </a>
+    """
+    if st.sidebar.button(label, key=f"btn_{key}"):
         st.session_state.active_menu = key
         st.experimental_rerun()
 
-# Garis pemisah
+# --- Info dataset ---
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-
-# Mode halaman aktif
-mode = st.session_state.active_menu
-
-# Info dataset
-st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
 <div class='info-card'>
-<b>tps.csv</b> - {len(tps_df)} baris<br>
-<b>tpa.csv</b> - {len(tpa_df)} baris<br>
-<b>histori_rute.csv</b> - {len(histori_df)} baris<br>
-<b>routes.csv</b> - {len(routes_df)} baris<br>
-<b>vehicle_routing_matrix.csv</b> - {len(vehicle_df)} baris
+<b>tps.csv</b> – {len(tps_df)} baris<br>
+<b>tpa.csv</b> – {len(tpa_df)} baris<br>
+<b>histori_rute.csv</b> – {len(histori_df)} baris<br>
+<b>routes.csv</b> – {len(routes_df)} baris<br>
+<b>vehicle_routing_matrix.csv</b> – {len(vehicle_df)} baris
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("""
 <div style='text-align:center; font-size:12px; margin-top:15px; opacity:0.7'>
-Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah di Delhi, India.
+Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
 </div>
 """, unsafe_allow_html=True)
+
+# --- Mode halaman aktif ---
+mode = st.session_state.active_menu
+
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
@@ -1362,6 +1427,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
