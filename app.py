@@ -98,6 +98,23 @@ h1, h2, h3 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+.main {
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    0% {opacity: 0; transform: translateY(8px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #81c784;
+    border-radius: 10px;
+}
+
 /*  SCROLLBAR  */
 ::-webkit-scrollbar {
     width: 8px;
@@ -106,6 +123,8 @@ h1, h2, h3 {
     background: #81c784;
     border-radius: 10px;
 }
+
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -196,23 +215,28 @@ menu_items = {
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
+# Inisialisasi halaman aktif
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
     button_class = "menu-card active" if is_active else "menu-card"
+    
+    st.sidebar.markdown(
+        f"""
+        <div class="{button_class}" onclick="window.location.reload()">{label}</div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    if st.sidebar.button(label, key=f"menu_{key}"):
+    if st.sidebar.button(label, key=f"btn_{key}"):
         st.session_state.active_menu = key
         st.rerun()
 
-    st.sidebar.markdown(f"""
-        <div class="{button_class}">{label}</div>
-    """, unsafe_allow_html=True)
-
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
+#  INFO DATASET DI SIDEBAR
 st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
 <div class='info-card'>
@@ -1363,6 +1387,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
