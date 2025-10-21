@@ -183,54 +183,27 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
         pass
     
 # sidebar
-st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 class='sidebar-title'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
-# Daftar menu
-menu_items = ["📍 Dashboard Data", "🚛 Jadwal & Rute", "📈 Prediksi Volume"]
+# Daftar halaman
+pages = {
+    "📍 Dashboard Data": "dashboard",
+    "🚛 Jadwal & Rute": "rute",
+    "📈 Prediksi Volume": "prediksi"
+}
 
-# Navigasi dengan radio (stabil dan bisa ganti halaman)
-selected_menu = st.sidebar.radio(
-    "",
-    menu_items,
-    index=0,  # default Dashboard
-    key="menu_radio",
-)
+# State aktif
+if "page" not in st.session_state:
+    st.session_state.page = "dashboard"
 
-# CSS untuk styling radio agar mirip card
-st.markdown("""
-<style>
-[data-testid="stSidebar"] > div:first-child {
-    padding-top: 1rem;
-}
-div[role='radiogroup'] > label {
-    background-color: #FFFFFF !important;
-    border: 1px solid #a5d6a7;
-    border-radius: 12px;
-    padding: 12px 0;
-    margin: 8px 0;
-    text-align: center;
-    font-weight: 500;
-    color: #2e7d32;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-div[role='radiogroup'] > label:hover {
-    background-color: #c8e6c9 !important;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-div[role='radiogroup'] > label[data-baseweb='radio']:has(input:checked) {
-    background-color: #81c784 !important;
-    color: white !important;
-    font-weight: 600;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-}
-</style>
-""", unsafe_allow_html=True)
+# Render tombol menu
+for label, key in pages.items():
+    active_class = "menu-active" if st.session_state.page == key else "menu-item"
+    if st.sidebar.button(label, key=key):
+        st.session_state.page = key
+    st.sidebar.markdown(f"<div class='{active_class}'>{label}</div>", unsafe_allow_html=True)
 
-# =====================
-# 📄 INFO DATASET
-# =====================
+# dataset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f'''
@@ -1381,6 +1354,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
