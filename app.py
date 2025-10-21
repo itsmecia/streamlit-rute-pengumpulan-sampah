@@ -40,18 +40,21 @@ html, body, .main, .block-container {
 # NAVBAR / HEADER ATAS
 header[data-testid="stHeader"] {
     background: linear-gradient(to right, #c8e6c9, #DFFDDF) !important;
-    border-bottom: 1px solid #a5d6a7;
-    height: 60px !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 9999;
+    border-bottom: 1px solid #a5d6a7 !important;
+    color: #000000 !important;
 }
 
-/* Biar konten gak ketimpa navbar */
+header[data-testid="stHeader"] div[role="banner"] {
+    background: linear-gradient(to right, #c8e6c9, #DFFDDF) !important;
+    color: #000000 !important;
+}
+
+/* Pastikan konten gak nabrak navbar */
+section[data-testid="stSidebar"], .block-container {
+    margin-top: 0 !important;
+}
 main {
-    margin-top: 70px !important;
+    margin-top: 0 !important;
 }
 
 /* NAVIGASI CARD  */
@@ -1370,6 +1373,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
