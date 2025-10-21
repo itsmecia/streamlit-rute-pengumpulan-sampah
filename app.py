@@ -188,14 +188,18 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
-# --- Daftar Menu
-menu_items = ["Dashboard Data", "Jadwal & Rute Pengangkutan", "Prediksi Volume Sampah"]
+# --- Daftar Menu (dengan emoji)
+menu_items = [
+    "📍 Dashboard Data",
+    "🚛 Jadwal & Rute Pengangkutan",
+    "📈 Prediksi Volume Sampah"
+]
 
 # --- Inisialisasi menu aktif
 if "active_menu" not in st.session_state:
-    st.session_state.active_menu = "Dashboard Data"
+    st.session_state.active_menu = "📍 Dashboard Data"
 
-# --- CSS untuk radio agar tampil seperti tombol
+# --- CSS tombol radio bergaya tombol
 st.markdown("""
 <style>
 div[role="radiogroup"] > label {
@@ -209,9 +213,6 @@ div[role="radiogroup"] > label {
 }
 div[role="radiogroup"] > label:hover {
     background-color: #81c784 !important;
-    color: white !important;
-}
-div[role="radiogroup"] > label[data-baseweb="radio"] div[role="radio"][aria-checked="true"] + div {
     color: white !important;
 }
 div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
@@ -231,10 +232,8 @@ selected = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
-# Simpan ke session state
+# --- Simpan pilihan aktif
 st.session_state.active_menu = selected
-
-# --- Mode aktif
 mode = st.session_state.active_menu
 
 
@@ -1411,6 +1410,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
