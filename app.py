@@ -185,65 +185,101 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
-# Daftar menu
+# --- MENU ITEMS ---
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Inisialisasi menu aktif
+# --- INISIALISASI MENU AKTIF ---
 if "active_menu" not in st.session_state:
-    st.session_state.active_menu = "Dashboard Data"
+    st.session_state.active_menu = "Dashboard Data"  # default aktif di Dashboard
 
-# Fungsi ubah menu aktif
+# --- FUNGSI UBAH MENU ---
 def set_active(menu_name):
     st.session_state.active_menu = menu_name
     st.rerun()
 
-# Render tombol navigasi
+# --- NAVIGASI SIDEBAR (TOMBOL CUSTOM) ---
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
 
-    # Tombol fungsional
-    if st.sidebar.button(label, key=f"menu_{key}", use_container_width=True):
-        set_active(key)
+    button_style = f"""
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: {'#81c784' if is_active else '#FFFFFF'};
+        color: {'white' if is_active else '#2e7d32'};
+        border: 1px solid #a5d6a7;
+        border-radius: 12px;
+        font-weight: {'600' if is_active else '500'};
+        padding: 10px 16px;
+        margin-top: 8px;
+        width: 100%;
+        text-align: left;
+        box-shadow: {'0 3px 8px rgba(0,0,0,0.3)' if is_active else '0 2px 4px rgba(0,0,0,0.1)'};
+        transition: all 0.25s ease-in-out;
+        cursor: pointer;
+    """
 
-    #  gaya aktif
-    st.sidebar.markdown(
-        f"""
-        <style>
-        div[data-testid="stSidebar"] button[kind="secondary"][key="menu_{key}"] {{
-            background-color: {'#81c784' if is_active else '#FFFFFF'} !important;
-            color: {'white' if is_active else '#2e7d32'} !important;
-            border: 1px solid #a5d6a7 !important;
-            border-radius: 12px !important;
-            font-weight: {'600' if is_active else '500'} !important;
-            margin-top: 8px !important;
-            box-shadow: {'0 3px 8px rgba(0,0,0,0.3)' if is_active else '0 2px 4px rgba(0,0,0,0.1)'} !important;
-            transition: all 0.2s ease-in-out !important;
-        }}
-        div[data-testid="stSidebar"] button[kind="secondary"][key="menu_{key}"]:hover {{
-            background-color: #c8e6c9 !important;
-            transform: translateY(-2px);
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    hover_style = """
+        this.style.backgroundColor='#a5d6a7';
+        this.style.color='white';
+        this.style.transform='translateY(-2px)';
+    """
 
-# dataset
+    leave_style = f"""
+        this.style.backgroundColor='{'#81c784' if is_active else '#FFFFFF'}';
+        this.style.color='{'white' if is_active else '#2e7d32'}';
+        this.style.transform='none';
+    """
+
+    button_html = f"""
+        <form action="?menu={key}" method="get">
+            <button style="{button_style}" 
+                    onmouseover="{hover_style}" 
+                    onmouseout="{leave_style}" 
+                    type="submit">{label}</button>
+        </form>
+    """
+
+    st.sidebar.markdown(button_html, unsafe_allow_html=True)
+
+# --- QUERY PARAM (BIAR BISA NAVIGASI ANTAR HALAMAN) ---
+query_params = st.query_params
+if "menu" in query_params:
+    selected_menu = query_params["menu"]
+    if selected_menu in menu_items:
+        st.session_state.active_menu = selected_menu
+
+# --- RENDER HALAMAN BERDASARKAN MENU AKTIF ---
+mode = st.session_state.active_menu
+
+if mode == "Dashboard Data":
+    st.title("📍 Dashboard Data")
+    st.write("Halaman utama sistem analisis data rute pengangkutan sampah.")
+
+elif mode == "Jadwal & Rute Pengangkutan":
+    st.title("🚛 Jadwal & Rute Pengangkutan")
+    st.write("Halaman untuk melihat jadwal dan rute optimal pengangkutan sampah.")
+
+elif mode == "Prediksi Volume Sampah":
+    st.title("📈 Prediksi Volume Sampah")
+    st.write("Halaman analisis prediktif untuk volume sampah di TPS.")
+
+# --- INFO DATASET ---
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
 
 st.sidebar.markdown(f'''
 <div style="background-color:#fff; border-radius:10px; padding:12px; margin-top:12px;
 font-size:14px; color:#1b4d3e; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-<b>tps.csv</b> – {len(tps_df)} baris<br>
-<b>tpa.csv</b> – {len(tpa_df)} baris<br>
-<b>histori_rute.csv</b> – {len(histori_df)} baris<br>
-<b>routes.csv</b> – {len(routes_df)} baris<br>
-<b>vehicle_routing_matrix.csv</b> – {len(vehicle_df)} baris
+<b>tps.csv</b> – 76 baris<br>
+<b>tpa.csv</b> – 10 baris<br>
+<b>histori_rute.csv</b> – 50 baris<br>
+<b>routes.csv</b> – 32 baris<br>
+<b>vehicle_routing_matrix.csv</b> – 20 baris
 </div>
 ''', unsafe_allow_html=True)
 
@@ -1385,6 +1421,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
