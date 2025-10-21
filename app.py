@@ -1257,18 +1257,31 @@ elif mode == "Prediksi Volume Sampah":
             histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
             future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
             
-            # Periode data
-            periode_hist_awal = histori_df["tanggal"].min().strftime("%b %Y")
-            periode_hist_akhir = histori_df["tanggal"].max().strftime("%b %Y")
-            periode_pred_awal = future_df["tanggal"].min().strftime("%b %Y")
-            periode_pred_akhir = future_df["tanggal"].max().strftime("%b %Y")
+            # Tentukan periode prediksi
+            pred_start = future_df["tanggal"].min()
+            pred_end = future_df["tanggal"].max()
+            periode_pred_awal = pred_start.strftime("%b %Y")
+            periode_pred_akhir = pred_end.strftime("%b %Y")
             
-            actual_df = histori_df.copy()
+            # Hitung jumlah bulan prediksi
+            months_diff = (pred_end.year - pred_start.year) * 12 + (pred_end.month - pred_start.month) + 1
+            
+            # Tentukan periode historis dengan panjang waktu yang sama
+            hist_end = pred_start - pd.offsets.MonthEnd(1)
+            hist_start = hist_end - pd.DateOffset(months=months_diff - 1)
+            
+            # Ambil data aktual dari periode historis yang sama panjang
+            actual_df = histori_df[(histori_df["tanggal"] >= hist_start) & (histori_df["tanggal"] <= hist_end)].copy()
             pred_df = future_df.copy()
             
-            # Rata-rata volume aktual dan prediksi
+            # Update label periode aktual
+            periode_hist_awal = hist_start.strftime("%b %Y")
+            periode_hist_akhir = hist_end.strftime("%b %Y")
+            
+            # Hitung rata-rata volume aktual dan prediksi
             avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
             avg_pred = pred_df["Prediksi_Volume_kg"].mean() if not pred_df.empty else None
+
             
             # Hitung tren total prediksi
             if not pred_df.empty and not actual_df.empty:
@@ -1428,6 +1441,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
