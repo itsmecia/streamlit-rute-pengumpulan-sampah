@@ -89,6 +89,53 @@ h1, h2, h3 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
 } 
 
+div[data-baseweb="select"],
+div[data-testid="stMultiSelect"],
+div[data-testid="stSelectbox"],
+div[data-testid="stTextInput"] {
+    background-color: #FFFFFF !important;
+    border-radius: 6px !important;
+    border: 1px solid #dcdcdc !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+}
+
+/* Fokus saat diklik */
+div[data-baseweb="select"]:focus-within,
+div[data-testid="stMultiSelect"]:focus-within,
+div[data-testid="stSelectbox"]:focus-within,
+div[data-testid="stTextInput"]:focus-within {
+    border: 1px solid #a5d6a7 !important;
+    box-shadow: none !important;
+}
+
+/* Hover (arah kursor tanpa klik) */
+div[data-baseweb="select"]:hover,
+div[data-testid="stSelectbox"]:hover,
+div[data-testid="stMultiSelect"]:hover {
+    border-color: #a5d6a7 !important;
+}
+
+/* Dropdown list */
+div[role="listbox"] {
+    background-color: #FFFFFF !important;
+    border: 1px solid #dcdcdc !important;
+}
+
+
+button[kind="secondary"], button[kind="primary"], button {
+    background-color: #FFFFFF !important;
+    color: #2e7d32 !important;
+    border: 1px solid #a5d6a7 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: #c8e6c9 !important;
+    color: #000000 !important;
+}
+
 /* SCROLLBAR */ 
 ::-webkit-scrollbar { 
     width: 8px; 
@@ -1423,6 +1470,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
