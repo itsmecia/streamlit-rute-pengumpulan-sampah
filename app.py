@@ -221,18 +221,35 @@ if "active_menu" not in st.session_state:
 
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
-    button_class = "menu-card active" if is_active else "menu-card"
-    
-    st.sidebar.markdown(
-        f"""
-        <div class="{button_class}" onclick="window.location.reload()">{label}</div>
-        """,
-        unsafe_allow_html=True,
-    )
+    button_style = """
+        background-color: #81c784;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        """ if is_active else """
+        background-color: #FFFFFF;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        """
 
-    if st.sidebar.button(label, key=f"btn_{key}"):
+    if st.sidebar.button(
+        label,
+        key=f"btn_{key}",
+        use_container_width=True
+    ):
         st.session_state.active_menu = key
         st.rerun()
+
+    st.markdown(f"""
+        <style>
+        div[data-testid="stSidebar"] button[kind="secondary"][key="btn_{key}"] {{
+            {button_style}
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
@@ -1387,6 +1404,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
