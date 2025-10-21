@@ -716,7 +716,7 @@ if mode == "Dashboard Data":
     # Rata rata keterisian TPA
     if "nearest_tpa" in tps_df.columns:
         avg_per_tpa = tps_df.groupby("nearest_tpa")["keterisian_%"].mean().reset_index()
-        st.subheader("Rata-rata keterisian per TPA")
+        st.markdown("#### Rata-rata keterisian per TPA")
         st.dataframe(
             avg_per_tpa.rename(columns={"nearest_tpa": "TPA", "keterisian_%": "Rata-rata (%)"}).round(2),
             use_container_width=True
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
