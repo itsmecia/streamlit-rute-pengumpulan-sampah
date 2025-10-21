@@ -1018,7 +1018,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
-    st.header("Prediksi Volume Sampah per TPS")
+    st.header("### Prediksi Volume Sampah per TPS")
 
     df = histori_df.copy()
     required_cols = {"tanggal", "id_tps", "latitude", "longitude", "Volume_kg", "kapasitas", "keterisian_%"}
@@ -1417,6 +1417,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
