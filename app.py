@@ -20,7 +20,7 @@ st.markdown("""
 body {
     background: linear-gradient(to bottom right, #e8f5e9, #e3f2fd);
     font-family: 'Poppins', sans-serif;
-    color: #000000;
+    color: #1b4d3e;
 }
 
 /* SIDEBAR*/
@@ -67,7 +67,7 @@ body {
 
 /*  HEADER  */
 h1, h2, h3 {
-    color: #1b5e20 !important;
+    color: #000000 !important;
 }
 
 /*  METRIK  */
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
