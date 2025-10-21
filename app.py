@@ -11,11 +11,98 @@ from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt, atan2
 from itertools import cycle
 
-# KONFIGURASI HALAMAN
 st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide")
-st.title("Sistem Analisis Rute & Pengumpulan Sampah Kota Delhi")
-st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
 
+# Warna dan gaya global
+st.markdown("""
+<style>
+/* ======== WARNA DASAR ======== */
+body {
+    background: linear-gradient(to bottom right, #e8f5e9, #e3f2fd);
+    font-family: 'Poppins', sans-serif;
+    color: #1b4d3e;
+}
+
+/* ======== SIDEBAR ======== */
+[data-testid="stSidebar"] {
+    background: linear-gradient(to bottom right, #c8e6c9, #bbdefb);
+    padding: 20px 10px 60px 10px;
+    border-right: 2px solid #a5d6a7;
+}
+
+[data-testid="stSidebar"] h1, 
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3 {
+    color: #1b4d3e !important;
+    text-align: center;
+}
+
+/* ======== NAVIGASI CARD ======== */
+.menu-card {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #2e7d32;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-card:hover {
+    background-color: #c8e6c9;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+}
+
+.menu-card.active {
+    background-color: #81c784;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+/* ======== HEADER ======== */
+h1, h2, h3 {
+    color: #1b5e20 !important;
+}
+
+/* ======== METRIK ======== */
+[data-testid="stMetricValue"] {
+    color: #2e7d32 !important;
+}
+
+/* ======== INFO CARD ======== */
+.info-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #1b4d3e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ======== SCROLLBAR ======== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #81c784;
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+#header
+st.title("🌍 Sistem Analisis Rute & Pengumpulan Sampah")
+st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
+st.markdown("---")
+
+# data
 def safe_read_csv(path, parse_dates=None):
     try:
         return pd.read_csv(path, parse_dates=parse_dates)
@@ -88,18 +175,49 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
     except Exception:
         pass
     
-# NAVIGASI
-st.sidebar.title("Navigasi")
-mode = st.sidebar.radio(
-    "Pilih Menu:",
-    [
-        "Dashboard Data",
-        "Jadwal & Rute Pengangkutan",
-        "Prediksi Volume Sampah"
-    ],
-    index=0
-)
-st.sidebar.markdown("---")
+# sidebar
+st.sidebar.markdown("<h2>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
+
+menu_items = {
+    "Dashboard Data": "📍 Dashboard Data",
+    "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
+    "Prediksi Volume Sampah": "📈 Prediksi Volume"
+}
+
+# Simulasi tombol card navigasi
+selected_menu = None
+for key, label in menu_items.items():
+    is_active = st.session_state.get("active_menu", "Dashboard Data") == key
+    button_class = "menu-card active" if is_active else "menu-card"
+    if st.sidebar.button(label, key=f"menu_{key}"):
+        st.session_state.active_menu = key
+        selected_menu = key
+
+if selected_menu is None:
+    selected_menu = st.session_state.get("active_menu", "Dashboard Data")
+
+st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+
+st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
+st.sidebar.markdown(f"""
+<div class='info-card'>
+<b>tps.csv</b> — {len(tps_df)} baris<br>
+<b>tpa.csv</b> — {len(tpa_df)} baris<br>
+<b>histori_rute.csv</b> — {len(histori_df)} baris<br>
+<b>routes.csv</b> — {len(routes_df)} baris<br>
+<b>vehicle_routing_matrix.csv</b> — {len(vehicle_df)} baris
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("""
+<div style='text-align:center; font-size:12px; margin-top:15px; opacity:0.7'>
+Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+mode = selected_menu
 
 # MODE: Dashboard Data 
 if mode == "Dashboard Data":
@@ -1234,6 +1352,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
