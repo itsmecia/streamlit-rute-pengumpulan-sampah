@@ -188,30 +188,32 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
-# menu
+# Menu
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# inisialisasi menu aktif
+# Inisialisasi menu aktif (default: Dashboard Data)
 if "active_menu" not in st.session_state:
-    st.session_state.active_menu = "Dashboard Data"  
-    
+    st.session_state.active_menu = "Dashboard Data"
+
+# Fungsi set aktif
 def set_active(menu_name):
     st.session_state.active_menu = menu_name
     st.rerun()
 
+# Render tombol menu
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
 
-    # gaya tombol
+    # Gaya tombol (aktif vs normal)
     button_style = f"""
         display: flex;
         align-items: center;
         gap: 10px;
-        background-color: {'#81c784' if is_active else '#FFFFFF'};
+        background-color: {'#388e3c' if is_active else '#FFFFFF'};
         color: {'white' if is_active else '#2e7d32'};
         border: 1px solid #a5d6a7;
         border-radius: 12px;
@@ -225,24 +227,10 @@ for key, label in menu_items.items():
         cursor: pointer;
     """
 
-    hover_style = """
-        this.style.backgroundColor='#a5d6a7';
-        this.style.color='white';
-        this.style.transform='translateY(-2px)';
-    """
+    # Render tombol sidebar
+    clicked = st.sidebar.button(label, key=f"btn_{key}", use_container_width=True)
 
-    leave_style = f"""
-        this.style.backgroundColor='{'#81c784' if is_active else '#FFFFFF'}';
-        this.style.color='{'white' if is_active else '#2e7d32'}';
-        this.style.transform='none';
-    """
-
-    # tombol sidebar 
-    clicked = st.sidebar.button(
-        label,
-        key=f"btn_{key}",
-        use_container_width=True,
-    )
+    # Terapkan gaya CSS tombol
     st.sidebar.markdown(
         f"""
         <style>
@@ -250,7 +238,7 @@ for key, label in menu_items.items():
             {button_style}
         }}
         div[data-testid="stSidebar"] button[kind="secondary"][key="btn_{key}"]:hover {{
-            background-color: #a5d6a7 !important;
+            background-color: #66bb6a !important;
             color: white !important;
             transform: translateY(-2px);
         }}
@@ -259,11 +247,12 @@ for key, label in menu_items.items():
         unsafe_allow_html=True
     )
 
+    # Saat diklik, ubah menu aktif
     if clicked:
         set_active(key)
 
+# Simpan mode aktif
 mode = st.session_state.active_menu
-
 
 # dayaset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
@@ -1438,6 +1427,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
