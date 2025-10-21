@@ -105,7 +105,7 @@ h1, h2, h3 {
 """, unsafe_allow_html=True)
 
 #header
-st.title("🌍 Sistem Analisis Rute & Pengumpulan Sampah")
+st.markdown("<h4 style='font-weight:bold; text-align:center;'>🌍 Sistem Analisis Rute & Pengumpulan Sampah</h4>", unsafe_allow_html=True)
 st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
 st.markdown("---")
 
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
