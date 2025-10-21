@@ -1249,172 +1249,163 @@ elif mode == "Prediksi Volume Sampah":
             st.write("### Statistik Prediksi")
             st.write(future_df["Prediksi_Volume_kg"].describe())
             
-            # Hitung rata-rata prediksi seluruh periode
-            high_pred = (
-                future_df.groupby("id_tps")["Prediksi_Volume_kg"]
-                .mean()
-                .sort_values(ascending=False)
-                .head(5)
-            )
+           
+            st.markdown("#### Insight")
             
-            # Ambil bulan prediksi pertama (bulan depan)
-            next_month = future_df["tanggal"].min()
+            # Pastikan kolom tanggal sudah bertipe datetime
+            histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
+            future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
             
-            #  top 5 untuk bulan depan 
-            high_pred_next = (
-                future_df[future_df["tanggal"] == next_month]
-                .groupby("id_tps")["Prediksi_Volume_kg"]
-                .mean()
-                .sort_values(ascending=False)
-                .head(5)
-            )
+            # Periode data
+            periode_hist_awal = histori_df["tanggal"].min().strftime("%b %Y")
+            periode_hist_akhir = histori_df["tanggal"].max().strftime("%b %Y")
+            periode_pred_awal = future_df["tanggal"].min().strftime("%b %Y")
+            periode_pred_akhir = future_df["tanggal"].max().strftime("%b %Y")
             
-            periode_awal = future_df["tanggal"].min().strftime("%b %Y")
-            periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
+            actual_df = histori_df.copy()
+            pred_df = future_df.copy()
             
-            st.markdown("### Top TPS Berdasarkan Prediksi Volume")
+            # Rata-rata volume aktual dan prediksi
+            avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
+            avg_pred = pred_df["Prediksi_Volume_kg"].mean() if not pred_df.empty else None
             
-            colA, colB = st.columns(2)
-            
-            with colA:
-                st.write(f"**Top 5 TPS dengan Rata-rata Prediksi Tertinggi ({periode_awal} – {periode_akhir}):**")
-                st.dataframe(
-                    high_pred.reset_index().rename(
-                        columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
-                    ).round(2),
-                    use_container_width=True
+            # Hitung tren total prediksi
+            if not pred_df.empty:
+                trend_total = (
+                    pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
+                    .sum()
+                    .reset_index()
+                    .sort_values("tanggal")
                 )
-                st.caption(f"Periode rata-rata mencakup seluruh prediksi: {periode_awal} – {periode_akhir}")
+                diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
+                trend_status = "meningkat" if diff > 0 else "menurun"
+            else:
+                trend_status = "tidak tersedia"
+                diff = 0
             
-            with colB:
-                st.write(f"**Top 5 TPS Bulan {next_month.strftime('%B %Y')}:**")
-                st.dataframe(
-                    high_pred_next.reset_index().rename(
-                        columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Prediksi Bulan Depan (kg)"}
-                    ).round(2),
-                    use_container_width=True
-                )
-                st.caption(f"Data ini menunjukkan prediksi untuk bulan terdekat: {next_month.strftime('%B %Y')}")
-                
-        st.markdown("#### Insight")
-        
-        histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
-        future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
-        
-        # periode dari data
-        periode_hist_awal = histori_df["tanggal"].min().strftime("%b %Y")
-        periode_hist_akhir = histori_df["tanggal"].max().strftime("%b %Y")
-        periode_pred_awal = future_df["tanggal"].min().strftime("%b %Y")
-        periode_pred_akhir = future_df["tanggal"].max().strftime("%b %Y")
-        
-        actual_df = histori_df.copy()
-        pred_df = future_df.copy()
-        
-        # Hitung rata-rata volume aktual dan prediksi
-        avg_actual = actual_df["Volume_kg"].mean() if not actual_df.empty else None
-        avg_pred = pred_df["Prediksi_Volume_kg"].mean() if not pred_df.empty else None
-        
-        # Hitung tren total prediksi (awal vs akhir)
-        if not pred_df.empty:
-            trend_total = (
-                pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
-                .sum()
-                .reset_index()
-                .sort_values("tanggal")
+            # Insight umum
+            st.write(
+                f"- Total volume sampah kota selama {len(pred_df['tanggal'].unique())} bulan diprediksi **{trend_status}** dari "
+                f"**{periode_pred_awal}** hingga **{periode_pred_akhir}** "
+                f"(selisih {diff:.2f} kg)."
             )
-            diff = trend_total["Prediksi_Volume_kg"].iloc[-1] - trend_total["Prediksi_Volume_kg"].iloc[0]
-            trend_status = "meningkat" if diff > 0 else "menurun"
-        else:
-            trend_status = "tidak tersedia"
-            diff = 0
             
-        
-        #  insight 
-        st.write(
-            f"- Total volume sampah kota selama {len(trend_total)} bulan diprediksi **{trend_status}** dari "
-            f"**{periode_pred_awal}** hingga **{periode_pred_akhir}** "
-            f"(selisih {diff:.2f} kg )."
-        )
-        
-        # Rata-rata volume aktual
-        if avg_actual is not None:
-            st.write(
-                f"- Rata-rata volume aktual (**{periode_hist_awal} – {periode_hist_akhir}**): "
-                f"**{avg_actual:.2f} kg/hari**"
-            )
-        else:
-            st.write("- Data volume aktual tidak tersedia.")
-        
-        # Rata-rata volume prediksi
-        if avg_pred is not None:
-            st.write(
-                f"- Rata-rata volume prediksi (**{periode_pred_awal} – {periode_pred_akhir}**): "
-                f"**{avg_pred:.2f} kg/hari**"
-            )
-        
-        # Selisih rata-rata prediksi vs aktual
-        if avg_actual is not None and avg_pred is not None:
-            selisih = avg_pred - avg_actual
-            arah = "lebih tinggi" if selisih > 0 else "lebih rendah"
-            st.write(
-                f"- Volume prediksi rata-rata **{abs(selisih):.2f} kg {arah}** "
-                f"dibandingkan volume aktual periode sebelumnya."
-            )
-        
-        # Top 5 TPS dengan prediksi tertinggi
-        top_tps_pred = (
-            future_df.groupby("id_tps")["Prediksi_Volume_kg"]
-            .mean()
-            .sort_values(ascending=False)
-            .head(5)
-        )
-        if not top_tps_pred.empty:
-            st.write(
-                f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**."
-            )
-        
-        # Bulan dengan kenaikan prediksi terbesar
-        if not pred_df.empty:
-            monthly_sum = (
-                pred_df.groupby("tanggal")["Prediksi_Volume_kg"]
-                .sum()
-                .reset_index()
-                .sort_values("tanggal")
-            )
-            monthly_sum["selisih"] = monthly_sum["Prediksi_Volume_kg"].diff()
-            max_increase = monthly_sum.loc[monthly_sum["selisih"].idxmax()]
-            bulan_max = max_increase["tanggal"].strftime("%B %Y")
-            nilai_max = max_increase["selisih"]
-            if nilai_max > 0:
+            # Rata-rata aktual
+            if avg_actual is not None:
                 st.write(
-                    f"- Kenaikan terbesar diproyeksikan terjadi pada **{bulan_max}**, "
-                    f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
+                    f"- Rata-rata volume aktual (**{periode_hist_awal} – {periode_hist_akhir}**): "
+                    f"**{avg_actual:.2f} kg/hari**"
                 )
-                
-                # pred_df sudah ada dan tanggal bertipe datetime
+            else:
+                st.write("- Data volume aktual tidak tersedia.")
+            
+            # Rata-rata prediksi
+            if avg_pred is not None:
+                st.write(
+                    f"- Rata-rata volume prediksi (**{periode_pred_awal} – {periode_pred_akhir}**): "
+                    f"**{avg_pred:.2f} kg/hari**"
+                )
+            
+            # Selisih antara aktual dan prediksi
+            if avg_actual is not None and avg_pred is not None:
+                selisih = avg_pred - avg_actual
+                arah = "lebih tinggi" if selisih > 0 else "lebih rendah"
+                st.write(
+                    f"- Volume prediksi rata-rata **{abs(selisih):.2f} kg {arah}** dibandingkan periode aktual sebelumnya."
+                )
+            
+            #  Top 5 TPS Berdasarkan Prediksi
+            if not future_df.empty:
+                high_pred = (
+                    future_df.groupby("id_tps")["Prediksi_Volume_kg"]
+                    .mean()
+                    .sort_values(ascending=False)
+                    .head(5)
+                )
+            
+                next_month = future_df["tanggal"].min()
+                high_pred_next = (
+                    future_df[future_df["tanggal"] == next_month]
+                    .groupby("id_tps")["Prediksi_Volume_kg"]
+                    .mean()
+                    .sort_values(ascending=False)
+                    .head(5)
+                )
+            
+                periode_awal = future_df["tanggal"].min().strftime("%b %Y")
+                periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
+            
+                st.markdown("### Top TPS Berdasarkan Prediksi Volume")
+                colA, colB = st.columns(2)
+            
+                with colA:
+                    st.write(f"**Top 5 TPS dengan Rata-rata Prediksi Tertinggi ({periode_awal} – {periode_akhir}):**")
+                    st.dataframe(
+                        high_pred.reset_index().rename(
+                            columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
+                        ).round(2),
+                        use_container_width=True
+                    )
+                    st.caption(f"Periode rata-rata mencakup seluruh prediksi: {periode_awal} – {periode_akhir}")
+            
+                with colB:
+                    st.write(f"**Top 5 TPS Bulan {next_month.strftime('%B %Y')}:**")
+                    st.dataframe(
+                        high_pred_next.reset_index().rename(
+                            columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Prediksi Bulan Depan (kg)"}
+                        ).round(2),
+                        use_container_width=True
+                    )
+                    st.caption(f"Data ini menunjukkan prediksi untuk bulan terdekat: {next_month.strftime('%B %Y')}")
+            
+                # Tambahan ringkasan TPS tertinggi
+                top_tps_pred = (
+                    future_df.groupby("id_tps")["Prediksi_Volume_kg"]
+                    .mean()
+                    .sort_values(ascending=False)
+                    .head(5)
+                )
+                st.write(f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**.")
+    
+            #  Ringkasan Prediksi Bulanan
+            if not pred_df.empty:
                 pred_df["tanggal"] = pd.to_datetime(pred_df["tanggal"])
-                
-                # Hitung total dan rata-rata volume prediksi per bulan
+            
                 monthly_summary = (
                     pred_df.groupby(pred_df["tanggal"].dt.to_period("M"))["Prediksi_Volume_kg"]
                     .agg(total_volume="sum", avg_daily_volume="mean")
                     .reset_index()
                 )
-                
+            
                 monthly_summary["bulan"] = monthly_summary["tanggal"].dt.to_timestamp()
-                
-                # Hitung selisih bulan ke bulan
                 monthly_summary["selisih"] = monthly_summary["total_volume"].diff()
-
-                # Tampilkan tabel ringkasan
+            
                 st.markdown("#### Tabel Ringkasan Prediksi per Bulan")
-                st.dataframe(monthly_summary[["bulan", "total_volume", "avg_daily_volume", "selisih"]])    
+                st.dataframe(
+                    monthly_summary[["bulan", "total_volume", "avg_daily_volume", "selisih"]].round(2),
+                    use_container_width=True
+                )
+            
+                # Bulan dengan kenaikan terbesar
+                max_increase = monthly_summary.loc[monthly_summary["selisih"].idxmax()]
+                bulan_max = max_increase["bulan"].strftime("%B %Y")
+                nilai_max = max_increase["selisih"]
+            
+                if nilai_max > 0:
+                    st.write(
+                        f"- Kenaikan terbesar diproyeksikan terjadi pada **{bulan_max}**, "
+                        f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
+                    )
+
+
+  
                 
 
                 
             
             
     
+
 
 
 
