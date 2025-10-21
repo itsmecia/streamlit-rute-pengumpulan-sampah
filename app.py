@@ -1120,7 +1120,7 @@ elif mode == "Prediksi Volume Sampah":
                 ("cukup" if r2 >= 0.5 else "perlu perbaikan"))
             )
 
-            st.markdown("### Insight")
+            st.markdown("#### Insight")
             st.write(f"""
             - **Akurasi Model:** R² = {r2:.3f} ({kualitas})
             - **MAE:** {mae:.2f} kg | **MAPE:** {mape:.2f}%
@@ -1392,7 +1392,7 @@ elif mode == "Prediksi Volume Sampah":
                     periode_awal = future_df["tanggal"].min().strftime("%b %Y")
                     periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
                 
-                    st.markdown("### Top TPS Berdasarkan Prediksi Volume")
+                    st.markdown("#### Top TPS Berdasarkan Prediksi Volume")
                     colA, colB = st.columns(2)
                 
                     with colA:
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
