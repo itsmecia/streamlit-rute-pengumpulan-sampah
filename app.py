@@ -1142,7 +1142,7 @@ elif mode == "Prediksi Volume Sampah":
             st.markdown("---")
 
             # Prediksi Volume Sampah Beberapa Bulan ke Depan
-            st.subheader("Prediksi Volume Sampah Beberapa Bulan ke Depan")
+            st.markdown("#### Prediksi Volume Sampah Beberapa Bulan ke Depan")
             
             # Pilih berapa bulan ke depan mau diprediksi
             col_pred1, col_pred2 = st.columns(2)
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
