@@ -188,70 +188,53 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
-# === Menu Utama ===
-menu_items = {
-    "Dashboard Data": "📍 Dashboard Data",
-    "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
-    "Prediksi Volume Sampah": "📈 Prediksi Volume"
-}
+# --- Daftar Menu
+menu_items = ["Dashboard Data", "Jadwal & Rute Pengangkutan", "Prediksi Volume Sampah"]
 
-# === Default halaman pertama
+# --- Inisialisasi menu aktif
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# === Fungsi navigasi
-def set_active(menu_name):
-    st.session_state.active_menu = menu_name
-    st.rerun()
-
-# === Styling Global (sekali saja)
+# --- CSS untuk radio agar tampil seperti tombol
 st.markdown("""
 <style>
-div[data-testid="stSidebar"] button {
+div[role="radiogroup"] > label {
+    border: 1px solid #a5d6a7;
     border-radius: 10px;
-    text-align: left;
     padding: 10px 14px;
     margin-top: 6px;
+    color: #2e7d32;
+    background-color: white;
     transition: all 0.2s ease-in-out;
-    border: 1px solid #a5d6a7;
 }
-div[data-testid="stSidebar"] button:hover {
+div[role="radiogroup"] > label:hover {
     background-color: #81c784 !important;
     color: white !important;
+}
+div[role="radiogroup"] > label[data-baseweb="radio"] div[role="radio"][aria-checked="true"] + div {
+    color: white !important;
+}
+div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
+    background-color: #2e7d32 !important;
+    color: white !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    font-weight: 600;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# === Render tombol menu ===
-for key, label in menu_items.items():
-    is_active = st.session_state.active_menu == key
+# --- Navigasi dengan radio
+selected = st.sidebar.radio(
+    "Pilih Halaman",
+    menu_items,
+    index=menu_items.index(st.session_state.active_menu),
+    label_visibility="collapsed"
+)
 
-    bg_color = "#2e7d32" if is_active else "#ffffff"
-    text_color = "white" if is_active else "#2e7d32"
-    font_weight = "700" if is_active else "500"
-    shadow = "0 3px 6px rgba(0,0,0,0.2)" if is_active else "none"
+# Simpan ke session state
+st.session_state.active_menu = selected
 
-    clicked = st.sidebar.button(label, key=f"btn_{key}", use_container_width=True)
-
-    # Terapkan warna berbeda untuk tombol aktif
-    st.markdown(
-        f"""
-        <style>
-        div[data-testid="stSidebar"] button[key="btn_{key}"] {{
-            background-color: {bg_color};
-            color: {text_color};
-            font-weight: {font_weight};
-            box-shadow: {shadow};
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if clicked:
-        set_active(key)
-
-# === Halaman Aktif Sekarang ===
+# --- Mode aktif
 mode = st.session_state.active_menu
 
 
@@ -1428,6 +1411,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
