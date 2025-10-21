@@ -24,7 +24,7 @@ html, body, .main, .block-container {
 
 /* SIDEBAR*/ 
 [data-testid="stSidebar"] { 
-    background: linear-gradient(to bottom right, #B4CBB4, #effbf3);
+    background-color: #B4CBB4 !important; 
     padding: 20px 10px 60px 10px; 
     border-right: 2px solid #B5E0B7; 
 } 
@@ -1474,6 +1474,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
