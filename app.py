@@ -77,6 +77,7 @@ h1, h2, h3 {
 [data-testid="stMetricValue"] { 
     color: #75A075 !important;
     text-align: center !important;
+    font-weight: bold
 }
 
 [data-testid="stMetricLabel"] {
@@ -1473,6 +1474,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
