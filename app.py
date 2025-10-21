@@ -232,7 +232,6 @@ Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengang
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-mode = selected_menu
 
 # MODE: Dashboard Data 
 if mode == "Dashboard Data":
@@ -1364,6 +1363,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
