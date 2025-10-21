@@ -188,18 +188,18 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
-# --- Daftar Menu (dengan emoji)
+# --- Daftar menu utama
 menu_items = [
-    "📍 Dashboard Data",
-    "🚛 Jadwal & Rute Pengangkutan",
-    "📈 Prediksi Volume Sampah"
+    "Dashboard Data",
+    "Jadwal & Rute Pengangkutan",
+    "Prediksi Volume Sampah"
 ]
 
-# --- Inisialisasi menu aktif
-if "active_menu" not in st.session_state:
-    st.session_state.active_menu = "📍 Dashboard Data"
+# --- Inisialisasi session_state
+if "active_menu" not in st.session_state or st.session_state.active_menu not in menu_items:
+    st.session_state.active_menu = menu_items[0]  # Default ke menu pertama
 
-# --- CSS tombol radio bergaya tombol
+# --- CSS: Radio button tampil seperti tombol
 st.markdown("""
 <style>
 div[role="radiogroup"] > label {
@@ -224,16 +224,25 @@ div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Navigasi dengan radio
+# --- Menentukan index default (aman dari error)
+default_index = (
+    menu_items.index(st.session_state.active_menu)
+    if st.session_state.active_menu in menu_items
+    else 0
+)
+
+# --- Navigasi radio
 selected = st.sidebar.radio(
     "Pilih Halaman",
     menu_items,
-    index=menu_items.index(st.session_state.active_menu),
+    index=default_index,
     label_visibility="collapsed"
 )
 
-# --- Simpan pilihan aktif
+# --- Simpan menu aktif ke session_state
 st.session_state.active_menu = selected
+
+# --- Mode aktif untuk halaman utama
 mode = st.session_state.active_menu
 
 
@@ -1410,6 +1419,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
