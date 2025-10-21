@@ -118,6 +118,30 @@ ul[role="listbox"] {
     color: #000000 !important;
 }
 
+/* Ubah warna background untuk st.warning */
+div[data-testid="stNotification"][role="alert"][class*="warning"] {
+    background-color: #96D198 !important;   /* kuning lembut */
+    color: #000000 !important;              /* teks coklat tua */
+    border: 1px solid #FFECB3 !important;
+    border-radius: 10px !important;
+}
+
+/* Ubah warna background untuk st.info */
+div[data-testid="stNotification"][role="alert"][class*="info"] {
+    background-color: #E3F2FD !important;   /* biru muda */
+    color: #0D47A1 !important;              /* teks biru tua */
+    border: 1px solid #BBDEFB !important;
+    border-radius: 10px !important;
+}
+
+/* Ubah warna background untuk st.success */
+div[data-testid="stNotification"][role="alert"][class*="success"] {
+    background-color: #E8F5E9 !important;   /* hijau lembut */
+    color: #1B5E20 !important;              /* teks hijau tua */
+    border: 1px solid #C8E6C9 !important;
+    border-radius: 10px !important;
+}
+
 /* SCROLLBAR */ 
 ::-webkit-scrollbar { 
     width: 8px; 
@@ -1452,6 +1476,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
