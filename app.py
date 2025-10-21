@@ -105,7 +105,7 @@ h1, h2, h3 {
 """, unsafe_allow_html=True)
 
 #header
-st.markdown("<h4 style='font-weight:bold; text-align:center;'>🌍 Sistem Analisis Rute & Pengumpulan Sampah</h4>", unsafe_allow_html=True)
+st.markdown("<h1 style='font-weight:bold; text-align:center;'>🌍 Sistem Analisis Rute & Pengumpulan Sampah</h1>", unsafe_allow_html=True)
 st.markdown("Analitik dan optimasi rute pengangkutan sampah berbasis **Big Data**.")
 st.markdown("---")
 
@@ -183,7 +183,7 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
         pass
     
 #sidebar
-st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi Sistem</h1>", unsafe_allow_html=True)
+st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
 # menu
 menu_items = {
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
