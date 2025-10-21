@@ -17,10 +17,10 @@ st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide
 st.markdown("""
 <style>
 /* WARNA DASAR*/
-body {
-    background-color: #E1F5E1;
+html, body, .main, .block-container {
+    background-color: #E1F5E1 !important;
     font-family: 'Poppins', sans-serif;
-    color: #000000;
+    color: #000000 !important;
 }
 
 /* SIDEBAR*/
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
