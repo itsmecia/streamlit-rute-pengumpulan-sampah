@@ -1305,6 +1305,7 @@ elif mode == "Prediksi Volume Sampah":
                     periode_hist_awal = actual_start.strftime("%b %Y")
                     periode_hist_akhir = actual_end.strftime("%b %Y")
                     
+                    # Hitung selisih bulan 
                     months_diff = (pred_end.year - pred_start.year) * 12 + (pred_end.month - pred_start.month) + 1
                     st.write(
                         f"Selama periode **{months_diff} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
@@ -1427,6 +1428,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
