@@ -25,7 +25,7 @@ body {
 
 /* SIDEBAR*/
 [data-testid="stSidebar"] {
-    background: linear-gradient(to bottom right, #c8e6c9, #bbdefb);
+    background: linear-gradient(to bottom right, #c8e6c9, #D6F7D6);
     padding: 20px 10px 60px 10px;
     border-right: 2px solid #a5d6a7;
 }
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
