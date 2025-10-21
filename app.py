@@ -1325,7 +1325,7 @@ elif mode == "Prediksi Volume Sampah":
                 else:
                     st.write("- Volume prediksi rata-rata sama dengan periode sebelumnya.")
 
-    
+            st.markdown("---")
             #  Ringkasan Prediksi Bulanan
             if not pred_df.empty:
                 pred_df["tanggal"] = pd.to_datetime(pred_df["tanggal"])
@@ -1356,7 +1356,7 @@ elif mode == "Prediksi Volume Sampah":
                 nilai_max_dec = monthly_summary.loc[max_decrease_idx, "selisih"]
                 
                 # Tampilkan insight singkat
-                st.markdown("#### 📈 Insight Prediksi Bulanan")
+                st.markdown("#### Insight ")
                 
                 if nilai_max_inc > 0:
                     st.write(
@@ -1369,7 +1369,7 @@ elif mode == "Prediksi Volume Sampah":
                         f"Penurunan terbesar diperkirakan pada **{bulan_max_dec}**, "
                         f"turun sekitar **{abs(nilai_max_dec):,.2f} kg** dibanding bulan sebelumnya."
                     )
-                    
+                 st.markdown("---")   
                  #  Top 5 TPS Berdasarkan Prediksi
                 if not future_df.empty:
                     high_pred = (
@@ -1421,6 +1421,8 @@ elif mode == "Prediksi Volume Sampah":
                         .sort_values(ascending=False)
                         .head(5)
                     )
+                     
+                    st.markdown("#### Insight ")
                     st.write(f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**.")
 
 
@@ -1432,6 +1434,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
