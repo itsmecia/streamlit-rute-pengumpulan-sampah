@@ -711,7 +711,7 @@ if mode == "Dashboard Data":
         )
 
 # MODE: Rute & jadwal
-elif mode == "Jadwal & Rute Pengangkutan":
+elif mode == "Jadwal & Rute":
 
     # Fungsi Haversine
     def haversine(lat1, lon1, lat2, lon2):
@@ -1423,6 +1423,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
