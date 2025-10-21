@@ -1285,24 +1285,28 @@ elif mode == "Prediksi Volume Sampah":
             
             # Hitung tren total prediksi
             if not pred_df.empty and not actual_df.empty:
-                total_pred = pred_df["Prediksi_Volume_kg"].sum()
-                total_actual = actual_df["Volume_kg"].sum()
-                diff = total_pred - total_actual
-                trend_status = "meningkat" if diff > 0 else "menurun"
-            
+                # Hitung rata-rata harian
                 mean_pred = pred_df["Prediksi_Volume_kg"].mean()
                 mean_actual = actual_df["Volume_kg"].mean()
+            
+                # Normalisasi berdasarkan jumlah hari yang sama
+                days_pred = (pred_end - pred_start).days + 1
+                total_pred_norm = mean_pred * days_pred
+                total_actual_norm = mean_actual * days_pred  # pakai jumlah hari yang sama
+            
+                diff = total_pred_norm - total_actual_norm
+                trend_status = "meningkat" if diff > 0 else "menurun"
                 mean_diff = mean_pred - mean_actual
             
-                # Langsung pakai variabel periode yang sudah dihitung di atas
+                # Tampilkan hasil
                 st.write(
                     f"Selama periode **{months_diff} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
                     f"total volume sampah kota diprediksi **{trend_status} sebesar {abs(diff):,.2f} kg** "
-                    f"dibandingkan total volume periode sebelumnya dengan panjang waktu yang sama "
+                    f"(setelah dinormalisasi berdasarkan jumlah hari yang sama) "
+                    f"dibandingkan total volume periode sebelumnya "
                     f"(**{periode_hist_awal} – {periode_hist_akhir}**)."
                 )
-                st.write(f"DEBUG: total_pred={total_pred:,.2f}, total_actual={total_actual:,.2f}, diff={diff:,.2f}")
-
+            
                 st.write(
                     f"- Rata-rata volume aktual ({periode_hist_awal} – {periode_hist_akhir}): **{mean_actual:.2f} kg/hari**"
                 )
@@ -1320,8 +1324,7 @@ elif mode == "Prediksi Volume Sampah":
                     )
                 else:
                     st.write("- Volume prediksi rata-rata sama dengan periode sebelumnya.")
-            else:
-                st.warning("Data prediksi atau aktual tidak ditemukan.")
+
             
             #  Top 5 TPS Berdasarkan Prediksi
             if not future_df.empty:
@@ -1414,6 +1417,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
