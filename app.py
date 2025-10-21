@@ -18,7 +18,7 @@ st.markdown("""
 <style>
 /* WARNA DASAR*/
 html, body, .main, .block-container {
-    background-color: #BFE0C3 !important;
+    background-color: #E1F5E1 !important;
     font-family: 'Poppins', sans-serif;
     color: #000000 !important;
 }
@@ -1418,6 +1418,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
