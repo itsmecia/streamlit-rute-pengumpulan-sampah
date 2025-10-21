@@ -17,14 +17,14 @@ st.markdown("""
 <style> 
 /* WARNA DASAR*/ 
 html, body, .main, .block-container { 
-    background: linear-gradient(to bottom right, #EFFBF3, #E1F5E1); 
+    background-color: #effbf3 !important; 
     font-family: 'Poppins', sans-serif; 
     color: #000000 !important; 
 } 
 
 /* SIDEBAR*/ 
 [data-testid="stSidebar"] { 
-    background-color: #B4CBB4 !important; 
+    background: linear-gradient(to bottom right, #B4CBB4, #effbf3);
     padding: 20px 10px 60px 10px; 
     border-right: 2px solid #B5E0B7; 
 } 
@@ -1473,6 +1473,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
