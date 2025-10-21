@@ -75,7 +75,7 @@ h1, h2, h3 {
 
 /* METRIK */ 
 [data-testid="stMetricValue"] { 
-    color: #649A66 !important; 
+    color: #7DAA7E !important; 
 } 
 
 /* INFO CARD */ 
@@ -1476,6 +1476,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
