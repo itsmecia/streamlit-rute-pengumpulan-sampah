@@ -264,7 +264,7 @@ div[role="radiogroup"] > label {
 
 /* Hover */ 
 div[role="radiogroup"] > label:hover { 
-    background-color: #C8E6C9 !important; 
+    background-color: #DDECE0 !important; 
     color: #1B5E20 !important; 
     transform: scale(1.02); 
 } 
@@ -1474,6 +1474,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
