@@ -186,58 +186,53 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
 # Daftar menu
-menu_items = {
-    "Dashboard Data": "📍 Dashboard Data",
-    "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
-    "Prediksi Volume Sampah": "📈 Prediksi Volume"
+menu_items = ["📍 Dashboard Data", "🚛 Jadwal & Rute", "📈 Prediksi Volume"]
+
+# Navigasi dengan radio (stabil dan bisa ganti halaman)
+selected_menu = st.sidebar.radio(
+    "",
+    menu_items,
+    index=0,  # default Dashboard
+    key="menu_radio",
+)
+
+# CSS untuk styling radio agar mirip card
+st.markdown("""
+<style>
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1rem;
 }
-
-# Inisialisasi menu aktif 
-if "active_menu" not in st.session_state:
-    st.session_state.active_menu = "Dashboard Data"
-
-st.markdown("""
-
-# Render tombol navigasi
-for key, label in menu_items.items():
-    is_active = st.session_state.active_menu == key
-    button_class = "menu-card active" if is_active else "menu-card"
-
-    # Jika diklik, ubah menu aktif
-    if st.sidebar.markdown(
-        f"<div class='{button_class}' onclick=\"window.parent.postMessage({{'type':'menu_click','key':'{key}'}}, '*')\">{label}</div>",
-        unsafe_allow_html=True,
-    ):
-        pass
-
-# JS 
-st.markdown("""
-<script>
-window.addEventListener('message', (event) => {
-    const data = event.data;
-    if (data.type === 'menu_click') {
-        const streamlitDoc = window.parent.document;
-        streamlitDoc.dispatchEvent(new CustomEvent("streamlit_set_menu", { detail: data.key }));
-    }
-});
-</script>
+div[role='radiogroup'] > label {
+    background-color: #FFFFFF !important;
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 12px 0;
+    margin: 8px 0;
+    text-align: center;
+    font-weight: 500;
+    color: #2e7d32;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+div[role='radiogroup'] > label:hover {
+    background-color: #c8e6c9 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+div[role='radiogroup'] > label[data-baseweb='radio']:has(input:checked) {
+    background-color: #81c784 !important;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+</style>
 """, unsafe_allow_html=True)
 
-# Simpan klik ke session_state
-def handle_menu_click():
-    import streamlit as st_jscode
-    if st_jscode.session_state.get("clicked_menu"):
-        st.session_state.active_menu = st_jscode.session_state.clicked_menu
-        st_jscode.session_state.clicked_menu = None
-        st.rerun()
-
-# Mode halaman aktif
-mode = st.session_state.active_menu
-
-# dataset
+# =====================
+# 📄 INFO DATASET
+# =====================
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
-
 st.sidebar.markdown(f'''
 <div style="background-color:#fff; border-radius:10px; padding:12px; margin-top:12px;
 font-size:14px; color:#1b4d3e; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
@@ -1386,6 +1381,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
