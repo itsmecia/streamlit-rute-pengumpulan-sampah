@@ -15,88 +15,90 @@ st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide
 
 # Warna dan gaya global
 st.markdown("""
-<style>
-html, body, .main, .block-container {
-    background-color: #E7F5F5 !important;
-    font-family: 'Poppins', sans-serif;
-    color: #000000 !important;
-}
+<style> 
+/* WARNA DASAR*/ 
+html, body, .main, .block-container { 
+    background-color: #E7F5F5 !important; 
+    font-family: 'Poppins', sans-serif; 
+    color: #000000 !important; 
+} 
 
-#SIDEBAR
-[data-testid="stSidebar"] {
-    background: linear-gradient(to bottom right, #E7F5F5, #E1F5E1);
-    padding: 20px 10px 60px 10px;
-    border-right: 2px solid #B5E0B7;
-}
+/* SIDEBAR*/ 
+[data-testid="stSidebar"] { 
+    background: linear-gradient(to bottom right, #E7F5F5, #E1F5E1); 
+    padding: 20px 10px 60px 10px; 
+    border-right: 2px solid #B5E0B7; 
+} 
 
-[data-testid="stSidebar"] h1,
-[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3 {
-    color: #1b4d3e !important;
-    text-align: center;
-}
+[data-testid="stSidebar"] h1, 
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3 { 
+    color: #1b4d3e !important; 
+    text-align: center; 
+} 
 
-#NAV CARD
-.menu-card {
-    background-color: #FFFFFF !important;
-    border: 1px solid #a5d6a7;
-    border-radius: 12px;
-    padding: 14px;
-    margin: 10px 0;
-    text-align: center;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    color: #2e7d32;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+/* NAVIGASI CARD */ 
+.menu-card { 
+    background-color: #FFFFFF !important; 
+    border: 1px solid #a5d6a7; 
+    border-radius: 12px; 
+    padding: 14px; 
+    margin: 10px 0; 
+    text-align: center; 
+    transition: all 0.3s ease; 
+    font-weight: 500; 
+    color: #2e7d32; 
+    cursor: pointer; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+} 
 
-.menu-card:hover {
-    background-color: #c8e6c9 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transform: translateY(-3px);
-}
+.menu-card:hover { 
+    background-color: #c8e6c9 !important; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+    transform: translateY(-3px); 
+} 
 
-.menu-card.active {
-    background-color: #81c784 !important;
-    color: #FFFFFF !important;
-    font-weight: 600;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-}
+.menu-card.active { 
+    background-color: #81c784 !important; 
+    color: white !important; 
+    font-weight: 600; 
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3); 
+} 
 
-a.menu-link {
-    text-decoration: none;
-}
+a.menu-link { 
+    text-decoration: none; 
+} 
 
-#HEADER
-h1, h2, h3 {
-    color: #000000 !important;
-}
+/* HEADER */ 
+h1, h2, h3 { 
+    color: #000000 !important; 
+} 
 
+/* METRIK */ 
+[data-testid="stMetricValue"] { 
+    color: #2e7d32 !important; 
+} 
 
-[data-testid="stMetricValue"] {
-    color: #2e7d32 !important;
-}
+/* INFO CARD */ 
+.info-card { 
+    background-color: #FFFFFF !important; 
+    border-radius: 10px; 
+    padding: 12px 16px; 
+    margin-top: 10px; 
+    font-size: 14px; 
+    color: #1b4d3e; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+} 
 
+/* SCROLLBAR */ 
+::-webkit-scrollbar { 
+    width: 8px; 
+} 
 
-.info-card {
-    background-color: #FFFFFF !important;
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #1b4d3e;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-thumb {
-    background: #81c784;
-    border-radius: 10px;
-}
+::-webkit-scrollbar-thumb { 
+    background: #81c784; 
+    border-radius: 10px; 
+} 
 </style>
 """, unsafe_allow_html=True)
 
@@ -197,33 +199,44 @@ if "active_menu" not in st.session_state or st.session_state.active_menu not in 
     
 # CSS Radio Button
 st.markdown("""
-<style>
 div[role="radiogroup"] > label {
     border: 1px solid #A5D6A7;
     border-radius: 10px;
     padding: 10px 14px;
     margin-top: 6px;
-    color: #2E7D32;
     background-color: #FFFFFF;
     transition: all 0.25s ease-in-out;
     font-weight: 500;
+    cursor: pointer;
 }
 
-/* Hover Effect */
+/* Teks default (span di dalam label) */
+div[role="radiogroup"] > label span {
+    color: #1B4D3E !important;     /* 🎨 Warna teks utama */
+    font-size: 15px !important;
+    font-weight: 500;
+}
+
+/* Hover effect */
 div[role="radiogroup"] > label:hover {
     background-color: #C8E6C9 !important;
-    color: #1B5E20 !important;
-    transform: scale(1.02);
+    transform: scale(1.03);
+}
+div[role="radiogroup"] > label:hover span {
+    color: #0D3B29 !important;     /* 🎨 Warna teks saat hover */
+    font-weight: 600;
 }
 
-/* Active / Selected */
+/* Aktif (dipilih) */
 div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
-    background-color: #66BB6A !important;
-    color: white !important;
-    border: 1px solid #43A047;
-    box-shadow: 0 3px 10px rgba(102, 187, 106, 0.4);
-    font-weight: 600;
-    transform: scale(1.03);
+    background-color: #388E3C !important;
+    border: 1px solid #2E7D32;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+    transform: scale(1.05);
+}
+div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] span {
+    color: #FFFFFF !important;     /* ⚪ Teks putih saat aktif */
+    font-weight: 700 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1423,6 +1436,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
