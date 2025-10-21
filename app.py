@@ -60,23 +60,21 @@ html, body, .main, .block-container {
 
 .menu-card.active {
     background-color: #81c784 !important;
-    color: white;
+    color: white !important;
     font-weight: 600;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
-# filter box
 div[data-baseweb="select"], 
-div[data-baseweb="input"], 
-div[data-baseweb="textarea"], 
-div[data-testid="stMultiSelect"], 
-div[data-testid="stSelectbox"], 
-div[data-testid="stTextInput"], 
-div[data-testid="stNumberInput"] {
-    background-color: #FFFFFF !important;
+.stMultiSelect, 
+.stSelectbox, 
+.stSlider, 
+.stTextInput, 
+.stNumberInput {
+    background-color: white !important;
     border-radius: 10px;
+    padding: 5px !important;
     border: 1px solid #a5d6a7 !important;
-    color: #000000 !important;
 }
 
 /*  HEADER  */
@@ -198,17 +196,20 @@ menu_items = {
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Simulasi tombol card navigasi
-selected_menu = None
+if "active_menu" not in st.session_state:
+    st.session_state.active_menu = "Dashboard Data"
+
 for key, label in menu_items.items():
-    is_active = st.session_state.get("active_menu", "Dashboard Data") == key
+    is_active = st.session_state.active_menu == key
     button_class = "menu-card active" if is_active else "menu-card"
+
     if st.sidebar.button(label, key=f"menu_{key}"):
         st.session_state.active_menu = key
-        selected_menu = key
+        st.rerun()
 
-if selected_menu is None:
-    selected_menu = st.session_state.get("active_menu", "Dashboard Data")
+    st.sidebar.markdown(f"""
+        <div class="{button_class}">{label}</div>
+    """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
@@ -907,7 +908,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
             """)
         ).add_to(m)
 
-        # Legenda rute
+        # Legenda 
         legend_html = """
         <div style="
             position: fixed; 
@@ -930,7 +931,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         st_folium(m, width=1000, height=550)
 
     
-        #  INSIGHT RUTE 
+        #  INSIGHT  
         segmen_jarak = []
         for i in range(len(route)-1):
             dist = haversine(route[i]["latitude"], route[i]["longitude"],
@@ -1078,7 +1079,7 @@ elif mode == "Prediksi Volume Sampah":
             Model menunjukkan performa {kualitas}, dengan prediksi volume per TPS relatif akurat dan konsisten.
             """)
 
-            # tampilkan daftar titik outlier 
+            #  daftar titik outlier 
             if outlier_count > 0:
                 st.write("**Daftar Titik Outlier (Prediksi jauh dari aktual):**")
                 st.dataframe(
@@ -1102,7 +1103,7 @@ elif mode == "Prediksi Volume Sampah":
                 help="Pilih berapa bulan ke depan yang ingin diprediksi."
             )
             
-            # Tentukan periode otomatis dari tanggal terakhir data
+            # Tentukan periode dari tanggal terakhir data
             last_date = df["tanggal"].max()
             future_months = pd.date_range(last_date + pd.offsets.MonthBegin(1), periods=n_months, freq="MS")
             
@@ -1111,7 +1112,7 @@ elif mode == "Prediksi Volume Sampah":
             
             st.caption(f"Periode prediksi otomatis: **{start_label} – {end_label}**")
             
-            # Buat Data Prediksi
+            #  Data Prediksi
             pred_rows = []
             for tps in df["id_tps"].unique():
                 last_data = df[df["id_tps"] == tps].iloc[-3:]
@@ -1210,7 +1211,7 @@ elif mode == "Prediksi Volume Sampah":
             # Ambil bulan prediksi pertama (bulan depan)
             next_month = future_df["tanggal"].min()
             
-            # Hitung top 5 untuk bulan depan saja
+            #  top 5 untuk bulan depan 
             high_pred_next = (
                 future_df[future_df["tanggal"] == next_month]
                 .groupby("id_tps")["Prediksi_Volume_kg"]
@@ -1219,7 +1220,6 @@ elif mode == "Prediksi Volume Sampah":
                 .head(5)
             )
             
-            # Format nama periode
             periode_awal = future_df["tanggal"].min().strftime("%b %Y")
             periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
             
@@ -1249,17 +1249,15 @@ elif mode == "Prediksi Volume Sampah":
                 
         st.markdown("#### Insight")
         
-        # Pastikan kolom tanggal bertipe datetime
         histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
         future_df["tanggal"] = pd.to_datetime(future_df["tanggal"])
         
-        # Tentukan periode otomatis dari data
+        # periode dari data
         periode_hist_awal = histori_df["tanggal"].min().strftime("%b %Y")
         periode_hist_akhir = histori_df["tanggal"].max().strftime("%b %Y")
         periode_pred_awal = future_df["tanggal"].min().strftime("%b %Y")
         periode_pred_akhir = future_df["tanggal"].max().strftime("%b %Y")
         
-        # Salin data untuk manipulasi
         actual_df = histori_df.copy()
         pred_df = future_df.copy()
         
@@ -1281,7 +1279,7 @@ elif mode == "Prediksi Volume Sampah":
             trend_status = "tidak tersedia"
             diff = 0
         
-        # Tampilkan insight utama
+        #  insight 
         st.write(
             f"- Total volume sampah kota selama {len(trend_total)} bulan diprediksi **{trend_status}** dari "
             f"**{periode_pred_awal}** hingga **{periode_pred_akhir}** "
@@ -1343,7 +1341,7 @@ elif mode == "Prediksi Volume Sampah":
                     f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
                 )
                 
-                # Pastikan pred_df sudah ada dan tanggal bertipe datetime
+                # pred_df sudah ada dan tanggal bertipe datetime
                 pred_df["tanggal"] = pd.to_datetime(pred_df["tanggal"])
                 
                 # Hitung total dan rata-rata volume prediksi per bulan
@@ -1353,7 +1351,6 @@ elif mode == "Prediksi Volume Sampah":
                     .reset_index()
                 )
                 
-                # Konversi periode kembali ke datetime untuk tampilan
                 monthly_summary["bulan"] = monthly_summary["tanggal"].dt.to_timestamp()
                 
                 # Hitung selisih bulan ke bulan
@@ -1367,6 +1364,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
