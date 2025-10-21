@@ -65,6 +65,10 @@ html, body, .main, .block-container {
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
+a.menu-link {
+    text-decoration: none;
+}
+
 /*  HEADER  */
 h1, h2, h3 {
     color: #000000 !important;
@@ -188,32 +192,24 @@ menu_items = {
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Set default halaman pertama kali dibuka
+# Inisialisasi halaman aktif
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# Loop setiap item menu
-for key, label in menu_items.items():
-    is_active = st.session_state.active_menu == key  # cek halaman aktif
-    card_class = "menu-card active" if is_active else "menu-card"
+st.sidebar.markdown("""
 
-    #   navigasi
-    if st.sidebar.button(label, key=f"btn_{key}"):
+
+for key, label in menu_items.items():
+    is_active = st.session_state.active_menu == key
+    card_class = "menu-card active" if is_active else "menu-card"
+    
+    # Tombol klik 
+    if st.sidebar.button(label, key=f"menu_{key}"):
         st.session_state.active_menu = key
         st.experimental_rerun()
 
-    st.sidebar.markdown(
-        f"""
-        <div class="{card_class}" style="margin-top:-44px; margin-bottom:8px;">{label}</div>
-        """,
-        unsafe_allow_html=True
-    )
-
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-
-# Simpan halaman aktif ke variabel "mode"
-mode = st.session_state.get("active_menu", "Dashboard Data")
-
+mode = st.session_state.active_menu
 
 # dataset
 st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
@@ -234,7 +230,6 @@ Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengang
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
-
 
 # MODE: Dashboard Data 
 if mode == "Dashboard Data":
@@ -1366,6 +1361,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
