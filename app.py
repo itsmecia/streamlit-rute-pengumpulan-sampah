@@ -1369,7 +1369,8 @@ elif mode == "Prediksi Volume Sampah":
                         f"Penurunan terbesar diperkirakan pada **{bulan_max_dec}**, "
                         f"turun sekitar **{abs(nilai_max_dec):,.2f} kg** dibanding bulan sebelumnya."
                     )
-                 st.markdown("---")   
+                    
+                st.markdown("---")   
                  #  Top 5 TPS Berdasarkan Prediksi
                 if not future_df.empty:
                     high_pred = (
@@ -1434,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
