@@ -1275,20 +1275,23 @@ elif mode == "Prediksi Volume Sampah":
                 # Tentukan durasi periode prediksi
                 pred_start = pd.to_datetime(pred_df["tanggal"].min())
                 pred_end = pd.to_datetime(pred_df["tanggal"].max())
+                periode_pred_awal = pred_start.strftime("%b %Y")
+                periode_pred_akhir = pred_end.strftime("%b %Y")
+            
+                # Hitung jumlah hari di periode prediksi
                 pred_duration = (pred_end - pred_start).days + 1
             
-                # Ambil periode aktual dengan panjang waktu yang sama sebelum prediksi
+                # Ambil periode aktual dengan panjang yang sama (langsung sebelum prediksi)
                 actual_end = pred_start - pd.Timedelta(days=1)
                 actual_start = actual_end - pd.Timedelta(days=pred_duration - 1)
             
-                # Filter data aktual periode pembanding
                 actual_period = actual_df[
                     (pd.to_datetime(actual_df["tanggal"]) >= actual_start)
                     & (pd.to_datetime(actual_df["tanggal"]) <= actual_end)
                 ]
             
                 if not actual_period.empty:
-                    # Hitung total dan rata-rata
+                    # Hitung total & rata-rata
                     total_pred = pred_df["Prediksi_Volume_kg"].sum()
                     total_actual = actual_period["Volume_kg"].sum()
                     diff = total_pred - total_actual
@@ -1298,13 +1301,10 @@ elif mode == "Prediksi Volume Sampah":
                     mean_actual = actual_period["Volume_kg"].mean()
                     mean_diff = mean_pred - mean_actual
             
-                    # Format tanggal
+                    # Format tanggal untuk ditampilkan
                     periode_hist_awal = actual_start.strftime("%b %Y")
                     periode_hist_akhir = actual_end.strftime("%b %Y")
-                    periode_pred_awal = pred_start.strftime("%b %Y")
-                    periode_pred_akhir = pred_end.strftime("%b %Y")
             
-                    st.markdown("### Insight Prediksi (Periode Sama Panjang)")
                     st.write(
                         f"Selama periode **{(pred_duration//30)} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
                         f"total volume sampah kota diprediksi **{trend_status} sebesar {abs(diff):,.2f} kg** "
@@ -1321,14 +1321,14 @@ elif mode == "Prediksi Volume Sampah":
             
                     if mean_diff > 0:
                         st.write(
-                            f"- Rata-rata harian prediksi sedikit lebih tinggi (+{mean_diff:.2f} kg/hari) dibandingkan periode sebelumnya."
+                            f"- Volume prediksi rata-rata **{mean_diff:.2f} kg lebih tinggi** dibandingkan periode sebelumnya."
                         )
                     elif mean_diff < 0:
                         st.write(
-                            f"- Rata-rata harian prediksi lebih rendah ({abs(mean_diff):.2f} kg/hari) dibandingkan periode sebelumnya."
+                            f"- Volume prediksi rata-rata **{abs(mean_diff):.2f} kg lebih rendah** dibandingkan periode sebelumnya."
                         )
                     else:
-                        st.write("- Rata-rata harian prediksi sama dengan periode sebelumnya.")
+                        st.write("- Volume prediksi rata-rata sama dengan periode sebelumnya.")
                 else:
                     st.warning("Data aktual untuk periode pembanding tidak tersedia.")
             else:
@@ -1449,6 +1449,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
