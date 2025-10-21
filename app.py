@@ -37,29 +37,9 @@ html, body, .main, .block-container {
     text-align: center;
 }
 
-# NAVBAR / HEADER ATAS
-header[data-testid="stHeader"] {
-    background: linear-gradient(to right, #c8e6c9, #DFFDDF) !important;
-    border-bottom: 1px solid #a5d6a7 !important;
-    color: #000000 !important;
-}
-
-header[data-testid="stHeader"] div[role="banner"] {
-    background: linear-gradient(to right, #c8e6c9, #DFFDDF) !important;
-    color: #000000 !important;
-}
-
-/* Pastikan konten gak nabrak navbar */
-section[data-testid="stSidebar"], .block-container {
-    margin-top: 0 !important;
-}
-main {
-    margin-top: 0 !important;
-}
-
 /* NAVIGASI CARD  */
 .menu-card {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: #FFFFFF !important;
     border: 1px solid #a5d6a7;
     border-radius: 12px;
     padding: 14px;
@@ -73,16 +53,30 @@ main {
 }
 
 .menu-card:hover {
-    background-color: #c8e6c9;
+    background-color: #c8e6c9 !important;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     transform: translateY(-3px);
 }
 
 .menu-card.active {
-    background-color: #81c784;
+    background-color: #81c784 !important;
     color: white;
     font-weight: 600;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+# filter box
+div[data-baseweb="select"], 
+div[data-baseweb="input"], 
+div[data-baseweb="textarea"], 
+div[data-testid="stMultiSelect"], 
+div[data-testid="stSelectbox"], 
+div[data-testid="stTextInput"], 
+div[data-testid="stNumberInput"] {
+    background-color: #FFFFFF !important;
+    border-radius: 10px;
+    border: 1px solid #a5d6a7 !important;
+    color: #000000 !important;
 }
 
 /*  HEADER  */
@@ -97,7 +91,7 @@ h1, h2, h3 {
 
 /*  INFO CARD  */
 .info-card {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #FFFFFF !important;
     border-radius: 10px;
     padding: 12px 16px;
     margin-top: 10px;
@@ -1373,6 +1367,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
