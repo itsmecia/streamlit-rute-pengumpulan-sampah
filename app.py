@@ -188,24 +188,29 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi</h1>", unsafe_allow_html=True)
 
-# --- Daftar Menu
+# === Menu Utama ===
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# --- Inisialisasi menu aktif pertama kali
+# === Default halaman pertama
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# --- CSS GLOBAL sekali saja
+# === Fungsi navigasi
+def set_active(menu_name):
+    st.session_state.active_menu = menu_name
+    st.rerun()
+
+# === Styling Global (sekali saja)
 st.markdown("""
 <style>
 div[data-testid="stSidebar"] button {
     border-radius: 10px;
     text-align: left;
-    padding: 10px 16px;
+    padding: 10px 14px;
     margin-top: 6px;
     transition: all 0.2s ease-in-out;
     border: 1px solid #a5d6a7;
@@ -217,19 +222,18 @@ div[data-testid="stSidebar"] button:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Render tombol menu
+# === Render tombol menu ===
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
 
-    # Warna tombol aktif
-    bg_color = "#388e3c" if is_active else "#ffffff"
+    bg_color = "#2e7d32" if is_active else "#ffffff"
     text_color = "white" if is_active else "#2e7d32"
     font_weight = "700" if is_active else "500"
+    shadow = "0 3px 6px rgba(0,0,0,0.2)" if is_active else "none"
 
-    # Tombol sidebar
     clicked = st.sidebar.button(label, key=f"btn_{key}", use_container_width=True)
 
-    # CSS tombol aktif (langsung tampil tanpa perlu hover)
+    # Terapkan warna berbeda untuk tombol aktif
     st.markdown(
         f"""
         <style>
@@ -237,7 +241,7 @@ for key, label in menu_items.items():
             background-color: {bg_color};
             color: {text_color};
             font-weight: {font_weight};
-            box-shadow: {'0 3px 6px rgba(0,0,0,0.2)' if is_active else 'none'};
+            box-shadow: {shadow};
         }}
         </style>
         """,
@@ -245,10 +249,9 @@ for key, label in menu_items.items():
     )
 
     if clicked:
-        st.session_state.active_menu = key
-        st.rerun()
+        set_active(key)
 
-# --- Tentukan halaman aktif
+# === Halaman Aktif Sekarang ===
 mode = st.session_state.active_menu
 
 
@@ -1425,6 +1428,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
