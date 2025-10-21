@@ -196,22 +196,23 @@ menu_items = {
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-st.sidebar.markdown("""
-
-
+# Loop menu navigasi
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
     card_class = "menu-card active" if is_active else "menu-card"
     
-    # Tombol klik 
+    # Tombol klik navigasi
     if st.sidebar.button(label, key=f"menu_{key}"):
         st.session_state.active_menu = key
         st.experimental_rerun()
 
+# Garis pemisah
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+
+# Mode halaman aktif
 mode = st.session_state.active_menu
 
-# dataset
+# Info dataset
 st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
 <div class='info-card'>
@@ -1361,6 +1362,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
