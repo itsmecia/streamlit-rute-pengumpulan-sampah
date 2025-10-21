@@ -106,16 +106,7 @@ h1, h2, h3 {
     100% {opacity: 1; transform: translateY(0);}
 }
 
-/* ====== SCROLLBAR ====== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-thumb {
-    background: #81c784;
-    border-radius: 10px;
-}
-
-/*  SCROLLBAR  */
+/* SCROLLBAR */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -209,51 +200,41 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 # sidebar
 st.sidebar.markdown("<h2>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
+# Daftar menu
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Inisialisasi halaman aktif
+# Set default halaman pertama kali dibuka
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
+# Loop setiap item menu
 for key, label in menu_items.items():
-    is_active = st.session_state.active_menu == key
-    button_style = """
-        background-color: #81c784;
-        color: white;
-        font-weight: 600;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-        """ if is_active else """
-        background-color: #FFFFFF;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        """
+    is_active = st.session_state.active_menu == key  # cek halaman aktif
+    card_class = "menu-card active" if is_active else "menu-card"
 
-    if st.sidebar.button(
-        label,
-        key=f"btn_{key}",
-        use_container_width=True
-    ):
+    #   navigasi
+    if st.sidebar.button(label, key=f"btn_{key}"):
         st.session_state.active_menu = key
-        st.rerun()
+        st.experimental_rerun()
 
-    st.markdown(f"""
-        <style>
-        div[data-testid="stSidebar"] button[kind="secondary"][key="btn_{key}"] {{
-            {button_style}
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+    st.sidebar.markdown(
+        f"""
+        <div class="{card_class}" style="margin-top:-44px; margin-bottom:8px;">{label}</div>
+        """,
+        unsafe_allow_html=True
+    )
 
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 
-#  INFO DATASET DI SIDEBAR
+# Simpan halaman aktif ke variabel "mode"
+mode = st.session_state.get("active_menu", "Dashboard Data")
+
+
+# dataset
 st.sidebar.markdown("<h3>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
 <div class='info-card'>
@@ -1404,6 +1385,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
