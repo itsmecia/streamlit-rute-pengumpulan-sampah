@@ -1327,6 +1327,10 @@ elif mode == "Prediksi Volume Sampah":
         else:
             trend_status = "tidak tersedia"
             diff = 0
+            
+        # Tampilkan tabel ringkasan
+        st.markdown("#### Tabel Ringkasan Prediksi per Bulan")
+        st.dataframe(monthly_summary[["bulan", "total_volume", "avg_daily_volume", "selisih"]])    
         
         #  insight 
         st.write(
@@ -1405,14 +1409,12 @@ elif mode == "Prediksi Volume Sampah":
                 # Hitung selisih bulan ke bulan
                 monthly_summary["selisih"] = monthly_summary["total_volume"].diff()
                 
-                # Tampilkan tabel ringkasan
-                st.markdown("#### Tabel Ringkasan Prediksi per Bulan")
-                st.dataframe(monthly_summary[["bulan", "total_volume", "avg_daily_volume", "selisih"]])
 
                 
             
             
     
+
 
 
 
