@@ -186,56 +186,64 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 #sidebar
 st.sidebar.markdown("<h1 style='text-align:center;'>📋 Navigasi</h1>", unsafe_allow_html=True)
 
-# menu utama
 menu_items = [
     "Dashboard Data",
     "Jadwal & Rute",
     "Prediksi Volume Sampah"
 ]
 
-# Inisialisasi session_state
-if "active_menu" not in st.session_state or st.session_state.active_menu not in menu_items:
-    st.session_state.active_menu = menu_items[0]  # Default ke menu pertama
-    
-# CSS Radio button
-st.markdown(""" 
-<style> 
-div[role="radiogroup"] > label { 
-    border: 1px solid #A5D6A7; 
-    border-radius: 10px; 
-    padding: 10px 14px; 
-    margin-top: 6px; 
-    color: #2E7D32; 
-    background-color: #FFFFFF; 
-    transition: all 0.25s ease-in-out; 
-    font-weight: 500; 
-} 
+if "active_menu" not in st.session_state:
+    st.session_state.active_menu = menu_items[0]
 
-/* Hover */ 
-div[role="radiogroup"] > label:hover { 
-    background-color: #C8E6C9 !important; 
-    color: #1B5E20 !important; 
-    transform: scale(1.02); 
-} 
+# CSS untuk radio button 
+st.markdown("""
+<style>
+/* === RADIO BUTTON === */
+div[role="radiogroup"] > label {
+    border: 1px solid #A5D6A7;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 6px;
+    color: #2E7D32;
+    background-color: #FFFFFF;
+    transition: all 0.25s ease-in-out;
+    font-weight: 500;
+}
+div[role="radiogroup"] > label:hover {
+    background-color: #C8E6C9 !important;
+    color: #1B5E20 !important;
+    transform: scale(1.02);
+}
+div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
+    background-color: #66BB6A !important;
+    color: white !important;
+    border: 1px solid #43A047;
+    box-shadow: 0 3px 10px rgba(102, 187, 106, 0.4);
+    font-weight: 600;
+    transform: scale(1.03);
+}
 
-div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] { 
-    background-color: #66BB6A !important; 
-    color: white !important; 
-    border: 1px solid #43A047; 
-    box-shadow: 0 3px 10px rgba(102, 187, 106, 0.4); 
-    font-weight: 600; 
-    transform: scale(1.03); 
-} 
-</style> 
+/* === ANIMASI HALAMAN === */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.page-transition {
+    animation: fadeInUp 0.5s ease-in-out;
+}
+</style>
 """, unsafe_allow_html=True)
 
-default_index = (
-    menu_items.index(st.session_state.active_menu)
-    if st.session_state.active_menu in menu_items
-    else 0
-)
+#  default index
+default_index = menu_items.index(st.session_state.active_menu)
 
-# radio
+# Radio menu navigasi
 selected = st.sidebar.radio(
     "Pilih Halaman",
     menu_items,
@@ -243,12 +251,14 @@ selected = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
-#  menu aktif ke session_state
-st.session_state.active_menu = selected
+# Update session_state
+if selected != st.session_state.active_menu:
+    st.session_state.active_menu = selected
 
-# mode aktif 
+# Mode aktif
 mode = st.session_state.active_menu
 
+st.markdown("<div class='page-transition'>", unsafe_allow_html=True)
 
 # dayaset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
@@ -1423,6 +1433,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
