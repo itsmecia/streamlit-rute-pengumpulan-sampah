@@ -17,49 +17,107 @@ st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide
 st.markdown("""
 <style>
 /* WARNA DASAR*/
-html, body, .main, .block-container {
+html, body, .main, .block-container:not([data-testid="stSidebar"]) {
     background-color: #E7F5F5 !important;
     font-family: 'Poppins', sans-serif;
-    color: #000000 !important;
+    color: #000000 !important; /* Hitam hanya untuk area utama */
 }
 
-/* SIDEBAR*/
+/* === SIDEBAR === */
 [data-testid="stSidebar"] {
     background: linear-gradient(to bottom right, #E7F5F5, #E1F5E1);
     padding: 20px 10px 60px 10px;
     border-right: 2px solid #B5E0B7;
 }
 
+/* Semua teks di sidebar → hijau tua */
+[data-testid="stSidebar"], 
+[data-testid="stSidebar"] * {
+    color: #1B4D3E !important;
+}
+
+/* Header di sidebar */
 [data-testid="stSidebar"] h1, 
 [data-testid="stSidebar"] h2, 
 [data-testid="stSidebar"] h3 {
-    color: #1b4d3e !important;
+    color: #1B4D3E !important;
     text-align: center;
+    font-weight: 700;
 }
 
-/* NAVIGASI CARD  */
+/* === RADIO BUTTON NAVIGASI === */
+div[role="radiogroup"] {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+div[role="radiogroup"] > label {
+    border: 1px solid #A5D6A7 !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    margin-top: 4px !important;
+    background-color: #FFFFFF !important;
+    transition: all 0.25s ease-in-out;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* teks di dalam label radio */
+div[role="radiogroup"] > label span {
+    color: #1B4D3E !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+/* Hover */
+div[role="radiogroup"] > label:hover {
+    background-color: #C8E6C9 !important;
+    transform: scale(1.02);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+div[role="radiogroup"] > label:hover span {
+    color: #0D3B29 !important;
+    font-weight: 600 !important;
+}
+
+/* Aktif (dipilih) */
+div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
+    background: linear-gradient(to right, #66BB6A, #43A047) !important;
+    border: 1px solid #2E7D32 !important;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4) !important;
+    transform: scale(1.04);
+}
+div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] span {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+/* === NAVIGASI CARD (opsional selain radio) === */
 .menu-card {
     background-color: #FFFFFF !important;
-    border: 1px solid #a5d6a7;
+    border: 1px solid #A5D6A7;
     border-radius: 12px;
     padding: 14px;
     margin: 10px 0;
     text-align: center;
     transition: all 0.3s ease;
     font-weight: 500;
-    color: #2e7d32;
+    color: #2E7D32;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .menu-card:hover {
-    background-color: #c8e6c9 !important;
+    background-color: #C8E6C9 !important;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     transform: translateY(-3px);
 }
 
 .menu-card.active {
-    background-color: #81c784 !important;
+    background-color: #81C784 !important;
     color: white !important;
     font-weight: 600;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
@@ -69,38 +127,35 @@ a.menu-link {
     text-decoration: none;
 }
 
-/*  HEADER  */
+/* === HEADER (KONTEN UTAMA) === */
 h1, h2, h3 {
     color: #000000 !important;
 }
 
-/*  METRIK  */
+/* === METRIK === */
 [data-testid="stMetricValue"] {
-    color: #2e7d32 !important;
+    color: #2E7D32 !important;
 }
 
-/*  INFO CARD  */
+/* === INFO CARD === */
 .info-card {
     background-color: #FFFFFF !important;
     border-radius: 10px;
     padding: 12px 16px;
     margin-top: 10px;
     font-size: 14px;
-    color: #1b4d3e;
+    color: #1B4D3E;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-
-/* SCROLLBAR */
+/* === SCROLLBAR === */
 ::-webkit-scrollbar {
     width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-    background: #81c784;
+    background: #81C784;
     border-radius: 10px;
 }
-
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -199,50 +254,6 @@ menu_items = [
 if "active_menu" not in st.session_state or st.session_state.active_menu not in menu_items:
     st.session_state.active_menu = menu_items[0]  # Default ke menu pertama
 
-# CSS Radio button
-st.markdown("""
-<style>
-div[role="radiogroup"] > label {
-    border: 1px solid #A5D6A7 !important;
-    border-radius: 10px !important;
-    padding: 10px 14px !important;
-    margin-top: 6px !important;
-    background-color: #FFFFFF !important;
-    transition: all 0.25s ease-in-out;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-/* teks di dalam label */
-div[role="radiogroup"] > label span {
-    color: #1B4D3E !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-}
-
-/* Hover */
-div[role="radiogroup"] > label:hover {
-    background-color: #C8E6C9 !important;
-    transform: scale(1.03);
-}
-div[role="radiogroup"] > label:hover span {
-    color: #0D3B29 !important;
-    font-weight: 600 !important;
-}
-
-/* Aktif (dipilih) */
-div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
-    background-color: #388E3C !important;
-    border: 1px solid #2E7D32 !important;
-    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4) !important;
-    transform: scale(1.05);
-}
-div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] span {
-    color: #FFFFFF !important;
-    font-weight: 700 !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 default_index = (
     menu_items.index(st.session_state.active_menu)
@@ -1438,6 +1449,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
