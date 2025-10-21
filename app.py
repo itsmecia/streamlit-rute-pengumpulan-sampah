@@ -182,30 +182,61 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
     except Exception:
         pass
     
-# sidebar
-st.sidebar.markdown("<h2 class='sidebar-title'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
+#sidebar
+st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
-# Daftar halaman
-pages = {
-    "📍 Dashboard Data": "dashboard",
-    "🚛 Jadwal & Rute": "rute",
-    "📈 Prediksi Volume": "prediksi"
+# Daftar menu
+menu_items = {
+    "Dashboard Data": "📍 Dashboard Data",
+    "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
+    "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# State aktif
-if "page" not in st.session_state:
-    st.session_state.page = "dashboard"
+# Inisialisasi menu aktif
+if "active_menu" not in st.session_state:
+    st.session_state.active_menu = "Dashboard Data"
 
-# Render tombol menu
-for label, key in pages.items():
-    active_class = "menu-active" if st.session_state.page == key else "menu-item"
-    if st.sidebar.button(label, key=key):
-        st.session_state.page = key
-    st.sidebar.markdown(f"<div class='{active_class}'>{label}</div>", unsafe_allow_html=True)
+# Fungsi untuk ubah halaman aktif
+def set_active(menu_name):
+    st.session_state.active_menu = menu_name
+    st.rerun()
+
+# Render tombol navigasi sebagai card
+for key, label in menu_items.items():
+    is_active = st.session_state.active_menu == key
+    button_class = "menu-card active" if is_active else "menu-card"
+
+    # Tombol interaktif Streamlit
+    if st.sidebar.button(label, key=key, use_container_width=True):
+        set_active(key)
+
+    # Tambahkan gaya CSS untuk tombol aktif
+    st.sidebar.markdown(
+        f"""
+        <style>
+        div[data-testid="stSidebar"] button[kind="secondary"][key="{key}"] {{
+            background-color: {'#81c784' if is_active else '#FFFFFF'} !important;
+            color: {'white' if is_active else '#2e7d32'} !important;
+            border: 1px solid #a5d6a7 !important;
+            border-radius: 12px !important;
+            font-weight: {'600' if is_active else '500'} !important;
+            margin-top: 6px !important;
+            box-shadow: {'0 3px 8px rgba(0,0,0,0.3)' if is_active else '0 2px 4px rgba(0,0,0,0.1)'} !important;
+            transition: all 0.2s ease-in-out !important;
+        }}
+        div[data-testid="stSidebar"] button[kind="secondary"][key="{key}"]:hover {{
+            background-color: #c8e6c9 !important;
+            transform: translateY(-2px);
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 # dataset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
+
 st.sidebar.markdown(f'''
 <div style="background-color:#fff; border-radius:10px; padding:12px; margin-top:12px;
 font-size:14px; color:#1b4d3e; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
@@ -222,6 +253,8 @@ st.sidebar.markdown("""
 Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
 </div>
 """, unsafe_allow_html=True)
+
+mode = st.session_state.active_menu
 
 
 # MODE: Dashboard Data 
@@ -1354,6 +1387,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
