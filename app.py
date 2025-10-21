@@ -211,7 +211,7 @@ st.sidebar.markdown(f"""
 
 st.sidebar.markdown("""
 <div style='text-align:center; font-size:12px; margin-top:15px; opacity:0.7'>
-Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
+Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah di Delhi, India.
 </div>
 """, unsafe_allow_html=True)
 
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
