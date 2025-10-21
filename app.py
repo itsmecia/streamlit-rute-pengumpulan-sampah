@@ -65,18 +65,6 @@ html, body, .main, .block-container {
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
-div[data-baseweb="select"], 
-.stMultiSelect, 
-.stSelectbox, 
-.stSlider, 
-.stTextInput, 
-.stNumberInput {
-    background-color: white !important;
-    border-radius: 10px;
-    padding: 5px !important;
-    border: 1px solid #a5d6a7 !important;
-}
-
 /*  HEADER  */
 h1, h2, h3 {
     color: #000000 !important;
@@ -98,13 +86,6 @@ h1, h2, h3 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.main {
-    animation: fadeIn 0.5s ease-in-out;
-}
-@keyframes fadeIn {
-    0% {opacity: 0; transform: translateY(8px);}
-    100% {opacity: 1; transform: translateY(0);}
-}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar {
@@ -1385,6 +1366,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
