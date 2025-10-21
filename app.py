@@ -185,30 +185,24 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
 # sidebar
 st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
 
-# --- Definisi menu ---
+# Daftar menu
 menu_items = {
     "Dashboard Data": "📍 Dashboard Data",
     "Jadwal & Rute Pengangkutan": "🚛 Jadwal & Rute",
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# --- Inisialisasi menu aktif (default Dashboard Data) ---
+# Inisialisasi menu aktif (default Dashboard)
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# --- CSS Sidebar Lengkap ---
+# CSS Sidebar
 st.markdown("""
 <style>
 [data-testid="stSidebar"] {
     background: linear-gradient(to bottom right, #c8e6c9, #DFFDDF);
     padding: 20px 15px 40px 15px;
     border-right: 2px solid #a5d6a7;
-}
-.sidebar-title {
-    text-align: center;
-    color: #1b4d3e;
-    font-weight: 600;
-    font-size: 20px;
 }
 .menu-card {
     display: block;
@@ -235,48 +229,53 @@ st.markdown("""
     font-weight: 600;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
-a.menu-link {
-    text-decoration: none !important;
-    display: block;
-    color: inherit !important;
-}
-.info-card {
-    background-color: #ffffff !important;
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 12px;
-    font-size: 14px;
-    color: #1b4d3e;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-thumb {
-    background: #81c784;
-    border-radius: 10px;
-}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Render tombol navigasi (dengan highlight aktif) ---
+# Render tombol navigasi
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
     button_class = "menu-card active" if is_active else "menu-card"
-    button_html = f"""
-        <a class='menu-link' href='#' onclick="window.location.reload()">
-            <div class='{button_class}' id='{key}'>{label}</div>
-        </a>
-    """
-    if st.sidebar.button(label, key=f"btn_{key}"):
-        st.session_state.active_menu = key
-        st.experimental_rerun()
 
-# --- Info dataset ---
+    # Jika diklik, ubah menu aktif
+    if st.sidebar.markdown(
+        f"<div class='{button_class}' onclick=\"window.parent.postMessage({{'type':'menu_click','key':'{key}'}}, '*')\">{label}</div>",
+        unsafe_allow_html=True,
+    ):
+        pass
+
+# JS untuk menangani klik (biar rerun bisa jalan)
+st.markdown("""
+<script>
+window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (data.type === 'menu_click') {
+        const streamlitDoc = window.parent.document;
+        streamlitDoc.dispatchEvent(new CustomEvent("streamlit_set_menu", { detail: data.key }));
+    }
+});
+</script>
+""", unsafe_allow_html=True)
+
+# Simpan klik ke session_state
+def handle_menu_click():
+    import streamlit as st_jscode
+    if st_jscode.session_state.get("clicked_menu"):
+        st.session_state.active_menu = st_jscode.session_state.clicked_menu
+        st_jscode.session_state.clicked_menu = None
+        st.rerun()
+
+# Mode halaman aktif
+mode = st.session_state.active_menu
+
+# =========================
+# 🗂️ INFO DATASET
+# =========================
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
-<div class='info-card'>
+<div style='background-color:#fff;border-radius:10px;padding:12px;margin-top:12px;
+font-size:14px;color:#1b4d3e;box-shadow:0 2px 6px rgba(0,0,0,0.1);'>
 <b>tps.csv</b> – {len(tps_df)} baris<br>
 <b>tpa.csv</b> – {len(tpa_df)} baris<br>
 <b>histori_rute.csv</b> – {len(histori_df)} baris<br>
@@ -285,17 +284,13 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+
 st.sidebar.markdown("""
 <div style='text-align:center; font-size:12px; margin-top:15px; opacity:0.7'>
 Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
 </div>
 """, unsafe_allow_html=True)
 
-# --- Mode halaman aktif ---
-mode = st.session_state.active_menu
-
-
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 # MODE: Dashboard Data 
 if mode == "Dashboard Data":
@@ -1427,6 +1422,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
