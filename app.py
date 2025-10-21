@@ -37,6 +37,16 @@ html, body, .main, .block-container {
     text-align: center;
 }
 
+# NAVBAR / HEADER ATAS
+[data-testid="stHeader"] {
+    background: linear-gradient(to bottom right, #c8e6c9, #DFFDDF) !important;
+    border-bottom: 1px solid #a5d6a7;
+}
+
+header[data-testid="stHeader"] {
+    box-shadow: none !important;
+}
+
 /* NAVIGASI CARD  */
 .menu-card {
     background-color: rgba(255, 255, 255, 0.8);
@@ -1353,6 +1363,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
