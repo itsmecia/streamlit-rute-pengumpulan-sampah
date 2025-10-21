@@ -192,45 +192,11 @@ menu_items = {
     "Prediksi Volume Sampah": "📈 Prediksi Volume"
 }
 
-# Inisialisasi menu aktif (default Dashboard)
+# Inisialisasi menu aktif 
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# CSS Sidebar
 st.markdown("""
-<style>
-[data-testid="stSidebar"] {
-    background: linear-gradient(to bottom right, #c8e6c9, #DFFDDF);
-    padding: 20px 15px 40px 15px;
-    border-right: 2px solid #a5d6a7;
-}
-.menu-card {
-    display: block;
-    background-color: #ffffff !important;
-    border: 1px solid #a5d6a7;
-    border-radius: 12px;
-    padding: 12px 0;
-    margin: 8px 0;
-    text-align: center;
-    font-weight: 500;
-    color: #2e7d32;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.menu-card:hover {
-    background-color: #c8e6c9 !important;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-.menu-card.active {
-    background-color: #81c784 !important;
-    color: white !important;
-    font-weight: 600;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-}
-</style>
-""", unsafe_allow_html=True)
 
 # Render tombol navigasi
 for key, label in menu_items.items():
@@ -244,7 +210,7 @@ for key, label in menu_items.items():
     ):
         pass
 
-# JS untuk menangani klik (biar rerun bisa jalan)
+# JS 
 st.markdown("""
 <script>
 window.addEventListener('message', (event) => {
@@ -268,9 +234,7 @@ def handle_menu_click():
 # Mode halaman aktif
 mode = st.session_state.active_menu
 
-# =========================
-# 🗂️ INFO DATASET
-# =========================
+# dataset
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<h3 style='text-align:center;'>📂 Info Dataset</h3>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
@@ -1422,6 +1386,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
