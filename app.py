@@ -89,6 +89,35 @@ h1, h2, h3 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
 } 
 
+div[data-baseweb="select"] > div {
+    background-color: white !important;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 8px !important;
+    color: #000000 !important;
+}
+
+/* Ubah warna teks di dalam selectbox */
+div[data-baseweb="select"] span {
+    color: #000000 !important;
+}
+
+/* Hover & fokus efek */
+div[data-baseweb="select"]:hover > div {
+    border-color: #82b366 !important;  /* hijau lembut */
+    box-shadow: 0 0 5px rgba(130, 179, 102, 0.5) !important;
+}
+
+div[data-baseweb="select"]:focus-within > div {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.4) !important;
+}
+
+/* Dropdown list background putih juga */
+ul[role="listbox"] {
+    background-color: white !important;
+    color: #000000 !important;
+}
+
 /* SCROLLBAR */ 
 ::-webkit-scrollbar { 
     width: 8px; 
@@ -1423,6 +1452,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
