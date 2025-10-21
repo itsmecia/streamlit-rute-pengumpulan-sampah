@@ -1247,7 +1247,7 @@ elif mode == "Prediksi Volume Sampah":
             st.plotly_chart(fig_future, use_container_width=True)
             
             # Ringkasan
-            st.write("### Statistik Prediksi")
+            st.write("#### Statistik Prediksi")
             st.write(future_df["Prediksi_Volume_kg"].describe())
             
            
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
