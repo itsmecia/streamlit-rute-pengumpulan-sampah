@@ -1018,7 +1018,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         
 # MODE: Prediksi Volume Sampah
 elif mode == "Prediksi Volume Sampah":
-    st.header("### Prediksi Volume Sampah per TPS")
+    st.markdown("#### Prediksi Volume Sampah per TPS")
 
     df = histori_df.copy()
     required_cols = {"tanggal", "id_tps", "latitude", "longitude", "Volume_kg", "kapasitas", "keterisian_%"}
@@ -1325,59 +1325,6 @@ elif mode == "Prediksi Volume Sampah":
                 else:
                     st.write("- Volume prediksi rata-rata sama dengan periode sebelumnya.")
 
-            
-            #  Top 5 TPS Berdasarkan Prediksi
-            if not future_df.empty:
-                high_pred = (
-                    future_df.groupby("id_tps")["Prediksi_Volume_kg"]
-                    .mean()
-                    .sort_values(ascending=False)
-                    .head(5)
-                )
-            
-                next_month = future_df["tanggal"].min()
-                high_pred_next = (
-                    future_df[future_df["tanggal"] == next_month]
-                    .groupby("id_tps")["Prediksi_Volume_kg"]
-                    .mean()
-                    .sort_values(ascending=False)
-                    .head(5)
-                )
-            
-                periode_awal = future_df["tanggal"].min().strftime("%b %Y")
-                periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
-            
-                st.markdown("### Top TPS Berdasarkan Prediksi Volume")
-                colA, colB = st.columns(2)
-            
-                with colA:
-                    st.write(f"**Top 5 TPS dengan Rata-rata Prediksi Tertinggi ({periode_awal} – {periode_akhir}):**")
-                    st.dataframe(
-                        high_pred.reset_index().rename(
-                            columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
-                        ).round(2),
-                        use_container_width=True
-                    )
-                    st.caption(f"Periode rata-rata mencakup seluruh prediksi: {periode_awal} – {periode_akhir}")
-            
-                with colB:
-                    st.write(f"**Top 5 TPS Bulan {next_month.strftime('%B %Y')}:**")
-                    st.dataframe(
-                        high_pred_next.reset_index().rename(
-                            columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Prediksi Bulan Depan (kg)"}
-                        ).round(2),
-                        use_container_width=True
-                    )
-                    st.caption(f"Data ini menunjukkan prediksi untuk bulan terdekat: {next_month.strftime('%B %Y')}")
-            
-                # Tambahan ringkasan TPS tertinggi
-                top_tps_pred = (
-                    future_df.groupby("id_tps")["Prediksi_Volume_kg"]
-                    .mean()
-                    .sort_values(ascending=False)
-                    .head(5)
-                )
-                st.write(f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**.")
     
             #  Ringkasan Prediksi Bulanan
             if not pred_df.empty:
@@ -1398,16 +1345,84 @@ elif mode == "Prediksi Volume Sampah":
                     use_container_width=True
                 )
             
-                # Bulan dengan kenaikan terbesar
-                max_increase = monthly_summary.loc[monthly_summary["selisih"].idxmax()]
-                bulan_max = max_increase["bulan"].strftime("%B %Y")
-                nilai_max = max_increase["selisih"]
-            
-                if nilai_max > 0:
+                # Hitung bulan dengan kenaikan dan penurunan terbesar
+                max_increase_idx = monthly_summary["selisih"].idxmax()
+                max_decrease_idx = monthly_summary["selisih"].idxmin()
+                
+                bulan_max_inc = monthly_summary.loc[max_increase_idx, "bulan"].strftime("%B %Y")
+                nilai_max_inc = monthly_summary.loc[max_increase_idx, "selisih"]
+                
+                bulan_max_dec = monthly_summary.loc[max_decrease_idx, "bulan"].strftime("%B %Y")
+                nilai_max_dec = monthly_summary.loc[max_decrease_idx, "selisih"]
+                
+                # Tampilkan insight singkat
+                st.markdown("#### 📈 Insight Prediksi Bulanan")
+                
+                if nilai_max_inc > 0:
                     st.write(
-                        f"- Kenaikan terbesar diproyeksikan terjadi pada **{bulan_max}**, "
-                        f"naik sebesar **{nilai_max:.2f} kg** dibanding bulan sebelumnya."
+                        f"Kenaikan terbesar diproyeksikan terjadi pada **{bulan_max_inc}**, "
+                        f"naik sebesar **{nilai_max_inc:,.2f} kg** dibanding bulan sebelumnya."
                     )
+                
+                if nilai_max_dec < 0:
+                    st.write(
+                        f"Penurunan terbesar diperkirakan pada **{bulan_max_dec}**, "
+                        f"turun sekitar **{abs(nilai_max_dec):,.2f} kg** dibanding bulan sebelumnya."
+                    )
+                    
+                 #  Top 5 TPS Berdasarkan Prediksi
+                if not future_df.empty:
+                    high_pred = (
+                        future_df.groupby("id_tps")["Prediksi_Volume_kg"]
+                        .mean()
+                        .sort_values(ascending=False)
+                        .head(5)
+                    )
+                
+                    next_month = future_df["tanggal"].min()
+                    high_pred_next = (
+                        future_df[future_df["tanggal"] == next_month]
+                        .groupby("id_tps")["Prediksi_Volume_kg"]
+                        .mean()
+                        .sort_values(ascending=False)
+                        .head(5)
+                    )
+                
+                    periode_awal = future_df["tanggal"].min().strftime("%b %Y")
+                    periode_akhir = future_df["tanggal"].max().strftime("%b %Y")
+                
+                    st.markdown("### Top TPS Berdasarkan Prediksi Volume")
+                    colA, colB = st.columns(2)
+                
+                    with colA:
+                        st.write(f"**Top 5 TPS dengan Rata-rata Prediksi Tertinggi ({periode_awal} – {periode_akhir}):**")
+                        st.dataframe(
+                            high_pred.reset_index().rename(
+                                columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Rata-rata Prediksi (kg)"}
+                            ).round(2),
+                            use_container_width=True
+                        )
+                        st.caption(f"Periode rata-rata mencakup seluruh prediksi: {periode_awal} – {periode_akhir}")
+                
+                    with colB:
+                        st.write(f"**Top 5 TPS Bulan {next_month.strftime('%B %Y')}:**")
+                        st.dataframe(
+                            high_pred_next.reset_index().rename(
+                                columns={"id_tps": "TPS", "Prediksi_Volume_kg": "Prediksi Bulan Depan (kg)"}
+                            ).round(2),
+                            use_container_width=True
+                        )
+                        st.caption(f"Data ini menunjukkan prediksi untuk bulan terdekat: {next_month.strftime('%B %Y')}")
+                
+                    # Tambahan ringkasan TPS tertinggi
+                    top_tps_pred = (
+                        future_df.groupby("id_tps")["Prediksi_Volume_kg"]
+                        .mean()
+                        .sort_values(ascending=False)
+                        .head(5)
+                    )
+                    st.write(f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**.")
+
 
 
   
@@ -1417,6 +1432,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
