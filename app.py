@@ -221,7 +221,6 @@ mode = selected_menu
 
 # MODE: Dashboard Data 
 if mode == "Dashboard Data":
-    st.header("Dashboard Pemantauan TPS & TPA")
 
     # METRIK UTAMA
     col1, col2, col3 = st.columns(3)
@@ -244,6 +243,8 @@ if mode == "Dashboard Data":
     tps_df = compute_keterisian(tps_df)
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
+
+     st.markdown("---")
 
     #  PETA SEBARAN TPS & TPA
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
@@ -1352,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
