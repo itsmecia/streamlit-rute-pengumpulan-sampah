@@ -312,7 +312,7 @@ if mode == "Dashboard Data":
     st.markdown("---")
 
     #  PETA SEBARAN TPS & TPA
-    st.subheader("Peta Sebaran Lokasi TPS dan TPA")
+    st.markdown("#### Peta Sebaran Lokasi TPS dan TPA")
     
     # Filter TPS
     tps_options_map = sorted(tps_df["id_tps"].astype(str).unique().tolist())
@@ -491,7 +491,7 @@ if mode == "Dashboard Data":
     st.markdown("---")
 
     # SCATTER: Kapasitas vs Volume
-    st.subheader("Hubungan Kapasitas vs Volume per TPS")
+    st.markdown("#### Hubungan Kapasitas vs Volume per TPS")
     
     tps_options_scatter = sorted(tps_df["id_tps"].astype(str).unique().tolist())
     selected_tps_scatter = st.multiselect(
@@ -571,7 +571,7 @@ if mode == "Dashboard Data":
     else:
         st.info("Tidak ada data untuk Scatter (TPS tidak dipilih).")
         
-    st.markdown("### Insight")
+    st.markdown("##### Insight")
     if not tps_filtered_scatter.empty:
         avg_fill = tps_filtered_scatter["keterisian_%"].mean()
         penuh = tps_filtered_scatter[tps_filtered_scatter["Status"] == "Penuh"]
@@ -605,7 +605,7 @@ if mode == "Dashboard Data":
     
 
     # TOP 5 TPS
-    st.subheader("Top 5 TPS Berdasarkan Volume dan Persentase Keterisian")
+    st.markdown("#### Top 5 TPS Berdasarkan Volume dan Persentase Keterisian")
 
     # FILTER INPUT (TPS SAJA)
     tps_options_top5 = sorted(histori_df["id_tps"].astype(str).unique().tolist())
@@ -658,7 +658,7 @@ if mode == "Dashboard Data":
         fig_top5.update_traces(texttemplate="%{text:.1f}", textposition="outside")
         st.plotly_chart(fig_top5, use_container_width=True)
 
-        st.markdown("### Insight")
+        st.markdown("##### Insight")
         st.write(f"- Rata-rata {pilihan_kriteria.lower()} dari 5 TPS teratas: **{top5[kolom_sort].mean():.1f}**")
         st.write(f"- TPS teratas: **{top5.iloc[0]['id_tps']}**")
     else:
@@ -666,7 +666,7 @@ if mode == "Dashboard Data":
     st.markdown("---")    
 
 # TREN VOLUME SAMPAH 
-    st.subheader("Tren Volume Sampah Bulanan (Kota)")
+    st.markdown("#### Tren Volume Sampah Bulanan")
     
     # Pilihan filter
     tps_options_tren = sorted(histori_df["id_tps"].unique().tolist())
@@ -700,7 +700,7 @@ if mode == "Dashboard Data":
         st.plotly_chart(fig_trend, use_container_width=True)
     
         # Insight tren
-        st.markdown("### Insight")
+        st.markdown("##### Insight")
         recent_avg = monthly_trend.tail(3)["Volume_kg"].mean() if len(monthly_trend) >= 3 else monthly_trend["Volume_kg"].mean()
         overall_avg = monthly_trend["Volume_kg"].mean()
         st.write(f"- Rata-rata 3 bulan terakhir: **{recent_avg:,.1f} kg/bulan**")
@@ -751,7 +751,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         tpa_truck_map[tpa] = all_trucks[idx:idx + count]
         idx += count
 
-    st.subheader("Daftar Truk & Pembagian Wilayah")
+    st.markdown("#### Daftar Truk & Pembagian Wilayah")
     daftar_truk = []
     for tpa, trucks in tpa_truck_map.items():
         for truk in trucks:
@@ -783,7 +783,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         "volume_saat_ini": "Volume Saat Ini (m³)"
     })
 
-    st.subheader("Jadwal Pengangkutan")
+    st.markdown("#### Jadwal Pengangkutan")
     col1, col2 = st.columns(2)
     with col1:
         selected_truck = st.selectbox("Pilih Truk:", ["Semua"] + all_trucks, key="filter_truk")
@@ -804,7 +804,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
 
 
     # Rute Pengangkutan
-    st.subheader("Rute Pengangkutan")
+    st.markdown("#### Rute Pengangkutan")
     
     tps_options = tps_df["id_tps"].astype(str).unique().tolist()
     selected_tps = st.multiselect("Pilih TPS", tps_options)
@@ -996,7 +996,7 @@ elif mode == "Jadwal & Rute Pengangkutan":
         avg_distance = total_distance / len(segmen_jarak)
         urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
     
-        st.markdown("### Insight Rute")
+        st.markdown("##### Insight Rute")
         if len(selected_tps) == 1:
             # RUTE TUNGGAL
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
@@ -1120,7 +1120,7 @@ elif mode == "Prediksi Volume Sampah":
                 ("cukup" if r2 >= 0.5 else "perlu perbaikan"))
             )
 
-            st.markdown("#### Insight")
+            st.markdown("##### Insight")
             st.write(f"""
             - **Akurasi Model:** R² = {r2:.3f} ({kualitas})
             - **MAE:** {mae:.2f} kg | **MAPE:** {mape:.2f}%
@@ -1251,7 +1251,7 @@ elif mode == "Prediksi Volume Sampah":
             st.write(future_df["Prediksi_Volume_kg"].describe())
             
            
-            st.markdown("#### Insight")
+            st.markdown("##### Insight")
             
             # Pastikan kolom tanggal sudah bertipe datetime
             histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"])
@@ -1356,7 +1356,7 @@ elif mode == "Prediksi Volume Sampah":
                 nilai_max_dec = monthly_summary.loc[max_decrease_idx, "selisih"]
                 
                 # Tampilkan insight singkat
-                st.markdown("#### Insight ")
+                st.markdown("##### Insight ")
                 
                 if nilai_max_inc > 0:
                     st.write(
@@ -1423,7 +1423,7 @@ elif mode == "Prediksi Volume Sampah":
                         .head(5)
                     )
                      
-                    st.markdown("#### Insight ")
+                    st.markdown("##### Insight ")
                     st.write(f"- TPS dengan volume prediksi tertinggi: **{', '.join(top_tps_pred.index)}**.")
 
 
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
