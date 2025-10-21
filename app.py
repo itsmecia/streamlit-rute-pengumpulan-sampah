@@ -196,35 +196,34 @@ menu_items = {
 if "active_menu" not in st.session_state:
     st.session_state.active_menu = "Dashboard Data"
 
-# Fungsi untuk ubah halaman aktif
+# Fungsi ubah menu aktif
 def set_active(menu_name):
     st.session_state.active_menu = menu_name
     st.rerun()
 
-# Render tombol navigasi sebagai card
+# Render tombol navigasi
 for key, label in menu_items.items():
     is_active = st.session_state.active_menu == key
-    button_class = "menu-card active" if is_active else "menu-card"
 
-    # Tombol interaktif Streamlit
-    if st.sidebar.button(label, key=key, use_container_width=True):
+    # Tombol fungsional
+    if st.sidebar.button(label, key=f"menu_{key}", use_container_width=True):
         set_active(key)
 
-    # Tambahkan gaya CSS untuk tombol aktif
+    #  gaya aktif
     st.sidebar.markdown(
         f"""
         <style>
-        div[data-testid="stSidebar"] button[kind="secondary"][key="{key}"] {{
+        div[data-testid="stSidebar"] button[kind="secondary"][key="menu_{key}"] {{
             background-color: {'#81c784' if is_active else '#FFFFFF'} !important;
             color: {'white' if is_active else '#2e7d32'} !important;
             border: 1px solid #a5d6a7 !important;
             border-radius: 12px !important;
             font-weight: {'600' if is_active else '500'} !important;
-            margin-top: 6px !important;
+            margin-top: 8px !important;
             box-shadow: {'0 3px 8px rgba(0,0,0,0.3)' if is_active else '0 2px 4px rgba(0,0,0,0.1)'} !important;
             transition: all 0.2s ease-in-out !important;
         }}
-        div[data-testid="stSidebar"] button[kind="secondary"][key="{key}"]:hover {{
+        div[data-testid="stSidebar"] button[kind="secondary"][key="menu_{key}"]:hover {{
             background-color: #c8e6c9 !important;
             transform: translateY(-2px);
         }}
@@ -253,7 +252,6 @@ st.sidebar.markdown("""
 Sistem ini menggunakan dataset internal untuk pemantauan & optimasi rute pengangkutan sampah.
 </div>
 """, unsafe_allow_html=True)
-
 mode = st.session_state.active_menu
 
 
@@ -1387,6 +1385,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
