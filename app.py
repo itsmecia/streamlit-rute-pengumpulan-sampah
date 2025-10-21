@@ -183,7 +183,7 @@ def add_tps_marker(m, row, style="trash", popup_extra=None, tooltip=None):
         pass
     
 #sidebar
-st.sidebar.markdown("<h2 style='text-align:center;'>📊 Navigasi Sistem</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h1 style='text-align:center;'>📊 Navigasi Sistem</h1>", unsafe_allow_html=True)
 
 # menu
 menu_items = {
@@ -1435,6 +1435,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
