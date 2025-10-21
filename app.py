@@ -1301,7 +1301,8 @@ elif mode == "Prediksi Volume Sampah":
                     f"dibandingkan total volume periode sebelumnya dengan panjang waktu yang sama "
                     f"(**{periode_hist_awal} – {periode_hist_akhir}**)."
                 )
-            
+                st.write(f"DEBUG: total_pred={total_pred:,.2f}, total_actual={total_actual:,.2f}, diff={diff:,.2f}")
+
                 st.write(
                     f"- Rata-rata volume aktual ({periode_hist_awal} – {periode_hist_akhir}): **{mean_actual:.2f} kg/hari**"
                 )
@@ -1413,6 +1414,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
