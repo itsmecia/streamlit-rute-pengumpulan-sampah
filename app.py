@@ -103,12 +103,12 @@ div[data-baseweb="select"] span {
 
 /* Hover & fokus efek */
 div[data-baseweb="select"]:hover > div {
-    border-color: #C8E6C9 !important;  
+    border-color: #addbae !important;  
     box-shadow: 0 0 5px rgba(130, 179, 102, 0.5) !important;
 }
 
 div[data-baseweb="select"]:focus-within > div {
-    border-color: #bee3bf !important;
+    border-color: #b8e0ba !important;
     box-shadow: 0 0 6px rgba(76, 175, 80, 0.4) !important;
 }
 
@@ -1452,6 +1452,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
