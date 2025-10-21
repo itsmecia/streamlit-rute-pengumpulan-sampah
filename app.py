@@ -16,14 +16,14 @@ st.set_page_config(page_title="Analisis Big Data - Rute TPS–TPA", layout="wide
 # Warna dan gaya global
 st.markdown("""
 <style>
-/* ======== WARNA DASAR ======== */
+/* WARNA DASAR*/
 body {
     background: linear-gradient(to bottom right, #e8f5e9, #e3f2fd);
     font-family: 'Poppins', sans-serif;
-    color: #1b4d3e;
+    color: #000000;
 }
 
-/* ======== SIDEBAR ======== */
+/* SIDEBAR*/
 [data-testid="stSidebar"] {
     background: linear-gradient(to bottom right, #c8e6c9, #bbdefb);
     padding: 20px 10px 60px 10px;
@@ -37,7 +37,7 @@ body {
     text-align: center;
 }
 
-/* ======== NAVIGASI CARD ======== */
+/* NAVIGASI CARD  */
 .menu-card {
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid #a5d6a7;
@@ -65,17 +65,17 @@ body {
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 
-/* ======== HEADER ======== */
+/*  HEADER  */
 h1, h2, h3 {
     color: #1b5e20 !important;
 }
 
-/* ======== METRIK ======== */
+/*  METRIK  */
 [data-testid="stMetricValue"] {
     color: #2e7d32 !important;
 }
 
-/* ======== INFO CARD ======== */
+/*  INFO CARD  */
 .info-card {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
@@ -86,7 +86,7 @@ h1, h2, h3 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* ======== SCROLLBAR ======== */
+/*  SCROLLBAR  */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
