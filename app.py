@@ -203,27 +203,33 @@ if "active_menu" not in st.session_state or st.session_state.active_menu not in 
 st.markdown("""
 <style>
 div[role="radiogroup"] > label {
-    border: 1px solid #a5d6a7;
+    border: 1px solid #A5D6A7;             
     border-radius: 10px;
     padding: 10px 14px;
     margin-top: 6px;
-    color: #2e7d32;
-    background-color: white;
-    transition: all 0.2s ease-in-out;
+    color: #1B4D3E !important;              
+    background-color: #FFFFFF;             
+    transition: all 0.25s ease-in-out;
+    font-weight: 500;
+    font-size: 15px;
 }
 
-/* Efek hover */
+
+/* Hover  */
 div[role="radiogroup"] > label:hover {
-    background-color: #81c784 !important;
-    color: white !important;
+    background-color: #C8E6C9 !important;  
+    color: #1B5E20 !important;              
+    transform: scale(1.02);
 }
 
-/* Saat tombol aktif (terpilih) */
+
 div[role="radiogroup"] > label[data-baseweb="radio"][aria-checked="true"] {
-    background-color: #2e7d32 !important;
+    background-color: #66BB6A !important;   
     color: white !important;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid #43A047;              
+    box-shadow: 0 3px 10px rgba(102, 187, 106, 0.4);  
     font-weight: 600;
+    transform: scale(1.03);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1422,6 +1428,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
