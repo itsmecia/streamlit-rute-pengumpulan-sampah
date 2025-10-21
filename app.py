@@ -244,7 +244,7 @@ if mode == "Dashboard Data":
     histori_df["tanggal"] = pd.to_datetime(histori_df["tanggal"], errors="coerce")
     histori_df["bulan"] = histori_df["tanggal"].dt.to_period("M").astype(str)
 
-     st.markdown("---")
+    st.markdown("---")
 
     #  PETA SEBARAN TPS & TPA
     st.subheader("Peta Sebaran Lokasi TPS dan TPA")
@@ -1353,6 +1353,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
