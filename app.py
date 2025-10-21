@@ -76,7 +76,19 @@ h1, h2, h3 {
 /* METRIK */ 
 [data-testid="stMetricValue"] { 
     color: #71AF72 !important; 
-} 
+}
+[data-testid="stMetric"] {
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Menengahkan seluruh container metrik */
+    .center-metric {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+    }
 
 /* INFO CARD */ 
 .info-card { 
@@ -1476,6 +1488,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
