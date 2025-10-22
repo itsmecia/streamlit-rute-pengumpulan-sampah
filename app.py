@@ -1199,7 +1199,7 @@ elif mode == "Prediksi Volume Sampah":
             start_label = future_months[0].strftime("%b %Y")
             end_label = future_months[-1].strftime("%b %Y")
             
-            st.caption(f"Periode prediksi otomatis: **{start_label} – {end_label}**")
+            st.caption(f"Periode prediksi: **{start_label} – {end_label}**")
             
             #  Data Prediksi
             pred_rows = []
@@ -1474,6 +1474,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
