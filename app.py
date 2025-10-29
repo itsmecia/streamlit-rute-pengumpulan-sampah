@@ -117,7 +117,6 @@ div[data-baseweb="select"] > div {
     color: #000000 !important;
 }
 
-/* Ubah warna teks di dalam selectbox */
 div[data-baseweb="select"] span {
     color: #000000 !important;
 }
@@ -133,7 +132,6 @@ div[data-baseweb="select"]:focus-within > div {
     box-shadow: 0 0 6px rgba(76, 175, 80, 0.4) !important;
 }
 
-/* Dropdown list background putih juga */
 ul[role="listbox"] {
     background-color: white !important;
     color: #000000 !important;
@@ -1524,6 +1522,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
