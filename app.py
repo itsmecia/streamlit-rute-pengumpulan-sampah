@@ -1389,16 +1389,15 @@ elif mode == "Prediksi Volume Sampah":
                 st.write(
                     f"Selama periode **{months_diff} bulan ({periode_pred_awal} – {periode_pred_akhir})**, "
                     f"total volume sampah kota diprediksi **{trend_status} sebesar {abs(diff):,.2f} kg** "
-                    f"(setelah dinormalisasi berdasarkan jumlah hari yang sama) "
                     f"dibandingkan total volume periode sebelumnya "
                     f"(**{periode_hist_awal} – {periode_hist_akhir}**)."
                 )
             
                 st.write(
-                    f"- Rata-rata volume aktual ({periode_hist_awal} – {periode_hist_akhir}): **{mean_actual:.2f} kg/hari**"
+                    f"- Rata-rata volume aktual ({periode_hist_awal} – {periode_hist_akhir}): **{mean_actual:.2f} kg**"
                 )
                 st.write(
-                    f"- Rata-rata volume prediksi ({periode_pred_awal} – {periode_pred_akhir}): **{mean_pred:.2f} kg/hari**"
+                    f"- Rata-rata volume prediksi ({periode_pred_awal} – {periode_pred_akhir}): **{mean_pred:.2f} kg**"
                 )
             
                 if mean_diff > 0:
@@ -1522,6 +1521,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
