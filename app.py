@@ -1034,6 +1034,27 @@ elif mode == "Jadwal & Rute":
         total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
         avg_distance = total_distance / len(segmen_jarak)
         urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
+
+        # --- Hitung Jarak Sebelum & Sesudah Optimalisasi ---
+        # Jarak sebelum: urutan TPS sesuai pilihan user (belum diurutkan Greedy)
+        original_order = selected_tps_df.reset_index(drop=True)
+        segmen_awal = []
+        for i in range(len(original_order) - 1):
+            dist_awal = haversine(original_order.iloc[i]["latitude"], original_order.iloc[i]["longitude"],
+                                  original_order.iloc[i+1]["latitude"], original_order.iloc[i+1]["longitude"])
+            segmen_awal.append(dist_awal)
+        # tambahkan jarak dari TPS terakhir ke TPA terdekat
+        dist_awal_tpa = haversine(original_order.iloc[-1]["latitude"], original_order.iloc[-1]["longitude"],
+                                  nearest_tpa["latitude"], nearest_tpa["longitude"])
+        segmen_awal.append(dist_awal_tpa)
+        total_awal = sum(segmen_awal)
+
+        # Hitung penghematan (%)
+        if total_awal > 0:
+            penghematan = (1 - (total_distance / total_awal)) * 100
+        else:
+            penghematan = 0.0
+
     
         st.markdown("##### Insight Rute")
         if len(selected_tps) == 1:
@@ -1041,6 +1062,8 @@ elif mode == "Jadwal & Rute":
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+            st.write(f"- **Total jarak sebelum optimasi:** {total_awal:.2f} km")
+            st.write(f"- **Penghematan jarak:** {penghematan:.2f}%")
             st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
         
         else:
@@ -1048,6 +1071,8 @@ elif mode == "Jadwal & Rute":
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+            st.write(f"- **Total jarak sebelum optimasi:** {total_awal:.2f} km")
+            st.write(f"- **Penghematan jarak:** {penghematan:.2f}%")
             st.write(f"- **Rata-rata jarak antar segmen:** {avg_distance:.2f} km")
             st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
             
@@ -1474,6 +1499,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
