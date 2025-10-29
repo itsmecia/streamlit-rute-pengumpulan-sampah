@@ -1089,6 +1089,8 @@ elif mode == "Jadwal & Rute":
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
+            st.write(f"- **Total jarak sebelum optimasi:** {total_awal:.2f} km")
+            st.write(f"- **Penghematan jarak:** {penghematan:.2f}%")
             st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
         
         else:
@@ -1524,6 +1526,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
