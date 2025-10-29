@@ -552,7 +552,7 @@ if mode == "Dashboard Data":
             50, 100, 85, step=1, key="slider_threshold_scatter"
         )
     
-        # Tambahkan kolom status warna berdasarkan ambang
+        # kolom status warna berdasarkan ambang
         def kategori_warna(x):
             if x >= threshold:
                 return "Penuh"
@@ -595,7 +595,7 @@ if mode == "Dashboard Data":
     
         st.plotly_chart(fig_scatter, use_container_width=True)
     
-        # Tambahkan legenda warna kustom
+        #  legenda 
         legend_html = f"""
         <div style='text-align:center; margin-top:-10px;'>
             <span style='color:green;'>🟢 Aman (&lt; {threshold-10}%)</span> &nbsp;&nbsp;
@@ -1522,6 +1522,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
