@@ -246,7 +246,7 @@ menu_items = [
 
 # Inisialisasi session_state
 if "active_menu" not in st.session_state or st.session_state.active_menu not in menu_items:
-    st.session_state.active_menu = menu_items[0]  # Default ke menu pertama
+    st.session_state.active_menu = menu_items[0]  
     
 # CSS Radio button
 st.markdown(""" 
@@ -1089,8 +1089,6 @@ elif mode == "Jadwal & Rute":
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
-            st.write(f"- **Total jarak sebelum optimasi:** {total_awal:.2f} km")
-            st.write(f"- **Penghematan jarak:** {penghematan:.2f}%")
             st.write(f"- **TPA tujuan akhir:** {nearest_tpa['nama']} ({dist_to_tpa:.2f} km dari TPS terakhir)")
         
         else:
@@ -1383,7 +1381,7 @@ elif mode == "Prediksi Volume Sampah":
                 # Normalisasi berdasarkan jumlah hari yang sama
                 days_pred = (pred_end - pred_start).days + 1
                 total_pred_norm = mean_pred * days_pred
-                total_actual_norm = mean_actual * days_pred  # pakai jumlah hari yang sama
+                total_actual_norm = mean_actual * days_pred  
             
                 diff = total_pred_norm - total_actual_norm
                 trend_status = "meningkat" if diff > 0 else "menurun"
@@ -1526,6 +1524,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
