@@ -1037,7 +1037,7 @@ elif mode == "Jadwal & Rute":
 
         # --- Hitung Jarak Sebelum & Sesudah Optimalisasi ---
         # Jarak sebelum: urutan TPS sesuai pilihan user (belum diurutkan Greedy)
-        original_order = selected_tps_df.reset_index(drop=True)
+        original_order = selected_tps_df.sample(frac=1, random_state=42).reset_index(drop=True)
         segmen_awal = []
         for i in range(len(original_order) - 1):
             dist_awal = haversine(original_order.iloc[i]["latitude"], original_order.iloc[i]["longitude"],
@@ -1068,6 +1068,8 @@ elif mode == "Jadwal & Rute":
         
         else:
             # MULTI RUTE
+            urutan_awal = " ➜ ".join(original_order["id_tps"].astype(str))
+            st.write(f"- **Urutan sebelum optimasi:** {urutan_awal} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
@@ -1499,6 +1501,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
