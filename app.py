@@ -1068,8 +1068,6 @@ elif mode == "Jadwal & Rute":
         
         else:
             # MULTI RUTE
-            urutan_awal = " ➜ ".join(original_order["id_tps"].astype(str))
-            st.write(f"- **Urutan sebelum optimasi:** {urutan_awal} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Rute direkomendasikan:** {urutan_tps} ➜ {nearest_tpa['nama']}")
             st.write(f"- **Truk menangani:** {truk_ditangani}")
             st.write(f"- **Total jarak tempuh:** {total_distance:.2f} km")
@@ -1501,6 +1499,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
