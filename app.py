@@ -901,103 +901,124 @@ elif mode == "Jadwal & Rute":
         st_folium(m, width=1000, height=550)
     
     else:
-        # SESUDAH RUTE DICARI 
         selected_tps_df = tps_df[tps_df["id_tps"].astype(str).isin(selected_tps)].copy()
-    
-        # RUTE GREEDY
         remaining = selected_tps_df.reset_index(drop=True).copy()
         current = remaining.iloc[0]
         route_order = [current]
         remaining = remaining.drop(index=0).reset_index(drop=True)
     
+        # Greedy 
         while not remaining.empty:
-            remaining["jarak"] = np.sqrt(
-                (remaining["latitude"] - current["latitude"])**2 +
-                (remaining["longitude"] - current["longitude"])**2
-            ) * 111
+            remaining["jarak"] = remaining.apply(
+                lambda row: haversine(current["latitude"], current["longitude"],
+                                      row["latitude"], row["longitude"]), axis=1)
             nearest_idx = remaining["jarak"].idxmin()
             nearest = remaining.loc[nearest_idx]
             route_order.append(nearest)
             current = nearest
             remaining = remaining.drop(nearest_idx).reset_index(drop=True)
     
-        route = route_order
-        last = route[-1]
+        route = pd.DataFrame(route_order).reset_index(drop=True)
+    
+        #  hitung total jarak 
+        def total_route_distance(route_df):
+            total = 0
+            for i in range(len(route_df) - 1):
+                total += haversine(route_df.iloc[i]["latitude"], route_df.iloc[i]["longitude"],
+                                   route_df.iloc[i+1]["latitude"], route_df.iloc[i+1]["longitude"])
+            return total
+    
+        #  Algoritma 2-Opt Improvement 
+        def two_opt(route_df):
+            best = route_df.copy()
+            improved = True
+            while improved:
+                improved = False
+                best_distance = total_route_distance(best)
+                for i in range(1, len(best) - 2):
+                    for j in range(i + 1, len(best)):
+                        if j - i == 1:
+                            continue
+                        new_route = best.copy()
+                        new_route.iloc[i:j] = best.iloc[i:j].iloc[::-1].values
+                        new_distance = total_route_distance(new_route)
+                        if new_distance < best_distance:
+                            best = new_route.copy()
+                            improved = True
+                            break
+                    if improved:
+                        break
+            return best
+    
+        # Terapkan 2-Opt pada hasil Greedy
+        route = two_opt(route)
+    
+        #  Cari TPA terdekat dari titik terakhir 
+        last = route.iloc[-1]
         nearest_tpa_df = tpa_df.copy()
-        nearest_tpa_df["jarak_km"] = np.sqrt(
-            (nearest_tpa_df["latitude"] - last["latitude"])**2 +
-            (nearest_tpa_df["longitude"] - last["longitude"])**2
-        ) * 111
+        nearest_tpa_df["jarak_km"] = nearest_tpa_df.apply(
+            lambda row: haversine(last["latitude"], last["longitude"],
+                                  row["latitude"], row["longitude"]), axis=1)
         nearest_tpa = nearest_tpa_df.sort_values("jarak_km").iloc[0]
         truk_ditangani = tpa_truck_map.get(nearest_tpa["nama"], ["Tidak Diketahui"])[0]
     
-        # Marker rute (start - finish)
-        for i, point in enumerate(route):
+        #  VISUALISASI RUTE 
+        for i, point in enumerate(route.itertuples()):
             color = "green" if i == 0 else "blue"
             icon_type = "truck" if i == 0 else "trash"
             folium.Marker(
-                [point["latitude"], point["longitude"]],
-                popup=f"{i+1}. {point['id_tps']}",
+                [point.latitude, point.longitude],
+                popup=f"{i+1}. {point.id_tps}",
                 icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
             ).add_to(m)
-        
-            # Label titik rute
+    
+            # Label ID TPS
             folium.map.Marker(
-                [point["latitude"], point["longitude"]],
+                [point.latitude, point.longitude],
                 icon=folium.DivIcon(html=f"""
-                    <div style='
-                        font-size:11px;
-                        font-weight:bold;
-                        color:green;
-                        text-shadow:1px 1px 2px #fff;
-                        transform: translate(-50%, 14px);
-                    '>
-                        {point['id_tps']}
+                    <div style='font-size:11px; font-weight:bold; color:green;
+                    text-shadow:1px 1px 2px #fff; transform: translate(-50%, 14px);'>
+                        {point.id_tps}
                     </div>
                 """)
             ).add_to(m)
-        
-            # Garis antar TPS
+    
+            # Garis antar titik
             if i < len(route) - 1:
-                next_point = route[i+1]
+                next_point = route.iloc[i + 1]
                 folium.PolyLine(
-                    [[point["latitude"], point["longitude"]],
+                    [[point.latitude, point.longitude],
                      [next_point["latitude"], next_point["longitude"]]],
                     color="blue", weight=4, opacity=0.8
                 ).add_to(m)
-        
-        # Garis ke TPA terakhir
-        last = route[-1]
+    
+        # Garis dari TPS terakhir ke TPA
         folium.PolyLine(
             [[last["latitude"], last["longitude"]],
              [nearest_tpa["latitude"], nearest_tpa["longitude"]]],
             color="red", weight=5,
             tooltip=f"TPS terakhir ➜ {nearest_tpa['nama']}"
         ).add_to(m)
-        
-        # Marker TPA tujuan + label
+    
+        # Marker TPA Tujuan
         folium.Marker(
             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
             popup=f"{nearest_tpa['nama']}",
             icon=folium.Icon(color="red", icon="flag", prefix="fa")
         ).add_to(m)
-        
+    
+        # Label TPA
         folium.map.Marker(
             [nearest_tpa["latitude"], nearest_tpa["longitude"]],
             icon=folium.DivIcon(html=f"""
-                <div style='
-                    font-size:11px;
-                    font-weight:bold;
-                    color:red;
-                    text-shadow:1px 1px 2px #fff;
-                    transform: translate(-50%, 14px);
-                '>
+                <div style='font-size:11px; font-weight:bold; color:red;
+                text-shadow:1px 1px 2px #fff; transform: translate(-50%, 14px);'>
                     {nearest_tpa['nama']}
                 </div>
             """)
         ).add_to(m)
-
-        # Legenda 
+    
+        # --- LEGEND ---
         legend_html = """
         <div style="
             position: fixed; 
@@ -1016,43 +1037,49 @@ elif mode == "Jadwal & Rute":
         </div>
         """
         m.get_root().html.add_child(folium.Element(legend_html))
-    
         st_folium(m, width=1000, height=550)
-
     
-        #  INSIGHT  
+        #  INSIGHT RUTE 
         segmen_jarak = []
-        for i in range(len(route)-1):
-            dist = haversine(route[i]["latitude"], route[i]["longitude"],
-                             route[i+1]["latitude"], route[i+1]["longitude"])
-            segmen_jarak.append({"Dari": route[i]["id_tps"], "Ke": route[i+1]["id_tps"], "Jarak (km)": round(dist, 2)})
+        for i in range(len(route) - 1):
+            dist = haversine(route.iloc[i]["latitude"], route.iloc[i]["longitude"],
+                             route.iloc[i+1]["latitude"], route.iloc[i+1]["longitude"])
+            segmen_jarak.append({
+                "Dari": route.iloc[i]["id_tps"],
+                "Ke": route.iloc[i+1]["id_tps"],
+                "Jarak (km)": round(dist, 2)
+            })
     
-        dist_to_tpa = haversine(route[-1]["latitude"], route[-1]["longitude"],
+        dist_to_tpa = haversine(route.iloc[-1]["latitude"], route.iloc[-1]["longitude"],
                                 nearest_tpa["latitude"], nearest_tpa["longitude"])
-        segmen_jarak.append({"Dari": route[-1]["id_tps"], "Ke": nearest_tpa["nama"], "Jarak (km)": round(dist_to_tpa, 2)})
+        segmen_jarak.append({
+            "Dari": route.iloc[-1]["id_tps"],
+            "Ke": nearest_tpa["nama"],
+            "Jarak (km)": round(dist_to_tpa, 2)
+        })
     
         total_distance = sum(s["Jarak (km)"] for s in segmen_jarak)
         avg_distance = total_distance / len(segmen_jarak)
-        urutan_tps = " ➜ ".join([str(r["id_tps"]) for r in route])
-
-        # --- Hitung Jarak Sebelum & Sesudah Optimalisasi ---
-        # Jarak sebelum: urutan TPS sesuai pilihan user (belum diurutkan Greedy)
-        original_order = selected_tps_df.sample(frac=1, random_state=42).reset_index(drop=True)
+        urutan_tps = " ➜ ".join(route["id_tps"].astype(str))
+    
+        # Hitung jarak sebelum optimasi (urutan asli user)
+        original_order = selected_tps_df.reset_index(drop=True)
         segmen_awal = []
         for i in range(len(original_order) - 1):
             dist_awal = haversine(original_order.iloc[i]["latitude"], original_order.iloc[i]["longitude"],
                                   original_order.iloc[i+1]["latitude"], original_order.iloc[i+1]["longitude"])
             segmen_awal.append(dist_awal)
-        # tambahkan jarak dari TPS terakhir ke TPA terdekat
         dist_awal_tpa = haversine(original_order.iloc[-1]["latitude"], original_order.iloc[-1]["longitude"],
                                   nearest_tpa["latitude"], nearest_tpa["longitude"])
         segmen_awal.append(dist_awal_tpa)
         total_awal = sum(segmen_awal)
-
-        # Hitung penghematan (%)
+    
+        # Penghematan jarak (%)
         if total_awal > 0:
             penghematan = (1 - (total_distance / total_awal)) * 100
         else:
+            penghematan = 0.0
+        if abs(penghematan) < 0.1:
             penghematan = 0.0
 
     
@@ -1497,6 +1524,7 @@ elif mode == "Prediksi Volume Sampah":
             
             
     
+
 
 
 
